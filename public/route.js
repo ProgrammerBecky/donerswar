@@ -7,7 +7,6 @@ let flowMap, map, astar;
 onmessage = (e) => {
 	
 	if( e.data.type === 'init' ) {
-		console.log( 'init' );
 		map = new Map({ data: e.data.mapData , canvas: e.data.canvas });
 		astar = new AStar({ map: map });
 		flowMap = new FlowMap({ width: e.data.mapData.width , height: e.data.mapData.height, map: map });
@@ -53,5 +52,5 @@ function render(time) {
 requestAnimationFrame(render);
 */
 
-console.log( 'worker' );
+console.log( 'Routefinding Worker Started' );
 

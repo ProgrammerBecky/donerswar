@@ -1,17 +1,65 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+		<link rel="manifest" href="favicon/site.webmanifest">
+		<link rel="mask-icon" href="favicon/safari-pinned-tab.svg" color="#5bbad5">
+		<link rel="shortcut icon" href="favicon/favicon.ico">
+		<meta name="msapplication-TileColor" content="#da532c">
+		<meta name="msapplication-config" content="favicon/browserconfig.xml">
+		<meta name="theme-color" content="#ffffff">	
 		<meta charset="UTF-8">
 		<style>
 			html, body{
 				padding: 0;
 				margin: 0;
+				overflow: hidden;
+			}
+			#Content,#ThreeD{
+				width: 100vw;
+				height: 100vh;
 			}
 		</style>
 	</head>
 	<body>
-		<div id='Content'></div>
+		<div id='Content'>
+			<canvas id='ThreeD'></canvas>
+		</div>
 		<script>
+			/* Initialise 3D Canvas */
+			const canvas = document.getElementById('ThreeD');
+			
+			let offscreen = canvas.transferControlToOffscreen();
+			
+			const threeD = new Worker(
+				'3d.js',
+				{
+					type: 'module'
+				},
+			);		
+			threeD.addEventListener( 'message' , e => {
+				console.log( e );
+			});
+			threeD.postMessage({
+				type: 'init',
+				canvas: offscreen,
+				width: canvas.clientWidth,
+				height: canvas.clientHeight,
+				pixelRatio: window.devicePixelRatio,
+			} , [ offscreen ]);
+			
+			const windowResize = () => {
+				threeD.postMessage({
+					type: 'resizeCanvas',
+					width: canvas.clientWidth,
+					height: canvas.clientHeight
+				});
+			}
+			window.addEventListener( 'resize' , windowResize );
+			
+			/* Routefinding Sample */
 			let flow = false,dots = [];
 			
 			const SPEED = 0.5;
