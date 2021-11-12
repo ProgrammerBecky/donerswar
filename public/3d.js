@@ -61,10 +61,12 @@ onmessage = (e) => {
 		/* Launch render loop */
 		animate();
 	}
-	else if( e.data.type === 'resize' ) {
+	else if( e.data.type === 'resizeCanvas' ) {
+		console.log( 'resizeCanvas' , e.data );
 		/* Resize browser window */
 		renderer.setSize( e.data.width , e.data.height );
-		camera.fov = e.data.width / e.data.height;
+		camera.aspect = e.data.width / e.data.height;
+		camera.updateProjectionMatrix();
 	}
 }
 
