@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<style>
+			html, body{
+				padding: 0;
+				margin: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div id='Content'></div>
+		<script>
+			let flow = false,dots = [];
+			
+			const SPEED = 0.5;
+			
+			const newDot = () => {
+				const i = dots.length;
+				dots[i] = {};
+				dots[i].x = Math.random() * 128;
+				dots[i].z = Math.random() * 128;
+				dots[i].div = document.createElement('div');
+				dots[i].div.style.position = 'absolute';
+				dots[i].div.style.borderRadius='50%';
+				dots[i].div.style.height = '5px';
+				dots[i].div.style.width = '5px';
+				dots[i].div.style.transform = 'translateX(-50%) translateY(-50%)';
+				dots[i].div.style.backgroundColor = 'gold';
+				document.body.appendChild( dots[i].div );
+			}
+			
+			const animate = (time) => {
+				requestAnimationFrame( animate );
+				
+				if( flow ) {
+					if( Math.random() < 0.5 ) newDot();
+					let removeList = [];
+
+					for( let i=0 ; i<dots.length ; i++ ) {
+					
+						let x = Math.ceil( dots[i].x );
+						let z = Math.ceil( dots[i].z );
+						if( flow[z] && flow[z][x] ) {
+							if( flow[z][x] === 'DESTINATION' ) {
+								removeList.push(i);
+							}
+							let dx = flow[z][x].x;
+							let dz = flow[z][x].z;
+							let df = Math.atan2( dx-x , dz-z );
+							
+							dots[i].x = dots[i].x + Math.sin( df ) * SPEED;
+							dots[i].z = dots[i].z + Math.cos( df ) * SPEED;
+							
+							dots[i].div.style.left = dots[i].x + 'px';
+							dots[i].div.style.top = dots[i].z + 'px';
+						}
+					}
+					
+					while( removeList.length > 0 ) {
+						const i = removeList.shift();
+						document.body.removeChild( dots[i].div );
+						dots.splice(i,1);
+					}
+				}
+			}
+			animate();
+		
+		
+			const route = new Worker(
+				'route.js',
+				{
+					type: 'module'
+				},
+			);
+			
+			route.addEventListener( 'message' , e => {
+				flow = e.data.flow;
+			});
+			
+			const maze = new Image();
+			maze.onload = (obj) => {
+	
+				const canvas = document.createElement( 'canvas' );
+				canvas.width = obj.srcElement.width;
+				canvas.height = obj.srcElement.height;
+				document.getElementById('Content').appendChild( canvas );
+				const offscreen = canvas.transferControlToOffscreen();
+				
+				const dataCanvas = document.createElement( 'canvas' );
+				dataCanvas.width = obj.srcElement.width;
+				dataCanvas.height = obj.srcElement.height;
+				const context = dataCanvas.getContext('2d');
+				context.drawImage( obj.srcElement, 0,0 );
+				const data = context.getImageData( 0,0, dataCanvas.width,dataCanvas.height );
+				
+				delete dataCanvas;
+				delete context;
+				
+				route.postMessage({
+					type:	'init',
+					canvas: offscreen,
+					mapData: data,
+				} , [offscreen]);
+
+				setTimeout( () => {
+					route.postMessage({
+						type:	'route',
+						sx: 0, sz: 0,
+						dx: 256, dz: 128,
+						debug: false,
+						quick: true,
+					});
+				} , 1 );
+			}
+			
+			maze.src = 'maze4.png';
+			
+			
+			let lastX = 0;
+			let lastZ = 0;
+			const click = (e) => {
+				route.postMessage({
+					type:	'route',
+					sx: lastX, sz: lastZ,
+					dx: e.clientX, dz: e.clientY,
+					debug: false,
+					quick: true,
+				});			
+				lastX = e.clientX;
+				lastZ = e.clientY;
+			}
+			window.addEventListener( 'mousedown' , click );
+			
+		</script>
+	</body>
+</html>
