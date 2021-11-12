@@ -1,8 +1,11 @@
 import * as THREE from './three.js/build/three.module.js';
+import { G } from './Util/G.js';
+import { FBXLoader } from './three.js/examples/jsm/loaders/FBXLoader.js';
+import { World } from './World/World.js';
 
 //* ThreeJS Worker Polyfill */
 THREE.ImageLoader.prototype.load = ( url, onLoad, onProgress, onError ) => {
-	
+
 	if( this.fileLoader === undefined ) {
 		this.fileLoader = new THREE.FileLoader( this.manager );
 		this.fileLoader.setResponseType( 'blob' );
@@ -18,13 +21,12 @@ THREE.ImageLoader.prototype.load = ( url, onLoad, onProgress, onError ) => {
 	
 }
 
-let renderer, scene, camera, test;
+let world;
 
 /* Render loop */
 const animate = ( time ) => {
 	requestAnimationFrame( animate );
-	renderer.render( scene , camera );
-	test.rotation.set( test.rotation.x +0.001 , test.rotation.y + 0.002 , test.rotation.z -0.001 );
+	G.renderer.render( G.scene , G.camera );
 }
 
 /* Messaging from Main Thread */
@@ -38,39 +40,29 @@ onmessage = (e) => {
 		canvas.style = { width: 0 , height: 0 };
 		
 		/* Init 3D Basics */
-		renderer = new THREE.WebGLRenderer({
+		G.renderer = new THREE.WebGLRenderer({
 			canvas,
 		});
-		console.log( 'test' );
-		renderer.setSize( e.data.width , e.data.height );
-		renderer.setPixelRatio( e.data.pixelRatio );
-		scene = new THREE.Scene();
-		camera = new THREE.PerspectiveCamera( 45 , e.data.width / e.data.height , 1 , 1000 );
-		scene.add( camera );
 		
-		/* Test Scene */
-		const ambient = new THREE.AmbientLight(0x888888);
-		scene.add( ambient );
-		const geo = new THREE.BoxBufferGeometry(1,1,1);
-		const mat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-		test = new THREE.Mesh( geo , mat );
-		test.position.set( 0,0,5 );
-		scene.add( test );
-		camera.lookAt( test.position.x , test.position.y , test.position.z );
+		G.renderer.setSize( e.data.width , e.data.height );
+		G.renderer.setPixelRatio( e.data.pixelRatio );
+		G.scene = new THREE.Scene();
+		G.camera = new THREE.PerspectiveCamera( 45 , e.data.width / e.data.height , 1 , 1000 );
+		G.scene.add( G.camera );
+		
+		G.fbx = new FBXLoader();
+		
+		world = new World();
 		
 		/* Launch render loop */
 		animate();
 	}
 	else if( e.data.type === 'resizeCanvas' ) {
-		console.log( 'resizeCanvas' , e.data );
 		/* Resize browser window */
-		renderer.setSize( e.data.width , e.data.height );
-		camera.aspect = e.data.width / e.data.height;
-		camera.updateProjectionMatrix();
+		G.renderer.setSize( e.data.width , e.data.height );
+		G.camera.aspect = e.data.width / e.data.height;
+		G.camera.updateProjectionMatrix();
 	}
 }
-
-
-
 
 console.log( 'ThreeD Worker Started' );
