@@ -26,7 +26,6 @@ export class World {
 				}
 			});
 
-			G.camera.position.set( 0 , 10 , -10 );
 			G.scene.add( model );
 			
 		});

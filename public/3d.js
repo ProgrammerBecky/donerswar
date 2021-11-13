@@ -1,6 +1,6 @@
-import * as THREE from './three.js/build/three.module.js';
+import * as THREE from './build/three.module.js';
 import { G } from './Util/G.js';
-import { FBXLoader } from './three.js/examples/jsm/loaders/FBXLoader.js';
+import { FBXLoader } from './jsm/loaders/FBXLoader.js';
 import { World } from './World/World.js';
 
 G.MinMagFilter = THREE.NearestFilter;
@@ -31,7 +31,7 @@ let world;
 const animate = ( time ) => {
 	requestAnimationFrame( animate );
 	G.renderer.render( G.scene , G.camera );
-	G.camera.rotation.set( 0 , G.camera.rotation.y += 0.0001 , 0 );
+	G.camera.rotation.set( 0 , G.camera.rotation.y += 0.01 , 0 );
 }
 
 /* Messaging from Main Thread */
@@ -53,13 +53,16 @@ onmessage = (e) => {
 		G.renderer.setPixelRatio( e.data.pixelRatio );
 		G.scene = new THREE.Scene();
 		G.camera = new THREE.PerspectiveCamera( 45 , e.data.width / e.data.height , 1 , 500000 );
+		
+		G.ambient = new THREE.AmbientLight(0x888888);
+		G.scene.add( G.ambient );
+		
+		G.camera.lookAt( 0,0,0 );
 		G.scene.add( G.camera );
 		
 		G.fbx = new FBXLoader();
 		
 		world = new World();
-		
-		G.camera.position.set( 0,50,0 );
 		
 		/* Launch render loop */
 		animate();
