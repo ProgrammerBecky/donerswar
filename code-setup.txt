@@ -1,2 +1,7 @@
 git submodule init
 git submodule update
+cd public/three.js
+git checkout b7785e1cdf43cd5b25f1354086ae16873fe3a87b
+
+//TODO: Update polyfill in webworker image loader for latest threeJs
+//Already did canvas polyfill for latest.
