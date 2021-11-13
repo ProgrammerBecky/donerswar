@@ -57,6 +57,7 @@ onmessage = (e) => {
 		G.ambient = new THREE.AmbientLight(0x888888);
 		G.scene.add( G.ambient );
 		
+		G.camera.position.set(0,-20,0);
 		G.camera.lookAt( 0,0,0 );
 		G.scene.add( G.camera );
 		
