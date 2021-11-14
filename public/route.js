@@ -8,8 +8,9 @@ onmessage = (e) => {
 	
 	if( e.data.type === 'init' ) {
 		map = new Map({ data: e.data.mapData , canvas: e.data.canvas });
-		astar = new AStar({ map: map });
+		//astar = new AStar({ map: map });
 		flowMap = new FlowMap({ width: e.data.mapData.width , height: e.data.mapData.height, map: map });
+
 	}
 	if( e.data.type === 'route' ) {
 
@@ -25,6 +26,7 @@ onmessage = (e) => {
 			type: 'route',
 			flow: flow,
 		});
+	
 
 /*
 		let route = astar.path({

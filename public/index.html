@@ -83,6 +83,7 @@
 			window.addEventListener( 'resize' , windowResize );
 		
 			/* Setup Navigation */
+			let flow;
 			const route = new Worker(
 				'route.js',
 				{
@@ -94,16 +95,30 @@
 			});
 			const navBuilder = new NavBuilder({
 				threeD: threeD,
-				route: null,
+				route: route,
 			});
 
 
 
+let lastX = 0;
+let lastZ = 0;
+const click = (e) => {
+	route.postMessage({
+		type:	'route',
+		sx: lastX, sz: lastZ,
+		dx: e.clientX, dz: e.clientY,
+		debug: false,
+		quick: true,
+	});			
+	lastX = e.clientX;
+	lastZ = e.clientY;
+}
+window.addEventListener( 'mousedown' , click );
+
 		
 		
 			/* Routefinding Sample */
-/*			
-			let flow = false,dots = [];
+			let dots = [];
 			
 			const SPEED = 0.5;
 			
@@ -119,6 +134,7 @@
 				dots[i].div.style.width = '5px';
 				dots[i].div.style.transform = 'translateX(-50%) translateY(-50%)';
 				dots[i].div.style.backgroundColor = 'gold';
+				dots[i].div.style.zIndex = 2;
 				document.body.appendChild( dots[i].div );
 			}
 			

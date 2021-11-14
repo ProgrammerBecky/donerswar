@@ -7,11 +7,17 @@ export class Map {
 		canvas,
 	}) {
 		
-		this.context = canvas.getContext('2d');
-		this.context.putImageData( data , 0,0 );
+		if( canvas ) {
+			this.context = canvas.getContext('2d');
+			this.context.putImageData( data , 0,0 );
 
-		this.width = canvas.width;
-		this.height = canvas.height;
+			this.width = canvas.width;
+			this.height = canvas.height;
+		}
+		else {
+			this.width = data.width;
+			this.height = data.height;
+		}
 
 		this.pixelData = data;
 		this.buildNodeMap();

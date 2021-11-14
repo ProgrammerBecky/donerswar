@@ -8,6 +8,12 @@ export class World {
 		this.loaded = 0;
 		let self = this;
 		this.map = new THREE.Group();
+		this.colliders = [];
+		
+		this.wireframe = new THREE.MeshBasicMaterial({
+			color: 0x00ff00,
+			wireframe: true,
+		});
 		
 		G.fbx.load( '/high/city/Foliage.fbx' , model => {
 			
@@ -22,8 +28,7 @@ export class World {
 					child.rotation.y = Math.random() * Math.PI * 2;
 					child.scale.set( 0.4+Math.random()*0.2 , 0.4+Math.random()*0.2 , 0.4+Math.random()*0.2 );
 					
-					const box = new THREE.BoxHelper( child , 0xff0000 );
-					G.scene.add( box );
+					self.addToColliders( child );
 					
 					if( child.material && child.material ) {
 						if( Array.isArray( child.material ) ) {
@@ -52,8 +57,7 @@ export class World {
 					child.castShadow = true;
 					child.receiveShadow = true;
 					
-					const box = new THREE.BoxHelper( child , 0x00ff00 );
-					G.scene.add( box );
+					self.addToColliders( child );
 					
 					if( child.material && child.material.map ) {
 						child.material.map.magFilter = G.MinMagFilter;
@@ -68,6 +72,31 @@ export class World {
 			self.loadingComplete();
 			
 		});
+		
+	}
+	addToColliders( child ) {
+
+		let vector = new THREE.Vector3();
+		let quaternion = new THREE.Quaternion();
+
+		const box = child.geometry.boundingBox;
+		
+		if( box.max.x-box.min.x > 1000 || box.max.z-box.min.z > 1000 ) {
+			this.colliders.push( child );		
+		}
+		else {
+			let geo = new THREE.BoxBufferGeometry( box.max.x-box.min.x , box.max.y-box.min.y , box.max.z-box.min.z );
+
+			child.getWorldPosition( vector );
+			child.getWorldQuaternion( quaternion );
+
+			let collider = new THREE.Mesh( geo , this.wireframe );
+			collider.position.set( vector.x , (box.max.y-box.min.y)/2 , vector.z );
+			collider.applyQuaternion( quaternion );
+			G.scene.add( collider );
+
+			this.colliders.push( collider );		
+		}
 		
 	}
 	setBuildCanvas({ canvas }) {
@@ -87,23 +116,14 @@ export class World {
 		 * but like, it takes yonks....
 		 * so we save out the image and just load it in production
 		 */
-		 //return;
+		 return;
 
 		//Build Navigation Map	
 		let worldSizeX = 85000;
 		let worldSizeZ = 85000;
 		let mapX = this.canvas.width;
 		let mapZ = this.canvas.height;
-		
-		let mat = new THREE.MeshBasicMaterial({
-			map: new THREE.CanvasTexture({ canvas: this.canvas })
-		});
-		let geo = new THREE.PlaneGeometry( worldSizeX , worldSizeZ , 1 , 1 );
-		let obj = new THREE.Mesh( geo , mat );
-		obj.rotation.set( -Math.PI/2 , 0 , 0 );
-		obj.position.set( 0 , 145 , 0 );
-		G.scene.add( obj );
-		
+			
 		this.pixelData = this.context.getImageData(0,0,mapX,mapZ);
 		
 		let rayCaster = new THREE.Raycaster();
@@ -120,14 +140,14 @@ export class World {
 			
 				//height
 				rayCaster.near = 0;
-				rayCaster.far = 6000;
-				source.set( wx , 5000 , wz );
+				rayCaster.far = 1500;
+				source.set( wx , 1000 , wz );
 				dir.set( 0 , -1 , 0 );
 				rayCaster.set( source , dir );
-				const intersects = rayCaster.intersectObject( this.map , true );
+				const intersects = rayCaster.intersectObjects( this.colliders , true );
 				if( intersects.length > 0 ) {
 					let ht = intersects[0].point.y;
-					if( ht > 1040 ) {
+					if( ht > 20 ) {
 						navigable = 0;
 						height = 255;
 					}
@@ -135,12 +155,12 @@ export class World {
 				
 				//Forward
 				rayCaster.far = Math.max( worldSizeX , worldSizeZ ) / Math.max( mapX , mapZ );
-				source.set( wx , 90 , wz );
+				source.set( wx , 50 , wz );
 				let directions = [{x:0,y:0,z:1},{x:0,y:0,z:-1},{x:1,y:0,z:0},{x:-1,y:0,z:0}];
 				for( let i=0 ; i<directions.length ; i++ ) {
 					dir.set( directions[i].x , directions[i].y , directions[i].z );
 					rayCaster.set( source , dir );
-					const intersects = rayCaster.intersectObject( this.map , true );
+					const intersects = rayCaster.intersectObjects( this.colliders , true );
 					if( intersects.length > 0 ) {
 						if( intersects[0].distance < rayCaster.far ) {
 							navigable = 0;
@@ -156,13 +176,12 @@ export class World {
 				this.pixelData.data[index+3] = 255;
 				
 			}
-			console.log( (x*100/mapX).toFixed(2) + '%' , x , parseInt(wx) );
+			console.log( (x*100/mapX).toFixed(2) + '%' );
 		}
 		
 		console.log( this.pixelData );
 		this.context.putImageData(this.pixelData, 0,0);
 		
-		mat.map.needsUpdate = true;
 	}
 
 }

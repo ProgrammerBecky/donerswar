@@ -77,10 +77,7 @@ onmessage = (e) => {
 		G.camera.updateProjectionMatrix();
 	}
 	else if( e.data.type === 'panView' ) {
-		const multiplyer =
-			( G.camera.position.y < 100 ) ? 0.1
-			: ( G.camera.position.y < 1000 ) ? 1
-			: 10;
+		const multiplyer = G.camera.position.y / 1000;
 
 		G.camera.position.set(
 			G.camera.position.x - e.data.mouse.x * multiplyer,
@@ -90,10 +87,7 @@ onmessage = (e) => {
 		console.log( G.camera.position.x , G.camera.position.z );
 	}
 	else if( e.data.type === 'zoomView' ) {
-		const multiplyer =
-			( G.camera.position.y < 100 ) ? 0.1
-			: ( G.camera.position.y < 1000 ) ? 1
-			: 10;
+		const multiplyer = 1+ ( G.camera.position.y / 10000 );
 			
 		G.camera.position.set(
 			G.camera.position.x,
