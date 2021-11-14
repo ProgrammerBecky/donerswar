@@ -27,8 +27,10 @@
 		<div id='Content'>
 			<canvas id='ThreeD'></canvas>
 		</div>
-		<script>
-		
+		<script type='module'>
+			import { Control } from '/Main/control.js';
+			const control = new Control();
+
 			/* Initialise 3D Canvas */
 			const canvas = document.getElementById('ThreeD');
 			
@@ -51,6 +53,24 @@
 				pixelRatio: window.devicePixelRatio,
 			} , [ offscreen ]);
 			
+			/* Mouse Controls */
+			const panView = (e) => {
+				threeD.postMessage({
+					type: 'panView',
+					mouse: e.detail,
+				});
+			}
+			window.addEventListener( 'panView' , panView );
+			
+			const zoomView = (e) => {
+				threeD.postMessage({
+					type: 'zoomView',
+					mouse: e.detail,
+				});
+			}
+			window.addEventListener( 'zoomView' , zoomView );
+			
+			/* Browser Resizing */
 			const windowResize = () => {
 				threeD.postMessage({
 					type: 'resizeCanvas',
@@ -59,7 +79,7 @@
 				});
 			}
 			window.addEventListener( 'resize' , windowResize );
-			
+		
 			/* Routefinding Sample */
 			let flow = false,dots = [];
 			
@@ -143,9 +163,6 @@
 				const context = dataCanvas.getContext('2d');
 				context.drawImage( obj.srcElement, 0,0 );
 				const data = context.getImageData( 0,0, dataCanvas.width,dataCanvas.height );
-				
-				delete dataCanvas;
-				delete context;
 				
 				route.postMessage({
 					type:	'init',

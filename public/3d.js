@@ -1,7 +1,7 @@
 import * as THREE from './build/three.module.js';
-import { G } from './Util/G.js';
+import { G } from './3D/G.js';
 import { FBXLoader } from './jsm/loaders/FBXLoader.js';
-import { World } from './World/World.js';
+import { World } from './3D/World.js';
 
 G.MinMagFilter = THREE.NearestFilter;
 
@@ -31,7 +31,6 @@ let world;
 const animate = ( time ) => {
 	requestAnimationFrame( animate );
 	G.renderer.render( G.scene , G.camera );
-	G.camera.rotation.set( 0 , G.camera.rotation.y += 0.01 , 0 );
 }
 
 /* Messaging from Main Thread */
@@ -46,19 +45,22 @@ onmessage = (e) => {
 		
 		/* Init 3D Basics */
 		G.renderer = new THREE.WebGLRenderer({
-			canvas,
+			canvas: canvas,
+			logarithmicDepthBuffer: true,
+			antialias: true,			
 		});
 		
 		G.renderer.setSize( e.data.width , e.data.height );
 		G.renderer.setPixelRatio( e.data.pixelRatio );
 		G.scene = new THREE.Scene();
 		G.camera = new THREE.PerspectiveCamera( 45 , e.data.width / e.data.height , 1 , 500000 );
-		
+				
 		G.ambient = new THREE.AmbientLight(0x888888);
 		G.scene.add( G.ambient );
 		
-		G.camera.position.set(0,-20,0);
-		G.camera.lookAt( 0,0,0 );
+		G.camera.position.set(0,100,0);
+		G.camera.rotation.set( -Math.PI/2,0,0);
+		G.camera.fov = 90;
 		G.scene.add( G.camera );
 		
 		G.fbx = new FBXLoader();
@@ -73,6 +75,20 @@ onmessage = (e) => {
 		G.renderer.setSize( e.data.width , e.data.height );
 		G.camera.aspect = e.data.width / e.data.height;
 		G.camera.updateProjectionMatrix();
+	}
+	else if( e.data.type === 'panView' ) {
+		G.camera.position.set(
+			G.camera.position.x - e.data.mouse.x * 10,
+			G.camera.position.y,
+			G.camera.position.z - e.data.mouse.y * 10,
+		);
+	}
+	else if( e.data.type === 'zoomView' ) {
+		G.camera.position.set(
+			G.camera.position.x,
+			e.data.mouse.z * 10,
+			G.camera.position.z,
+		);
 	}
 }
 
