@@ -33,6 +33,7 @@
 			import { Zombie } from './Main/Zombie.js';
 			
 			const control = new Control();
+			let zombie;
 
 			/* Initialise 3D Canvas */
 			const canvas = document.getElementById('ThreeD');
@@ -46,7 +47,11 @@
 				},
 			);		
 			threeD.addEventListener( 'message' , e => {
-				console.log( e );
+				if( e.data.type === 'initialised' ) {
+					/* Zombie Spawner */
+					zombie = new Zombie({ threeD , route });
+					animate();
+				}
 			});
 			threeD.postMessage({
 				type: 'init',
@@ -98,11 +103,20 @@
 				threeD: threeD,
 				route: route,
 			});
-			
-			/* Zombie Spawner */
-			const zombie = new Zombie({ threeD , route });
-
 		
+			/* Animation Loop */
+			let lastTime = 0;
+			const animate = ( time ) => {
+				
+				const delta = (time-lastTime)/1000;
+				lastTime = time;
+				
+				if( ! isNaN( delta ) ) {
+					if( zombie ) zombie.update( delta );
+				}
+				
+				requestAnimationFrame( animate );
+			}			
 		
 			/* Routefinding Sample */
 /*			

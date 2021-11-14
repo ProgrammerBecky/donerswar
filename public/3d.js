@@ -28,12 +28,22 @@ THREE.ImageLoader.prototype.load = function ( url, onLoad, onProgress, onError )
 }
 
 let lastTime = 0;
+G.frustum = new THREE.Frustum();
 
 /* Render loop */
 const animate = ( time ) => {
 	
 	const delta = (time-lastTime)/1000;
 	lastTime = time;
+	
+	G.camera.updateMatrix();
+	G.camera.updateMatrixWorld();
+	G.frustum.setFromMatrix(
+		new THREE.Matrix4().multiplyMatrices(
+			G.camera.projectionMatrix,
+			G.camera.matrixWorldInverse
+		)
+	);
 	
 	if( ! isNaN( delta ) ) {
 		G.renderer.render( G.scene , G.camera );
@@ -74,7 +84,7 @@ onmessage = (e) => {
 		
 		G.camera.position.set(42500,5000,42500);
 		G.camera.rotation.set( -Math.PI/2,0,0);
-		G.camera.fov = 90;
+		G.camera.fov = 120;
 		G.scene.add( G.camera );
 		
 		G.fbx = new FBXLoader();
@@ -85,6 +95,10 @@ onmessage = (e) => {
 		
 		/* Launch render loop */
 		animate();
+		
+		self.postMessage({
+			type: 'initialised'
+		});
 	}
 	else if( e.data.type === 'resizeCanvas' ) {
 		/* Resize browser window */
@@ -93,7 +107,7 @@ onmessage = (e) => {
 		G.camera.updateProjectionMatrix();
 	}
 	else if( e.data.type === 'panView' ) {
-		const multiplyer = G.camera.position.y / 1000;
+		const multiplyer = G.camera.position.y / 300;
 
 		G.camera.position.set(
 			G.camera.position.x - e.data.mouse.x * multiplyer,
@@ -106,7 +120,7 @@ onmessage = (e) => {
 			
 		G.camera.position.set(
 			G.camera.position.x,
-			e.data.mouse.z * multiplyer,
+			Math.max( 200 , e.data.mouse.z * multiplyer ),
 			G.camera.position.z,
 		);
 	}
@@ -115,6 +129,9 @@ onmessage = (e) => {
 	}
 	else if( e.data.type === 'spawn-zombie' ) {
 		G.zombies.spawn({ zombie: e.data });
+	}
+	else if( e.data.type === 'update-zombie' ) {
+		G.zombies.updateZombie({ updated: e.data });
 	}
 }
 
