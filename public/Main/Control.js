@@ -23,7 +23,7 @@ export class Control {
 		window.addEventListener( 'mousedown' , this.mousedown );
 		window.addEventListener( 'mouseup' , this.mouseup );
 		window.addEventListener( 'mousewheel' , this.mousewheel );
-		window.addEventListener( 'contextmenu', this.contextMenu );
+		//window.addEventListener( 'contextmenu', this.contextMenu );
 	}
 	destructor() {
 		window.removeEventListener( 'mousemove' , this.mousemove );

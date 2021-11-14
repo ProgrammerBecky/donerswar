@@ -29,6 +29,8 @@
 		</div>
 		<script type='module'>
 			import { Control } from '/Main/control.js';
+			import { NavBuilder } from '/Main/NavBuilder.js';
+			
 			const control = new Control();
 
 			/* Initialise 3D Canvas */
@@ -80,7 +82,27 @@
 			}
 			window.addEventListener( 'resize' , windowResize );
 		
+			/* Setup Navigation */
+			const route = new Worker(
+				'route.js',
+				{
+					type: 'module'
+				},
+			);		
+			route.addEventListener( 'message' , e => {
+				flow = e.data.flow;
+			});
+			const navBuilder = new NavBuilder({
+				threeD: threeD,
+				route: null,
+			});
+
+
+
+		
+		
 			/* Routefinding Sample */
+/*			
 			let flow = false,dots = [];
 			
 			const SPEED = 0.5;
@@ -137,21 +159,19 @@
 			animate();
 		
 		
-			const route = new Worker(
-				'route.js',
-				{
-					type: 'module'
-				},
-			);
+			/*
+
 			
-			route.addEventListener( 'message' , e => {
-				flow = e.data.flow;
-			});
+
 			
 			const maze = new Image();
 			maze.onload = (obj) => {
 	
 				const canvas = document.createElement( 'canvas' );
+				canvas.style.position = 'absolute';
+				canvas.style.top = 0;
+				canvas.style.left = 0;
+				canvas.style.opacity = 0.5;
 				canvas.width = obj.srcElement.width;
 				canvas.height = obj.srcElement.height;
 				document.getElementById('Content').appendChild( canvas );
@@ -198,6 +218,7 @@
 				lastZ = e.clientY;
 			}
 			window.addEventListener( 'mousedown' , click );
+			*/
 			
 		</script>
 	</body>

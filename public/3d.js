@@ -58,7 +58,7 @@ onmessage = (e) => {
 		G.ambient = new THREE.AmbientLight(0x888888);
 		G.scene.add( G.ambient );
 		
-		G.camera.position.set(0,100,0);
+		G.camera.position.set(42500,5000,42500);
 		G.camera.rotation.set( -Math.PI/2,0,0);
 		G.camera.fov = 90;
 		G.scene.add( G.camera );
@@ -77,18 +77,33 @@ onmessage = (e) => {
 		G.camera.updateProjectionMatrix();
 	}
 	else if( e.data.type === 'panView' ) {
+		const multiplyer =
+			( G.camera.position.y < 100 ) ? 0.1
+			: ( G.camera.position.y < 1000 ) ? 1
+			: 10;
+
 		G.camera.position.set(
-			G.camera.position.x - e.data.mouse.x * 10,
+			G.camera.position.x - e.data.mouse.x * multiplyer,
 			G.camera.position.y,
-			G.camera.position.z - e.data.mouse.y * 10,
+			G.camera.position.z - e.data.mouse.y * multiplyer,
 		);
+		console.log( G.camera.position.x , G.camera.position.z );
 	}
 	else if( e.data.type === 'zoomView' ) {
+		const multiplyer =
+			( G.camera.position.y < 100 ) ? 0.1
+			: ( G.camera.position.y < 1000 ) ? 1
+			: 10;
+			
 		G.camera.position.set(
 			G.camera.position.x,
-			e.data.mouse.z * 10,
+			e.data.mouse.z * multiplyer,
 			G.camera.position.z,
 		);
+		console.log( G.camera.position.y );
+	}
+	else if( e.data.type === 'buildRoutes' ) {
+		world.setBuildCanvas({ canvas: e.data.canvas });
 	}
 }
 
