@@ -12,7 +12,7 @@ export class World {
 		
 		this.wireframe = new THREE.MeshBasicMaterial({
 			color: 0x00ff00,
-			wireframe: true,
+			visible: false,
 		});
 		
 		G.fbx.load( '/high/city/Foliage.fbx' , model => {
@@ -107,8 +107,9 @@ export class World {
 	}
 	loadingComplete() {
 		this.loaded++;
-		if( this.loaded < 3 ) return;
+		if( this.loaded < 2 ) return; /* Raise this by 1 when NavBuilder sends a canvas for nav map creation */
 		G.scene.add( this.map );
+		console.log( 'World Loaded' );
 
 		/* In production we return here
 		 * To generate a new nav map image this code

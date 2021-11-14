@@ -22,7 +22,7 @@ export class NavBuilder {
 			const context = canvas.getContext( '2d' );
 			context.drawImage( map,0,0 );
 			const data = context.getImageData( 0,0, canvas.width,canvas.height );
-			document.getElementById('Content').appendChild( canvas );
+			//document.getElementById('Content').appendChild( canvas );
 
 			/* Debug */
 			/*

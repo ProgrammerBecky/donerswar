@@ -30,6 +30,7 @@
 		<script type='module'>
 			import { Control } from '/Main/control.js';
 			import { NavBuilder } from '/Main/NavBuilder.js';
+			import { Zombie } from './Main/Zombie.js';
 			
 			const control = new Control();
 
@@ -97,27 +98,14 @@
 				threeD: threeD,
 				route: route,
 			});
-
-
-
-let lastX = 0;
-let lastZ = 0;
-const click = (e) => {
-	route.postMessage({
-		type:	'route',
-		sx: lastX, sz: lastZ,
-		dx: e.clientX, dz: e.clientY,
-		debug: false,
-		quick: true,
-	});			
-	lastX = e.clientX;
-	lastZ = e.clientY;
-}
-window.addEventListener( 'mousedown' , click );
+			
+			/* Zombie Spawner */
+			const zombie = new Zombie({ threeD , route });
 
 		
 		
 			/* Routefinding Sample */
+/*			
 			let dots = [];
 			
 			const SPEED = 0.5;
@@ -173,7 +161,7 @@ window.addEventListener( 'mousedown' , click );
 				}
 			}
 			animate();
-		
+*/
 		
 			/*
 

@@ -1,7 +1,9 @@
 import * as THREE from './build/three.module.js';
 import { G } from './3D/G.js';
 import { FBXLoader } from './jsm/loaders/FBXLoader.js';
+import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 import { World } from './3D/World.js';
+import { Zombies } from './3D/Zombies.js';
 
 G.MinMagFilter = THREE.NearestFilter;
 
@@ -25,12 +27,20 @@ THREE.ImageLoader.prototype.load = function ( url, onLoad, onProgress, onError )
 	
 }
 
-let world;
+let lastTime = 0;
 
 /* Render loop */
 const animate = ( time ) => {
+	
+	const delta = (time-lastTime)/1000;
+	lastTime = time;
+	
+	if( ! isNaN( delta ) ) {
+		G.renderer.render( G.scene , G.camera );
+		G.zombies.update( delta );
+	}
+	
 	requestAnimationFrame( animate );
-	G.renderer.render( G.scene , G.camera );
 }
 
 /* Messaging from Main Thread */
@@ -57,6 +67,10 @@ onmessage = (e) => {
 				
 		G.ambient = new THREE.AmbientLight(0x888888);
 		G.scene.add( G.ambient );
+
+		G.directional = new THREE.DirectionalLight(0xffffff);
+		G.directional.position.set(-1,0,-1);
+		G.scene.add( G.directional );
 		
 		G.camera.position.set(42500,5000,42500);
 		G.camera.rotation.set( -Math.PI/2,0,0);
@@ -64,8 +78,10 @@ onmessage = (e) => {
 		G.scene.add( G.camera );
 		
 		G.fbx = new FBXLoader();
+		G.gltf = new GLTFLoader();
 		
-		world = new World();
+		G.world = new World();
+		G.zombies = new Zombies();
 		
 		/* Launch render loop */
 		animate();
@@ -84,7 +100,6 @@ onmessage = (e) => {
 			G.camera.position.y,
 			G.camera.position.z - e.data.mouse.y * multiplyer,
 		);
-		console.log( G.camera.position.x , G.camera.position.z );
 	}
 	else if( e.data.type === 'zoomView' ) {
 		const multiplyer = 1+ ( G.camera.position.y / 10000 );
@@ -94,10 +109,12 @@ onmessage = (e) => {
 			e.data.mouse.z * multiplyer,
 			G.camera.position.z,
 		);
-		console.log( G.camera.position.y );
 	}
 	else if( e.data.type === 'buildRoutes' ) {
 		world.setBuildCanvas({ canvas: e.data.canvas });
+	}
+	else if( e.data.type === 'spawn-zombie' ) {
+		G.zombies.spawn({ zombie: e.data });
 	}
 }
 
