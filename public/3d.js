@@ -82,8 +82,8 @@ onmessage = (e) => {
 		G.scene.add( G.directional );
 		
 		G.camera.position.set(42500,5000,42500);
-		G.camera.rotation.set( -Math.PI/2,0,0);
-		G.camera.fov = 120;
+		//G.camera.rotation.set( -Math.PI/2,0,0);
+		G.camera.rotation.set(0,0,0);
 		G.scene.add( G.camera );
 		
 		G.MinMagFilter = THREE.NearestFilter;		
@@ -125,6 +125,16 @@ onmessage = (e) => {
 			Math.max( 200 , e.data.mouse.z * multiplyer ),
 			G.camera.position.z,
 		);
+	}
+	else if( e.data.type === 'cameraView' ) {
+		if( e.data.mouse.view === 'fps' ) {
+			G.camera.rotation.set( 0, e.data.mouse.angle,0 );
+			G.camera.fov = 45;
+		}
+		else {
+			G.camera.rotation.set( -Math.PI/2 , 0 , 0 );
+			G.camera.fov = 120;
+		}
 	}
 	else if( e.data.type === 'buildRoutes' ) {
 		world.setBuildCanvas({ canvas: e.data.canvas });

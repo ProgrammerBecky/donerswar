@@ -12,6 +12,9 @@ export class Control {
 			middle: false,
 			right: false,
 		}
+		
+		this.cameraType = 'rts';
+		this.cameraAngle = 0;
 			
 		this.mousemove = this.mousemove.bind( this );
 		this.mousedown = this.mousedown.bind( this );
@@ -47,6 +50,18 @@ export class Control {
 				})
 			);
 		}
+		if( this.button.left ) {
+			this.cameraAngle += ( e.clientX - this.mouse.x ) * 0.01;
+			
+			window.dispatchEvent(
+				new CustomEvent( 'cameraView' , {
+					detail: {
+						view: this.cameraType,
+						angle: this.cameraAngle,
+					}
+				})
+			);			
+		}
 
 		this.mouse.x = e.clientX;
 		this.mouse.y = e.clientY;
@@ -65,6 +80,18 @@ export class Control {
 		if( e.button === 0 ) this.button.left = true;
 		if( e.button === 1 ) this.button.middle = true;
 		if( e.button === 2 ) this.button.right = true;
+		
+		if( e.button === 0 ) {
+			this.cameraType = ( this.cameraType === 'rts' ) ? 'fps' : 'rts';
+			window.dispatchEvent(
+				new CustomEvent( 'cameraView' , {
+					detail: {
+						view: this.cameraType,
+						angle: this.cameraAngle,
+					}
+				})
+			);
+		}
 	}
 	mouseup( e ) {
 		if( e.button === 0 ) this.button.left = false;

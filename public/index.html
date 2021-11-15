@@ -78,6 +78,15 @@
 			}
 			window.addEventListener( 'zoomView' , zoomView );
 			
+			const cameraView = (e) => {
+			console.log( e.detail );
+				threeD.postMessage({
+					type: 'cameraView',
+					mouse: e.detail,
+				});
+			}
+			window.addEventListener( 'cameraView' , cameraView );
+			
 			/* Browser Resizing */
 			const windowResize = () => {
 				threeD.postMessage({
