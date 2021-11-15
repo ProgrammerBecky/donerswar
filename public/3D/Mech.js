@@ -166,7 +166,7 @@ added = true;
 				object.ent = result.scene;
 			}
 			
-if( ! added ) console.log( 'failed to add' , filename );			
+if( ! added ) console.log( 'failed to add' , loadingBone , filename );			
 			self.loadAssembly({ object });
 			
 		});
