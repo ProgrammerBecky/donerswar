@@ -4,8 +4,7 @@ import { FBXLoader } from './jsm/loaders/FBXLoader.js';
 import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 import { World } from './3D/World.js';
 import { Zombies } from './3D/Zombies.js';
-
-G.MinMagFilter = THREE.NearestFilter;
+import { Mech } from './3D/Mech.js';
 
 //* ThreeJS Worker Polyfill */
 THREE.ImageLoader.prototype.load = function ( url, onLoad, onProgress, onError ) {
@@ -87,11 +86,14 @@ onmessage = (e) => {
 		G.camera.fov = 120;
 		G.scene.add( G.camera );
 		
+		G.MinMagFilter = THREE.NearestFilter;		
 		G.fbx = new FBXLoader();
 		G.gltf = new GLTFLoader();
+		G.texture = new THREE.TextureLoader();
 		
 		G.world = new World();
 		G.zombies = new Zombies();
+		G.mech = new Mech();
 		
 		/* Launch render loop */
 		animate();
