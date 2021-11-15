@@ -231,8 +231,8 @@ export class Mech {
 				case 'Mount_Weapon_HL':
 					if( tpan.y < 0 ) tpan.y = 0;
 					if( tpan.y > Math.PI/2 ) tpan.y = Math.PI/2;
-					if( tpan.x < -0.38 ) tpan.x = -0.38;
-					if( tpan.x > 0.38 ) tpan.x = 0.38;
+					if( tpan.x < -0.65 ) tpan.x = -0.65;
+					if( tpan.x > 0.65 ) tpan.x = 0.65;
 					this.aimMount({ mount , tpan , right: false, baseRot: object.mRots[index] });
 					break;
 				case 'Mount_Weapon_top':
@@ -260,8 +260,8 @@ export class Mech {
 				case 'Mount_Weapon_HR':
 					if( tpan.y > 0 ) tpan.y = 0;
 					if( tpan.y < -Math.PI/2 ) tpan.y = -Math.PI/2;
-					if( tpan.x < -0.38 ) tpan.x = -0.38;
-					if( tpan.x > 0.38 ) tpan.x = 0.38;
+					if( tpan.x < -0.65 ) tpan.x = -0.65;
+					if( tpan.x > 0.65 ) tpan.x = 0.65;
 					this.aimMount({ mount , tpan , right: true, baseRot: object.mRots[index] });
 					break;
 				default:
