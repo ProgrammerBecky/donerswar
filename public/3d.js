@@ -26,8 +26,15 @@ THREE.ImageLoader.prototype.load = function ( url, onLoad, onProgress, onError )
 	
 }
 
+let viewports = [];
 let lastTime = 0;
-G.frustum = new THREE.Frustum();
+let camIndex = 0;
+G.frustum = [
+	new THREE.Frustum(),
+	new THREE.Frustum(),
+	new THREE.Frustum(),
+	new THREE.Frustum(),
+]
 
 /* Render loop */
 const animate = ( time ) => {
@@ -35,21 +42,53 @@ const animate = ( time ) => {
 	const delta = (time-lastTime)/1000;
 	lastTime = time;
 	
-	G.camera.updateMatrix();
-	G.camera.updateMatrixWorld();
-	G.frustum.setFromMatrix(
-		new THREE.Matrix4().multiplyMatrices(
-			G.camera.projectionMatrix,
-			G.camera.matrixWorldInverse
-		)
-	);
-	
 	if( ! isNaN( delta ) ) {
-		G.renderer.render( G.scene , G.camera );
+		
+		G.mechs.update( delta );
 		G.zombies.update( delta );
+		
+		for( let camIndex=0 ; camIndex<4 ; camIndex++ ) {
+			if( viewports[camIndex] ) {
+				G.camera[camIndex].updateMatrix();
+				G.camera[camIndex].updateMatrixWorld();
+				G.frustum[camIndex].setFromMatrix(
+					new THREE.Matrix4().multiplyMatrices(
+						G.camera[camIndex].projectionMatrix,
+						G.camera[camIndex].matrixWorldInverse
+					)
+				);
+		
+				G.renderer.setViewport( viewports[camIndex].x , viewports[camIndex].y , viewports[camIndex].z , viewports[camIndex].w );
+				G.renderer.setScissor( viewports[camIndex].x , viewports[camIndex].y , viewports[camIndex].z , viewports[camIndex].w );
+				G.renderer.render( G.scene , G.camera[camIndex] );
+			}
+		}
 	}
 	
 	requestAnimationFrame( animate );
+}
+
+const setViewports = ( width , height ) => {
+	
+	let hWidth = Math.floor(width/2);
+	let hHeight = Math.floor(height/2);
+	
+	G.renderer.setSize( width, height );
+	
+	for( let camIndex=0 ; camIndex < 4 ; camIndex++ ) {
+		if( G.camera[ camIndex ] ) {
+			G.camera[camIndex].aspect = width/height;
+			G.camera[camIndex].updateProjectionMatrix();
+		}
+	}
+	
+	viewports = [
+		new THREE.Vector4( 0,0,hWidth,hHeight),
+		new THREE.Vector4( hWidth,0,hWidth,hHeight),
+		new THREE.Vector4( 0,hHeight,hWidth,hHeight),
+		new THREE.Vector4( hWidth,hHeight,hWidth,hHeight),
+	];
+	
 }
 
 /* Messaging from Main Thread */
@@ -67,24 +106,49 @@ onmessage = (e) => {
 			canvas: canvas,
 			logarithmicDepthBuffer: true,
 			antialias: true,			
+			preserveDrawingBuffer: true,
 		});
 		
+		G.renderer.setScissorTest( true );			
 		G.renderer.setSize( e.data.width , e.data.height );
 		G.renderer.setPixelRatio( e.data.pixelRatio );
 		G.scene = new THREE.Scene();
-		G.camera = new THREE.PerspectiveCamera( 45 , e.data.width / e.data.height , 1 , 500000 );
 				
-		G.ambient = new THREE.AmbientLight(0x888888);
+		G.ambient = new THREE.AmbientLight(0xaaaaaa);
 		G.scene.add( G.ambient );
 
 		G.directional = new THREE.DirectionalLight(0xffffff);
 		G.directional.position.set(-1,0,-1);
 		G.scene.add( G.directional );
-		
-		G.camera.position.set(42500,5000,42500);
-		//G.camera.rotation.set( -Math.PI/2,0,0);
-		G.camera.rotation.set(0,0,0);
-		G.scene.add( G.camera );
+
+		G.cameraPan = [
+			new THREE.Vector2( 0 , Math.PI ),
+			new THREE.Vector2( 0 , Math.PI ),
+			new THREE.Vector2( 0 , Math.PI ),
+			new THREE.Vector2( 0 , Math.PI ),
+		];
+		G.cameraZoom = [1500,1500,1500,1500];
+		G.camera = [];
+		for( let i=0 ; i<4 ; i++ ) {
+			G.camera[i] = new THREE.PerspectiveCamera( 45 , e.data.width / e.data.height , 1 , 30000 );
+			G.camera[i].position.set(42500,5000,42500);
+			G.camera[i].rotation._order = 'ZYX';
+			//G.camera.rotation.set( -Math.PI/2,0,0);
+			G.camera[i].rotation.set(0,0,0);
+			G.scene.add( G.camera[i] );
+			setViewports( e.data.width , e.data.height );
+		}
+
+		G.cubeTexLoader = new THREE.CubeTextureLoader();
+		G.environmentMap = G.cubeTexLoader.load([
+			'/high/skybox/posz.jpg',
+			'/high/skybox/negz.jpg',
+			'/high/skybox/posy.jpg',
+			'/high/skybox/negy.jpg',
+			'/high/skybox/negx.jpg',
+			'/high/skybox/posx.jpg'
+		]);
+		G.scene.background = G.environmentMap;
 		
 		G.MinMagFilter = THREE.NearestFilter;		
 		G.fbx = new FBXLoader();
@@ -93,7 +157,7 @@ onmessage = (e) => {
 		
 		G.world = new World();
 		G.zombies = new Zombies();
-		G.mech = new Mech();
+		G.mechs = new Mech();
 		
 		/* Launch render loop */
 		animate();
@@ -104,36 +168,27 @@ onmessage = (e) => {
 	}
 	else if( e.data.type === 'resizeCanvas' ) {
 		/* Resize browser window */
-		G.renderer.setSize( e.data.width , e.data.height );
-		G.camera.aspect = e.data.width / e.data.height;
-		G.camera.updateProjectionMatrix();
+		setViewports( e.data.width , e.data.height );
+		//G.camera.aspect = e.data.width / e.data.height;
+		//G.camera.updateProjectionMatrix();
 	}
 	else if( e.data.type === 'panView' ) {
-		const multiplyer = G.camera.position.y / 300;
-
-		G.camera.position.set(
-			G.camera.position.x - e.data.mouse.x * multiplyer,
-			G.camera.position.y,
-			G.camera.position.z - e.data.mouse.y * multiplyer,
-		);
+		const multiplyer = 0.01;
+		G.cameraPan[ e.data.mouse.cam ].x -= e.data.mouse.y * multiplyer;
+		G.cameraPan[ e.data.mouse.cam ].y -= e.data.mouse.x * multiplyer;
 	}
 	else if( e.data.type === 'zoomView' ) {
-		const multiplyer = 1+ ( G.camera.position.y / 10000 );
-			
-		G.camera.position.set(
-			G.camera.position.x,
-			Math.max( 200 , e.data.mouse.z * multiplyer ),
-			G.camera.position.z,
-		);
+		const multiplyer = 1;
+		G.cameraZoom[ e.data.mouse.cam ] = Math.max( 1500 , e.data.mouse.z * multiplyer );
 	}
 	else if( e.data.type === 'cameraView' ) {
 		if( e.data.mouse.view === 'fps' ) {
-			G.camera.rotation.set( 0, e.data.mouse.angle,0 );
-			G.camera.fov = 45;
+			G.camera[ e.data.mouse.cam ].rotation.set( 0, e.data.mouse.angle,0 );
+			G.camera[ e.data.mouse.cam ].fov = 45;
 		}
 		else {
-			G.camera.rotation.set( -Math.PI/2 , 0 , 0 );
-			G.camera.fov = 120;
+			G.camera[ e.data.mouse.cam ].rotation.set( -Math.PI/2 , 0 , 0 );
+			G.camera[ e.data.mouse.cam ].fov = 120;
 		}
 	}
 	else if( e.data.type === 'buildRoutes' ) {

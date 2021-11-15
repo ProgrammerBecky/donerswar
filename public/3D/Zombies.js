@@ -43,7 +43,13 @@ export class Zombies {
 				zombie.ent.position.set( zombie.x , 0 , zombie.z );
 				
 				this.vector.set( zombie.x , zombie.y , zombie.z );
-				zombie.ent.visible = G.frustum.containsPoint( this.vector );
+				
+				zombie.ent.visible =
+					( G.frustum[0].containsPoint( this.vector ) ) ? true
+					: ( G.frustum[1].containsPoint( this.vector ) ) ? true
+					: ( G.frustum[2].containsPoint( this.vector ) ) ? true
+					: ( G.frustum[3].containsPoint( this.vector ) );
+					
 				if( zombie.ent.visible ) {
 					zombie.ent.rotation.set( 0 , zombie.f , 0 );
 					zombie.mixer.update( delta );

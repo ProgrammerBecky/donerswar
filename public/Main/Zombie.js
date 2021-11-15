@@ -1,4 +1,5 @@
 const MAP_SIZE = 85000;
+const MAX_ZOMBIE_COUNT = 100;
 
 export class Zombie {
 	constructor({ threeD, route }) {
@@ -12,7 +13,7 @@ export class Zombie {
 		clearInterval( this.spawnRef );
 	}
 	update( delta ) {
-		if( this.zombies.length < 500 ) this.spawner();
+		if( this.zombies.length < MAX_ZOMBIE_COUNT ) this.spawner();
 		
 		this.zombies.map( (zombie,index) => {
 			
