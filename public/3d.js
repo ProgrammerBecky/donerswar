@@ -5,6 +5,7 @@ import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 import { World } from './3D/World.js';
 import { Zombies } from './3D/Zombies.js';
 import { Mech } from './3D/Mech.js';
+import { ScreenPicker } from './3D/ScreenPicker.js';
 
 //* ThreeJS Worker Polyfill */
 THREE.ImageLoader.prototype.load = function ( url, onLoad, onProgress, onError ) {
@@ -26,7 +27,8 @@ THREE.ImageLoader.prototype.load = function ( url, onLoad, onProgress, onError )
 	
 }
 
-let viewports = [];
+G.glViewports = [];
+G.viewHeight = 0;
 let lastTime = 0;
 let camIndex = 0;
 G.frustum = [
@@ -48,7 +50,7 @@ const animate = ( time ) => {
 		G.zombies.update( delta );
 		
 		for( let camIndex=0 ; camIndex<4 ; camIndex++ ) {
-			if( viewports[camIndex] ) {
+			if( G.glViewports[camIndex] ) {
 				G.camera[camIndex].updateMatrix();
 				G.camera[camIndex].updateMatrixWorld();
 				G.frustum[camIndex].setFromMatrix(
@@ -58,8 +60,8 @@ const animate = ( time ) => {
 					)
 				);
 		
-				G.renderer.setViewport( viewports[camIndex].x , viewports[camIndex].y , viewports[camIndex].z , viewports[camIndex].w );
-				G.renderer.setScissor( viewports[camIndex].x , viewports[camIndex].y , viewports[camIndex].z , viewports[camIndex].w );
+				G.renderer.setViewport( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
+				G.renderer.setScissor( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
 				G.renderer.render( G.scene , G.camera[camIndex] );
 			}
 		}
@@ -82,9 +84,16 @@ const setViewports = ( width , height ) => {
 		}
 	}
 	
-	viewports = [
+	G.viewHeight = hHeight;
+	G.glViewports = [
+		new THREE.Vector4( 0,hHeight,hWidth,hHeight),
+		new THREE.Vector4( hWidth,hHeight,hWidth,hHeight),
 		new THREE.Vector4( 0,0,hWidth,hHeight),
 		new THREE.Vector4( hWidth,0,hWidth,hHeight),
+	];
+	G.humanViewports = [
+		new THREE.Vector4( 0,0,hWidth,hHeight),
+		new THREE.Vector4( hWidth,0,hWidth,hHeight),	
 		new THREE.Vector4( 0,hHeight,hWidth,hHeight),
 		new THREE.Vector4( hWidth,hHeight,hWidth,hHeight),
 	];
@@ -159,6 +168,8 @@ onmessage = (e) => {
 		G.zombies = new Zombies();
 		G.mechs = new Mech();
 		
+		G.screenPicker = new ScreenPicker();
+		
 		/* Launch render loop */
 		animate();
 		
@@ -179,17 +190,7 @@ onmessage = (e) => {
 	}
 	else if( e.data.type === 'zoomView' ) {
 		const multiplyer = 1;
-		G.cameraZoom[ e.data.mouse.cam ] = Math.max( 1500 , e.data.mouse.z * multiplyer );
-	}
-	else if( e.data.type === 'cameraView' ) {
-		if( e.data.mouse.view === 'fps' ) {
-			G.camera[ e.data.mouse.cam ].rotation.set( 0, e.data.mouse.angle,0 );
-			G.camera[ e.data.mouse.cam ].fov = 45;
-		}
-		else {
-			G.camera[ e.data.mouse.cam ].rotation.set( -Math.PI/2 , 0 , 0 );
-			G.camera[ e.data.mouse.cam ].fov = 120;
-		}
+		G.cameraZoom[ e.data.mouse.cam ] = Math.max( 1500 , G.cameraZoom[ e.data.mouse.cam ] + e.data.mouse.z * multiplyer );
 	}
 	else if( e.data.type === 'buildRoutes' ) {
 		world.setBuildCanvas({ canvas: e.data.canvas });
@@ -199,6 +200,13 @@ onmessage = (e) => {
 	}
 	else if( e.data.type === 'update-zombie' ) {
 		G.zombies.updateZombie({ updated: e.data });
+	}
+	else if( e.data.type === 'mech-navigate' ) {
+		self.postMessage({
+			type: 'mech-navigate',
+			unit: e.data.unit,
+			target: G.screenPicker.lookup({ cam: e.data.cam, x: e.data.x , y: e.data.y })
+		});
 	}
 }
 

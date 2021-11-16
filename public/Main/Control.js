@@ -1,6 +1,8 @@
 export class Control {
 	
-	constructor() {
+	constructor({ threeD }) {
+
+		this.threeD = threeD;
 
 		this.mouse = {
 			x: 0,
@@ -31,6 +33,7 @@ export class Control {
 		window.addEventListener( 'contextmenu', this.contextMenu );
 		
 		this.resize();
+					
 	}
 	resize() {
 		this.hWidth = window.innerWidth/2;
@@ -50,43 +53,28 @@ export class Control {
 	
 	mousemove( e ) {
 		if( this.button.right ) {
-			window.dispatchEvent(
-				new CustomEvent( 'panView' , {
-					detail: {
-						x: e.clientX - this.mouse.x,
-						y: e.clientY - this.mouse.y,
-						cam: this.detectCam(e),
-					}
-				})
-			);
+			this.threeD.postMessage({
+				type: 'panView',
+				mouse: {
+					x: e.clientX - this.mouse.x,
+					y: e.clientY - this.mouse.y,
+					cam: this.detectCam(e),
+				}
+			});
 		}
-		if( this.button.left ) {
-			this.cameraAngle += ( e.clientX - this.mouse.x ) * 0.01;
-			
-			window.dispatchEvent(
-				new CustomEvent( 'cameraView' , {
-					detail: {
-						view: this.cameraType,
-						angle: this.cameraAngle,
-						cam: this.detectCam(e),
-					}
-				})
-			);			
-		}
-
+		
 		this.mouse.x = e.clientX;
 		this.mouse.y = e.clientY;
 	}
 	mousewheel( e ) {
-		this.mouse.z += e.deltaY;
-		window.dispatchEvent(
-			new CustomEvent( 'zoomView' , {
-				detail: {
-					z: this.mouse.z,
-					cam: this.detectCam(e),
-				}
-			})
-		);
+		this.mouse.z = -e.wheelDeltaY;
+		this.threeD.postMessage({
+			type: 'zoomView',
+			mouse: {
+				z: this.mouse.z,
+				cam: this.detectCam(e),
+			},
+		});		
 	}
 	mousedown( e ) {
 		if( e.button === 0 ) this.button.left = true;
@@ -94,16 +82,14 @@ export class Control {
 		if( e.button === 2 ) this.button.right = true;
 		
 		if( e.button === 0 ) {
-			this.cameraType = 'fps';
-			window.dispatchEvent(
-				new CustomEvent( 'cameraView' , {
-					detail: {
-						view: this.cameraType,
-						angle: this.cameraAngle,
-						cam: this.detectCam(e),
-					}
-				})
-			);
+			const cam = this.detectCam(e);
+			this.threeD.postMessage({
+				type: 'mech-navigate',
+				x: e.clientX,
+				y: e.clientY,
+				unit: cam,
+				cam: cam,
+			});
 		}
 	}
 	mouseup( e ) {
@@ -113,12 +99,12 @@ export class Control {
 	}
 	detectCam( e ) {
 		if( e.clientX > this.hWidth ) {
-			if( e.clientY > this.hHeight ) return 1;
-			return 3;
+			if( e.clientY > this.hHeight ) return 3;
+			return 1;
 		}
 		else {
-			if( e.clientY > this.hHeight ) return 0;
-			return 2;
+			if( e.clientY > this.hHeight ) return 2;
+			return 0;
 		}
 	}
 	

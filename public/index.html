@@ -34,7 +34,6 @@
 			import { NavBuilder } from '/Main/NavBuilder.js';
 			import { Zombie } from './Main/Zombie.js';
 			
-			const control = new Control();
 			let zombie;
 
 			/* Initialise 3D Canvas */
@@ -54,6 +53,9 @@
 					zombie = new Zombie({ threeD , route });
 					animate();
 				}
+				else if( e.data.type === 'mech-navigate' ) {
+					console.log( e.data );
+				}
 			});
 			threeD.postMessage({
 				type: 'init',
@@ -62,31 +64,8 @@
 				height: canvas.clientHeight,
 				pixelRatio: window.devicePixelRatio,
 			} , [ offscreen ]);
-			
-			/* Mouse Controls */
-			const panView = (e) => {
-				threeD.postMessage({
-					type: 'panView',
-					mouse: e.detail,
-				});
-			}
-			window.addEventListener( 'panView' , panView );
-			
-			const zoomView = (e) => {
-				threeD.postMessage({
-					type: 'zoomView',
-					mouse: e.detail,
-				});
-			}
-			window.addEventListener( 'zoomView' , zoomView );
-			
-			const cameraView = (e) => {
-				threeD.postMessage({
-					type: 'cameraView',
-					mouse: e.detail,
-				});
-			}
-			window.addEventListener( 'cameraView' , cameraView );
+			const control = new Control({ threeD });
+
 			
 			/* Browser Resizing */
 			const windowResize = () => {

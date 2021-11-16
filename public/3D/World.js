@@ -28,7 +28,7 @@ export class World {
 					child.rotation.y = Math.random() * Math.PI * 2;
 					child.scale.set( 0.4+Math.random()*0.2 , 0.4+Math.random()*0.2 , 0.4+Math.random()*0.2 );
 					
-					self.addToColliders( child );
+					//self.addToColliders( child );
 					
 					if( child.material && child.material ) {
 						if( Array.isArray( child.material ) ) {
@@ -57,7 +57,7 @@ export class World {
 					child.castShadow = true;
 					child.receiveShadow = true;
 					
-					self.addToColliders( child );
+					//self.addToColliders( child );
 					
 					if( child.material && child.material.map ) {
 						child.material.map.magFilter = G.MinMagFilter;
