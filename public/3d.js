@@ -210,8 +210,7 @@ onmessage = (e) => {
 			source: { x: G.mechs.mechs[ e.data.unit ].x , z: G.mechs.mechs[ e.data.unit ].z },
 		});
 	}
-	else if( e.data.type === 'mech-route-astar' ) {
-		console.log( e.data );
+	else if( e.data.type === 'mech-route-flowMap' ) {
 		G.mechs.newRoute({
 			unit: e.data.unit,
 			dx: e.data.dx,

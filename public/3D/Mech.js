@@ -183,6 +183,8 @@ export class Mech {
 		}	
 		
 		object.ent.position.set( 42500 + (Math.random() * 2500)*2-1 , 0 , 42500 + (Math.random() * 2500)*2-1 );
+		object.x = object.ent.position.x;
+		object.z = object.ent.position.z;
 		object.ent.scale.set(3,3,3);
 		object.ent.rotation.set( 0 , Math.random() * Math.PI*2 , 0 );
 		G.scene.add( object.ent );
@@ -346,15 +348,9 @@ export class Mech {
 	newRoute({
 		unit, dx, dz, route
 	}) {
-		route.map( route => {
-			route.x = route.x * NAV_TO_WORLD_SCALE;
-			route.z = route.z * NAV_TO_WORLD_SCALE;
-		});
-		
 		this.mechs[ unit ].dx = dx;
 		this.mechs[ unit ].dz = dz;
 		this.mechs[ unit ].route = route;
-		if( this.mechs[ unit ].flow ) delete this.mechs[ unit ].flow;
 	}
 		
 	update( delta ) {
@@ -367,7 +363,7 @@ export class Mech {
 					const left = mech.cockpit_bevel.rotation.y - G.cameraPan[mech.id].y;
 					const rotSpeed = delta * 0.25;
 					if( right > left ) {
-						if( right > delta ) {
+						if( right > rotSpeed ) {
 							mech.cockpit_bevel.rotation.y += rotSpeed;
 						}
 						else {
@@ -375,7 +371,7 @@ export class Mech {
 						}
 					}
 					else if( left > right ) {
-						if( left > delta ) {
+						if( left > rotSpeed ) {
 							mech.cockpit_bevel.rotation.y -= rotSpeed;
 						}
 						else {
@@ -411,31 +407,49 @@ export class Mech {
 	}
 	followRoute({ mech, delta }) {
 		
-		if( ! mech.nextNode ) mech.nextNode = mech.route.shift();
-		
-		const dx = mech.nextNode.x - mech.x;
-		const dz = mech.nextNode.z - mech.z;
+		let x = Math.floor( mech.x / NAV_TO_WORLD_SCALE );
+		let z = Math.floor( mech.z / NAV_TO_WORLD_SCALE );
+
+		let sx = Math.floor( mech.x / NAV_TO_WORLD_SCALE );
+		let sz = Math.floor( mech.z / NAV_TO_WORLD_SCALE );
+		if( mech.route[z][x] === 'DESTINATION' ) {
+			mech.action = 'Idle';
+			this.setAnimation({ mech });
+			console.log( 'DESTINATION' , mech.x , mech.dx , mech.z , mech.dz );
+			mech.route = false;
+			return;
+		}
+		//console.log( mech.route[z][x] , { x: sx , z: sz } );
+		//console.log( '>' , mech.route[z][x].x-sx , mech.route[z][x].z-sz );
+
+		let targetX = mech.route[z][x].x * NAV_TO_WORLD_SCALE;
+		let targetZ = mech.route[z][x].z * NAV_TO_WORLD_SCALE;
+
+		const dx = targetX - mech.x;
+		const dz = targetZ - mech.z;
 		const df = Math.atan2( dx , dz );
 		
-		let moveSpeed = delta * 25;
+		let moveSpeed = delta * 450;
 		
 		const right = df - mech.ent.rotation.y;
 		const left = mech.ent.rotation.y - df;
-		const rotSpeed = delta * 25;
+		const rotSpeed = delta * 0.5;
 		
 		if( right > left ) {
-			if( right > delta ) {
+			if( right > rotSpeed ) {
 				if( right > Math.PI/2 ) moveSpeed = 0;
 				mech.ent.rotation.y += rotSpeed;
+				G.cameraPan[mech.id].y -= rotSpeed;
 			}
 			else {
 				mech.ent.rotation.y = df;
 			}
 		}
 		else if( left > right ) {
-			if( left > delta ) {
+			if( left > rotSpeed ) {
 				if( left > Math.PI/2 ) moveSpeed = 0;
 				mech.ent.rotation.y -= rotSpeed;
+				G.cameraPan[mech.id].y += rotSpeed;
 			}
 			else {
 				mech.ent.rotation.y = df;
@@ -449,16 +463,12 @@ export class Mech {
 			}
 			mech.x += Math.sin( mech.ent.rotation.y ) * moveSpeed;
 			mech.z += Math.cos( mech.ent.rotation.y ) * moveSpeed;
-			console.log( moveSpeed.toFixed(5) , mech.x.toFixed(5) , mech.z.toFixed(5) );
 			const dr = Math.sqrt( dx*dx + dz*dz );
-			if( dr < NAV_TO_WORLD_SCALE ) {
-				delete mech.nextNode;
-			}
 		}
 		else if( mech.action !== 'Idle' ) {
 			mech.action = 'Idle';
 			this.setAnimation({ mech });
-		}	
+		}		
 
 		mech.ent.position.set( mech.x , mech.ent.position.y , mech.z );
 		

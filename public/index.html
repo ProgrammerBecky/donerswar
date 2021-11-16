@@ -56,7 +56,7 @@
 				else if( e.data.type === 'mech-navigate' ) {
 					if( e.data.target ) {
 						route.postMessage({
-							type: 'astar',
+							type: 'flowMap',
 							collection: 'mech',
 							unit: e.data.unit,
 							dx: e.data.target.x,
@@ -96,9 +96,9 @@
 				},
 			);		
 			route.addEventListener( 'message' , e => {
-				if( e.data.type === 'astar' ) {
+				if( e.data.type === 'flowMap' ) {
 					threeD.postMessage({
-						type: 'mech-route-astar',
+						type: 'mech-route-flowMap',
 						collection: e.data.collection,
 						unit: e.data.unit,
 						dx: e.data.dx,

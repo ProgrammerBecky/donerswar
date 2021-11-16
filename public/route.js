@@ -18,23 +18,23 @@ onmessage = (e) => {
 	
 	if( e.data.type === 'init' ) {
 		map = new Map({ data: e.data.mapData , canvas: e.data.canvas });
-		astar = new AStar({ map: map });
+		//astar = new AStar({ map: map });
 		flowMap = new FlowMap({ width: e.data.mapData.width , height: e.data.mapData.height, map: map });
 
 	}
-	if( e.data.type === 'astar' ) {
+	if( e.data.type === 'flowMap' ) {
 		const { sx,sz,dx,dz } = reduceCoords({
 			sx: e.data.sx , sz: e.data.sz,
 			dx: e.data.dx , dz: e.data.dz,
 		});
-		let route = astar.path({
+		let route = flowMap.path({
 			sx: sx, sz: sz,
 			dx: dx, dz: dz,
 			debug: false,
-			quick: true,
+			quick: false,
 		});
 		self.postMessage({
-			type: 'astar',
+			type: 'flowMap',
 			collection: e.data.collection,
 			unit: e.data.unit,
 			dx: e.data.dx,

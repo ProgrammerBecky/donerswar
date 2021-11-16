@@ -18,9 +18,9 @@ export class ScreenPicker {
 		const halfHeight = viewport.w / 2;
 		this.mouse.set(
 			( ( x - viewport.x ) - halfWidth ) / halfWidth ,
-			( ( y - viewport.y ) - halfHeight ) / halfHeight,
+			- ( ( ( y - viewport.y ) - halfHeight ) / halfHeight ),
 		);
-		
+		console.log( viewport , x , y , this.mouse );
 		this.raycaster.setFromCamera( this.mouse , G.camera[ cam ] );
 		const intersects = this.raycaster.intersectObject( G.world.map , true );
 		if( intersects[0] ) {
