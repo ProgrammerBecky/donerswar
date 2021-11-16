@@ -2,7 +2,7 @@ import * as THREE from './../build/three.module.js';
 import { G } from './G.js';
 
 const WORLD_SIZE = 85000;
-const NAV_MAP_SIZE = 1024;
+const NAV_MAP_SIZE = 512;
 const NAV_TO_WORLD_SCALE = WORLD_SIZE / NAV_MAP_SIZE;
 
 export class Mech {
@@ -437,7 +437,7 @@ export class Mech {
 		
 		if( right > left ) {
 			if( right > rotSpeed ) {
-				if( right > Math.PI/2 ) moveSpeed = 0;
+				if( right > Math.PI/4 ) moveSpeed = 0;
 				mech.ent.rotation.y += rotSpeed;
 				G.cameraPan[mech.id].y -= rotSpeed;
 			}
@@ -447,7 +447,7 @@ export class Mech {
 		}
 		else if( left > right ) {
 			if( left > rotSpeed ) {
-				if( left > Math.PI/2 ) moveSpeed = 0;
+				if( left > Math.PI/4 ) moveSpeed = 0;
 				mech.ent.rotation.y -= rotSpeed;
 				G.cameraPan[mech.id].y += rotSpeed;
 			}

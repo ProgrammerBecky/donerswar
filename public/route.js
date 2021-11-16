@@ -27,12 +27,14 @@ onmessage = (e) => {
 			sx: e.data.sx , sz: e.data.sz,
 			dx: e.data.dx , dz: e.data.dz,
 		});
+
 		let route = flowMap.path({
 			sx: sx, sz: sz,
 			dx: dx, dz: dz,
 			debug: false,
-			quick: false,
+			quick: true,
 		});
+		console.log( route );
 		self.postMessage({
 			type: 'flowMap',
 			collection: e.data.collection,

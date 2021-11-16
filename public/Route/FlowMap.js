@@ -45,6 +45,33 @@ export class FlowMap{
 		
 		this.dx = dx;
 		this.dz = dz;
+		
+		if( quick ) {
+			let rng = Math.max( Math.max( Math.abs( dx-sx ) , Math.abs( dz-sz ) ) , 128 );
+			
+			this.bounds = {
+				min: {
+					x: Math.max( 0 , Math.min( sx-rng , dx-rng ) ),
+					z: Math.max( 0 , Math.min( sz-rng , dz-rng ) ),
+				},
+				max: {
+					x: Math.min( this.width , Math.max( sx+rng , dx+rng ) ),
+					z: Math.min( this.height , Math.max( sz+rng , dz+rng ) ),
+				},
+			};
+		}
+		else {
+			this.bounds = {
+				min: {
+					x: 0,
+					z: 0,
+				},
+				max: {
+					x: this.width,
+					z: this.height,
+				},
+			};
+		}
 
 		this.buildIntegrationLayer();
 		this.buildFlowLayer();
@@ -56,15 +83,15 @@ export class FlowMap{
 	buildFlowLayer() {
 		
 		this.flow = [];
-		for( let h=0 ; h<this.height ; h++ ) {
+		for( let h=this.bounds.min.z ; h<this.bounds.max.z ; h++ ) {
 			this.flow[h] = [];
-			for( let w=0 ; w<this.width ; w++ ) {
+			for( let w=this.bounds.min.x ; w<this.bounds.max.x ; w++ ) {
 				this.flow[h][w] = false;
 			}
 		}
 		
-		for( let h=0 ; h<this.height ; h++ ) {
-			for( let w=0 ; w<this.width ; w++ ) {
+		for( let h=this.bounds.min.z ; h<this.bounds.max.z ; h++ ) {
+			for( let w=this.bounds.min.x ; w<this.bounds.max.x ; w++ ) {
 
 				if( this.route[h][w] === 0 ) {
 					this.flow[h][w] = 'DESTINATION';
@@ -178,11 +205,15 @@ export class FlowMap{
 		this.route[z][x] = derivedCost;
 		
 		if( derivedCost < IMPASSABLE_NODE ) {
-			this.open.push({
-				x: x,
-				z: z,
-				cost: derivedCost,
-			});
+			if( x >= this.bounds.min.x && x < this.bounds.max.x ) {
+				if( z >= this.bounds.min.z && z < this.bounds.max.z ) {
+					this.open.push({
+						x: x,
+						z: z,
+						cost: derivedCost,
+					});
+				}
+			}
 		}
 		
 	}
