@@ -53,6 +53,7 @@ export class Mech {
 			map: G.texture.load( 'high/mechs/Mechs_diffuse_atlas_beige.png' ),
 			normalMap: G.texture.load( 'high/mechs/Mechs_LtMed_Normals.png' ),
 			specularMap: G.texture.load( 'high/mechs/Mechs_LtMed_Unity_Specular.png' ),
+			skinning: true,
 		});
 		
 		this.mechs.map( (object,index) => {
@@ -62,12 +63,13 @@ export class Mech {
 			object.cockpitMount = 'Mount_top';			
 			object.mounts = [];
 			object.mRots = [];
+			object.ent = new THREE.Group();
 			this.loadAssembly({ object });
 		});
 		
 		console.log( this.mechs );
 	}
-
+	
 	loadAssembly({ object }){
 
 		let loadingBone;
@@ -90,14 +92,16 @@ export class Mech {
 						object,
 						filename: object.assembly[i],
 						loadingBone: loadingBone,
+						mount: 'hip_tractor',
 					});
 					delete object.assembly[i];
 					return;
-				case 'cockpit':
+				case 'cockpit':			
 					this.loadMechPart({
 						object,
 						filename: object.assembly[i],
 						loadingBone: object.cockpitMount,
+						mount: 'Cockpit_tractor',
 					});
 					delete object.assembly[i];
 					return;
@@ -181,16 +185,31 @@ export class Mech {
 		return object;
 	}
 		
-	loadMechPart({ object , filename , loadingBone=false }) {
+	loadMechPart({ object , filename , loadingBone=false , mount=false }) {
 
 		let self = this;
 		G.gltf.load( filename , result => {
 			
 			result.scene.traverse( child => {
 				if( child.isMesh ) {
-					child.material = self.material;
+					if( child.material.isArray ) {
+						for( let i=0 ; i<child.material.length ; i++ ) {
+							child.material[i] = self.material;
+						}
+					}
+					else {
+						child.material = self.material;
+					}
 				}
 			});
+
+			if( mount && ! object.cockpit_bevel ) {
+				result.scene.traverse( child => {
+					if( child.name === mount ) {
+						object.cockpit_bevel = child;
+					}
+				});
+			}
 
 			if( loadingBone  ) {
 				object.ent.traverse( mechParent => {
@@ -206,15 +225,29 @@ export class Mech {
 				});
 			}
 			else {
-				object.ent = new THREE.Group();
-				result.scene.rotation.set( 0 , Math.PI , 0 );
 				object.ent.add( result.scene );
+				object.animations = result.animations;
+				self.animationSetup({object});
 			}
 					
 			self.loadAssembly({ object });
 			
 		});
 	
+	}
+	
+	animationSetup({object}) {
+		
+		object.mixer = new THREE.AnimationMixer( object.ent );
+		
+		object.animations.map( anim => {
+			if( anim.name.indexOf( 'idle' ) >-1 ) anim.name = 'Idle';
+			if( anim.name.indexOf( 'run_faster' ) >-1 ) anim.name = 'Sprint';
+			if( anim.name.indexOf( 'run' ) >-1 ) anim.name = 'Run';
+			if( anim.name.indexOf( 'walk' ) >-1 ) anim.name = 'Walk';
+			if( anim.name.indexOf( 'fall_forwar' ) > -1 ) anim.name = 'Death';
+		});		
+		
 	}
 	
 	aim({ object , pan, facing }) {
@@ -243,17 +276,17 @@ export class Mech {
 					this.aimMount({ mount , tpan , right: false, baseRot: object.mRots[index] });
 					break;
 				case 'Mount_Shoulder_rockets_lvl1_L':
-					if( tpan.x < -0.087 ) tpan.x = -0.087;
-					if( tpan.x > 0.087 ) tpan.x = 0.087;
-					if( tpan.y < -0.087 ) tpan.y = -0.087;
-					if( tpan.y > 0.087 ) tpan.y = 0.087;
+					if( tpan.x < -0.187 ) tpan.x = -0.187;
+					if( tpan.x > 0.187 ) tpan.x = 0.187;
+					if( tpan.y < -0.187 ) tpan.y = -0.187;
+					if( tpan.y > 0.187 ) tpan.y = 0.187;
 					this.aimMount({ mount , tpan , right: false, baseRot: object.mRots[index] });
 					break;
 				case 'Mount_Shoulder_rockets_lvl1_R':
-					if( tpan.x < -0.087 ) tpan.x = -0.087;
-					if( tpan.x > 0.087 ) tpan.x = 0.087;
-					if( tpan.y < -0.087 ) tpan.y = -0.087;
-					if( tpan.y > 0.087 ) tpan.y = 0.087;
+					if( tpan.x < -0.187 ) tpan.x = -0.187;
+					if( tpan.x > 0.187 ) tpan.x = 0.187;
+					if( tpan.y < -0.187 ) tpan.y = -0.187;
+					if( tpan.y > 0.187 ) tpan.y = 0.187;
 					this.aimMount({ mount , tpan , right: true, baseRot: object.mRots[index] });
 					break;
 				case 'Mount_Weapon_R':
@@ -279,53 +312,70 @@ export class Mech {
 			);
 		}
 		else {
-			mount.rotation.set( -tpan.x , tpan.y , 0 );
+			mount.rotation.set( baseRot.x-tpan.x , baseRot.y+tpan.y , baseRot.z );
 		}
 
 	}	
 	
 		
 		
+	setAnimation({ mech }) {
+
+		if( mech.animAction ) {
+			mech.animAction.stop();
+		}
+		
+		const clip = THREE.AnimationClip.findByName( mech.animations , mech.action );
+		mech.animAction = mech.mixer.clipAction( clip );
+		mech.animAction.play();		
+		
+	}
 		
 	update( delta ) {
 		this.mechs.map( (mech) => {
-			if( mech.ent ) {
+			if( mech.mixer ) {
 				
 				//Rotate Body
-				const limb = mech.mounts.find( search => search.name === 'Mount_top' );
-				if( limb ) {
-					const right = G.cameraPan[mech.id].y - limb.rotation.y;
-					const left = limb.rotation.y - G.cameraPan[mech.id].y;
+				if( mech.cockpit_bevel ) {
+					const right = G.cameraPan[mech.id].y - mech.cockpit_bevel.rotation.y;
+					const left = mech.cockpit_bevel.rotation.y - G.cameraPan[mech.id].y;
 					const rotSpeed = delta * 0.25;
 					if( right > left ) {
 						if( right > delta ) {
-							limb.rotation.y += rotSpeed;
+							mech.cockpit_bevel.rotation.y += rotSpeed;
 						}
 						else {
-							limb.rotation.y = G.cameraPan[mech.id].y;
+							mech.cockpit_bevel.rotation.y = G.cameraPan[mech.id].y;
 						}
 					}
 					else if( left > right ) {
 						if( left > delta ) {
-							limb.rotation.y -= rotSpeed;
+							mech.cockpit_bevel.rotation.y -= rotSpeed;
 						}
 						else {
-							limb.rotation.y = G.cameraPan[mech.id].y;
+							mech.cockpit_bevel.rotation.y = G.cameraPan[mech.id].y;
 						}
 					}
 
 					this.aim({
 						object: mech,
 						pan: G.cameraPan[mech.id],
-						facing: limb.rotation.y,
+						facing: mech.cockpit_bevel.rotation.y,
 					});
-
 				}
+				
+				//action
+				if( ! mech.action ) {
+					console.log( 'set animation' );
+					mech.action = 'Idle';
+					this.setAnimation({ mech });
+				}
+				mech.mixer.update( delta );
 				
 				
 				//FPS Camera
 				G.camera[mech.id].position.set( mech.ent.position.x , mech.ent.position.y + 1500 , mech.ent.position.z );
-				G.camera[mech.id].rotation.set( G.cameraPan[mech.id].x , G.cameraPan[mech.id].y + mech.ent.rotation.y , 0 );
+				G.camera[mech.id].rotation.set( G.cameraPan[mech.id].x , Math.PI + G.cameraPan[mech.id].y + mech.ent.rotation.y , 0 );
 				G.camera[mech.id].translateZ( G.cameraZoom[mech.id] );
 			}
 		});
