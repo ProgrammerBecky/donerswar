@@ -4,15 +4,45 @@ import { FlowMap } from './Route/FlowMap.js';
 
 let flowMap, map, astar;
 
+const WORLD_SIZE = 85000;
+
+const reduceCoords = ({ sx , sz , dx , dz }) => {
+	sx = Math.floor( sx*map.width / WORLD_SIZE );
+	sz = Math.floor( sz*map.height / WORLD_SIZE );
+	dx = Math.floor( dx*map.width / WORLD_SIZE );
+	dz = Math.floor( dz*map.height / WORLD_SIZE );
+	return {sx,sz,dx,dz};
+}
+
 onmessage = (e) => {
 	
 	if( e.data.type === 'init' ) {
 		map = new Map({ data: e.data.mapData , canvas: e.data.canvas });
-		//astar = new AStar({ map: map });
+		astar = new AStar({ map: map });
 		flowMap = new FlowMap({ width: e.data.mapData.width , height: e.data.mapData.height, map: map });
 
 	}
-	if( e.data.type === 'route' ) {
+	if( e.data.type === 'astar' ) {
+		const { sx,sz,dx,dz } = reduceCoords({
+			sx: e.data.sx , sz: e.data.sz,
+			dx: e.data.dx , dz: e.data.dz,
+		});
+		let route = astar.path({
+			sx: sx, sz: sz,
+			dx: dx, dz: dz,
+			debug: false,
+			quick: true,
+		});
+		self.postMessage({
+			type: 'astar',
+			collection: e.data.collection,
+			unit: e.data.unit,
+			dx: e.data.dx,
+			dz: e.data.dz,
+			route: route,
+		});
+	}
+	else if( e.data.type === 'route' ) {
 
 		let flow = flowMap.path({
 			sx: e.data.sx , sz: e.data.sz,
@@ -47,12 +77,6 @@ onmessage = (e) => {
 	
 }
 
-/*
-function render(time) {
-	requestAnimationFrame(render);
-}
-requestAnimationFrame(render);
-*/
 
 console.log( 'Routefinding Worker Started' );
 

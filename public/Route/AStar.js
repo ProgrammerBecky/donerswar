@@ -1,6 +1,6 @@
 import { Node } from './Node.js';
 
-const ABORT_THRESHOLD = 100000;
+const ABORT_THRESHOLD = 25000;
 
 export class AStar {
 	

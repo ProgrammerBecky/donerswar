@@ -202,12 +202,24 @@ onmessage = (e) => {
 		G.zombies.updateZombie({ updated: e.data });
 	}
 	else if( e.data.type === 'mech-navigate' ) {
+		G.mechs.newAction( e.data.unit , 'Idle' );
 		self.postMessage({
 			type: 'mech-navigate',
 			unit: e.data.unit,
-			target: G.screenPicker.lookup({ cam: e.data.cam, x: e.data.x , y: e.data.y })
+			target: G.screenPicker.lookup({ cam: e.data.cam, x: e.data.x , y: e.data.y }),
+			source: { x: G.mechs.mechs[ e.data.unit ].x , z: G.mechs.mechs[ e.data.unit ].z },
 		});
 	}
+	else if( e.data.type === 'mech-route-astar' ) {
+		console.log( e.data );
+		G.mechs.newRoute({
+			unit: e.data.unit,
+			dx: e.data.dx,
+			dz: e.data.dz,
+			route: e.data.route,
+		});
+	}
+	
 }
 
 console.log( 'ThreeD Worker Started' );

@@ -1,6 +1,10 @@
 import * as THREE from './../build/three.module.js';
 import { G } from './G.js';
 
+const WORLD_SIZE = 85000;
+const NAV_MAP_SIZE = 1024;
+const NAV_TO_WORLD_SCALE = WORLD_SIZE / NAV_MAP_SIZE;
+
 export class Mech {
 	
 	constructor() {
@@ -64,10 +68,11 @@ export class Mech {
 			object.mounts = [];
 			object.mRots = [];
 			object.ent = new THREE.Group();
+			object.x = 42500,
+			object.z = 42500,
 			this.loadAssembly({ object });
 		});
 		
-		console.log( this.mechs );
 	}
 	
 	loadAssembly({ object }){
@@ -330,6 +335,27 @@ export class Mech {
 		mech.animAction.play();		
 		
 	}
+	
+	newAction( id , action ) {
+		if( this.mechs[id].mixer ) {
+			this.mechs[id].action = action;
+			this.setAnimation({ mech: this.mechs[id] });
+		}
+	}
+		
+	newRoute({
+		unit, dx, dz, route
+	}) {
+		route.map( route => {
+			route.x = route.x * NAV_TO_WORLD_SCALE;
+			route.z = route.z * NAV_TO_WORLD_SCALE;
+		});
+		
+		this.mechs[ unit ].dx = dx;
+		this.mechs[ unit ].dz = dz;
+		this.mechs[ unit ].route = route;
+		if( this.mechs[ unit ].flow ) delete this.mechs[ unit ].flow;
+	}
 		
 	update( delta ) {
 		this.mechs.map( (mech) => {
@@ -365,11 +391,14 @@ export class Mech {
 				}
 				
 				//action
-				if( ! mech.action ) {
-					console.log( 'set animation' );
+				if( mech.route ) {
+					this.followRoute({ mech, delta });
+				}
+				else if( ! mech.action ) {
 					mech.action = 'Idle';
 					this.setAnimation({ mech });
 				}
+
 				mech.mixer.update( delta );
 				
 				
@@ -379,5 +408,59 @@ export class Mech {
 				G.camera[mech.id].translateZ( G.cameraZoom[mech.id] );
 			}
 		});
+	}
+	followRoute({ mech, delta }) {
+		
+		if( ! mech.nextNode ) mech.nextNode = mech.route.shift();
+		
+		const dx = mech.nextNode.x - mech.x;
+		const dz = mech.nextNode.z - mech.z;
+		const df = Math.atan2( dx , dz );
+		
+		let moveSpeed = delta * 25;
+		
+		const right = df - mech.ent.rotation.y;
+		const left = mech.ent.rotation.y - df;
+		const rotSpeed = delta * 25;
+		
+		if( right > left ) {
+			if( right > delta ) {
+				if( right > Math.PI/2 ) moveSpeed = 0;
+				mech.ent.rotation.y += rotSpeed;
+			}
+			else {
+				mech.ent.rotation.y = df;
+			}
+		}
+		else if( left > right ) {
+			if( left > delta ) {
+				if( left > Math.PI/2 ) moveSpeed = 0;
+				mech.ent.rotation.y -= rotSpeed;
+			}
+			else {
+				mech.ent.rotation.y = df;
+			}
+		}
+		
+		if( moveSpeed > 0 ) {
+			if( mech.action !== 'Walk' ) {
+				mech.action = 'Walk';
+				this.setAnimation({ mech });
+			}
+			mech.x += Math.sin( mech.ent.rotation.y ) * moveSpeed;
+			mech.z += Math.cos( mech.ent.rotation.y ) * moveSpeed;
+			console.log( moveSpeed.toFixed(5) , mech.x.toFixed(5) , mech.z.toFixed(5) );
+			const dr = Math.sqrt( dx*dx + dz*dz );
+			if( dr < NAV_TO_WORLD_SCALE ) {
+				delete mech.nextNode;
+			}
+		}
+		else if( mech.action !== 'Idle' ) {
+			mech.action = 'Idle';
+			this.setAnimation({ mech });
+		}	
+
+		mech.ent.position.set( mech.x , mech.ent.position.y , mech.z );
+		
 	}
 }

@@ -54,7 +54,17 @@
 					animate();
 				}
 				else if( e.data.type === 'mech-navigate' ) {
-					console.log( e.data );
+					if( e.data.target ) {
+						route.postMessage({
+							type: 'astar',
+							collection: 'mech',
+							unit: e.data.unit,
+							dx: e.data.target.x,
+							dz: e.data.target.z,
+							sx: e.data.source.x,
+							sz: e.data.source.z,
+						});
+					}
 				}
 			});
 			threeD.postMessage({
@@ -86,7 +96,19 @@
 				},
 			);		
 			route.addEventListener( 'message' , e => {
-				flow = e.data.flow;
+				if( e.data.type === 'astar' ) {
+					threeD.postMessage({
+						type: 'mech-route-astar',
+						collection: e.data.collection,
+						unit: e.data.unit,
+						dx: e.data.dx,
+						dz: e.data.dz,
+						route: e.data.route,
+					});
+				}
+				else {
+					flow = e.data.flow;
+				}
 			});
 			const navBuilder = new NavBuilder({
 				threeD: threeD,
