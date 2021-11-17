@@ -2,7 +2,7 @@ import * as THREE from './../build/three.module.js';
 import { G } from './G.js';
 
 const WORLD_SIZE = 85000;
-const NAV_MAP_SIZE = 512;
+const NAV_MAP_SIZE = 1024;
 const NAV_TO_WORLD_SCALE = WORLD_SIZE / NAV_MAP_SIZE;
 
 export class Mech {
@@ -361,7 +361,7 @@ export class Mech {
 				if( mech.cockpit_bevel ) {
 					const right = G.cameraPan[mech.id].y - mech.cockpit_bevel.rotation.y;
 					const left = mech.cockpit_bevel.rotation.y - G.cameraPan[mech.id].y;
-					const rotSpeed = delta * 0.25;
+					const rotSpeed = delta * 0.75;
 					if( right > left ) {
 						if( right > rotSpeed ) {
 							mech.cockpit_bevel.rotation.y += rotSpeed;
@@ -412,7 +412,7 @@ export class Mech {
 
 		let sx = Math.floor( mech.x / NAV_TO_WORLD_SCALE );
 		let sz = Math.floor( mech.z / NAV_TO_WORLD_SCALE );
-		if( mech.route[z][x] === 'DESTINATION' ) {
+		if( ! mech.route[z] || ! mech.route[z][x] || mech.route[z][x] === 'DESTINATION' ) {
 			mech.action = 'Idle';
 			this.setAnimation({ mech });
 			console.log( 'DESTINATION' , mech.x , mech.dx , mech.z , mech.dz );
@@ -435,9 +435,13 @@ export class Mech {
 		const left = mech.ent.rotation.y - df;
 		const rotSpeed = delta * 0.5;
 		
+		moveSpeed = ( Math.abs( df - mech.ent.rotation.y ) < 0.05 )
+			? delta * 450
+			: delta * 100;
+		
 		if( right > left ) {
 			if( right > rotSpeed ) {
-				if( right > Math.PI/4 ) moveSpeed = 0;
+				if( right > Math.PI/3 ) moveSpeed = 0;
 				mech.ent.rotation.y += rotSpeed;
 				G.cameraPan[mech.id].y -= rotSpeed;
 			}
@@ -447,7 +451,7 @@ export class Mech {
 		}
 		else if( left > right ) {
 			if( left > rotSpeed ) {
-				if( left > Math.PI/4 ) moveSpeed = 0;
+				if( left > Math.PI/3 ) moveSpeed = 0;
 				mech.ent.rotation.y -= rotSpeed;
 				G.cameraPan[mech.id].y += rotSpeed;
 			}

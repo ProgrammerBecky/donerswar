@@ -172,19 +172,19 @@ export class FlowMap{
 			
 			if( current.x > 0 ) this.makeIntegrationNode({
 				x: current.x-1, z: current.z,
-				cost: current.cost
+				cost: current.cost +1
 			});
 			if( current.x < this.width-1 ) this.makeIntegrationNode({
 				x: current.x+1, z: current.z,
-				cost: current.cost
+				cost: current.cost +1
 			});
 			if( current.z > 0 ) this.makeIntegrationNode({
 				x: current.x, z: current.z-1,
-				cost: current.cost
+				cost: current.cost +1
 			});
 			if( current.z < this.height-1 ) this.makeIntegrationNode({
 				x: current.x, z: current.z+1,
-				cost: current.cost
+				cost: current.cost +1
 			});
 			
 		}
