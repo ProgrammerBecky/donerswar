@@ -60,6 +60,7 @@ const animate = ( time ) => {
 					)
 				);
 		
+				G.world.update( camIndex );
 				G.renderer.setViewport( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
 				G.renderer.setScissor( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
 				G.renderer.render( G.scene , G.camera[camIndex] );

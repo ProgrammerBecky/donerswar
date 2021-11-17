@@ -15,6 +15,18 @@ export class World {
 			visible: false,
 		});
 		
+		let mat = new THREE.MeshStandardMaterial({
+			color: 0x6D6E71,
+		});
+		let geo = new THREE.PlaneGeometry(
+			85000,85000
+		);
+		this.floorPlane = new THREE.Mesh( geo , mat );
+		this.floorPlane.rotation.set( -Math.PI/2 , 0 , 0 );
+		this.floorPlane.position.set( 0 , -20 , 0 );
+		G.scene.add( this.floorPlane );
+			
+		
 		G.fbx.load( '/high/city/Foliage.fbx' , model => {
 			
 			model.traverse( (child) => {
@@ -22,8 +34,8 @@ export class World {
 					child.geometry.computeBoundingBox();
 					child.geometry.needsUpdate = true;
 
-					child.castShadow = true;
-					child.receiveShadow = true;
+					//child.castShadow = true;
+					//child.receiveShadow = true;
 					
 					child.rotation.y = Math.random() * Math.PI * 2;
 					child.scale.set( 0.4+Math.random()*0.2 , 0.4+Math.random()*0.2 , 0.4+Math.random()*0.2 );
@@ -54,8 +66,8 @@ export class World {
 					child.geometry.computeBoundingBox();
 					child.geometry.needsUpdate = true;
 					
-					child.castShadow = true;
-					child.receiveShadow = true;
+					//child.castShadow = true;
+					//child.receiveShadow = true;
 					
 					//self.addToColliders( child );
 					
@@ -183,6 +195,13 @@ export class World {
 		console.log( this.pixelData );
 		this.context.putImageData(this.pixelData, 0,0);
 		
+	}
+	update( camIndex ) {
+		this.floorPlane.position.set(
+			G.camera[ camIndex ].position.x,
+			-20,
+			G.camera[ camIndex ].position.z,
+		);
 	}
 
 }
