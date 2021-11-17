@@ -431,17 +431,19 @@ export class Mech {
 		
 		let moveSpeed = delta * 450;
 		
-		const right = df - mech.ent.rotation.y;
-		const left = mech.ent.rotation.y - df;
+		let right = df - mech.ent.rotation.y;
+		if( right < 0 ) right += Math.PI*2;
+		let left = mech.ent.rotation.y - df;
+		if( left < 0 ) left += Math.PI*2;
 		const rotSpeed = delta * 0.5;
 		
 		moveSpeed = ( Math.abs( df - mech.ent.rotation.y ) < 0.05 )
 			? delta * 450
 			: delta * 100;
 		
-		if( right > left ) {
+		if( right < left ) {
 			if( right > rotSpeed ) {
-				if( right > Math.PI/3 ) moveSpeed = 0;
+				if( right > Math.PI/4 ) moveSpeed = 0;
 				mech.ent.rotation.y += rotSpeed;
 				G.cameraPan[mech.id].y -= rotSpeed;
 			}
@@ -449,9 +451,9 @@ export class Mech {
 				mech.ent.rotation.y = df;
 			}
 		}
-		else if( left > right ) {
+		else if( left < right ) {
 			if( left > rotSpeed ) {
-				if( left > Math.PI/3 ) moveSpeed = 0;
+				if( left > Math.PI/4 ) moveSpeed = 0;
 				mech.ent.rotation.y -= rotSpeed;
 				G.cameraPan[mech.id].y += rotSpeed;
 			}
@@ -475,6 +477,7 @@ export class Mech {
 		}		
 
 		mech.ent.position.set( mech.x , mech.ent.position.y , mech.z );
+		G.world.destroy( mech.ent.position.x , mech.ent.position.z , 500 );
 		
 	}
 }

@@ -5,6 +5,8 @@ export class World {
 
 	constructor() {
 		
+		this.collapse = [];
+		
 		this.loaded = 0;
 		let self = this;
 		this.map = new THREE.Group();
@@ -59,8 +61,79 @@ export class World {
 			
 		});
 		
+		self.buildings = [];
+		
 		G.fbx.load( '/high/city/CityCentre.fbx' , model => {
+			
 			model.traverse( (child) => {
+				
+				if( child.name === 'Buildings' ) {
+					child.children.map( building => {
+						building.geometry.computeBoundingBox();
+						
+						let type, armour, hp, collapse;
+						if( building.name.indexOf( 'wall' ) > -1 ) {
+							type = 'Wall';
+							armour = 1;
+							hp = 3;						
+						}
+						else if( building.name.indexOf( 'fence' ) > -1 ) {
+							type = 'Fence';
+							armour = 0;
+							hp = 1;
+						}
+						else if( building.name.indexOf( 'hedge' ) > -1 ) {
+							type = 'Hedge';
+							armour = 0;
+							hp = 3;				
+						}
+						else if( building.name.indexOf( 'wheeliebin' ) > -1 ) {
+							type = 'Wheelie Bin';
+							armour = 0;
+							hp = 1;
+						}
+						else if( building.name.indexOf( 'shed' ) > -1 ) {
+							type = 'Shed';
+							armour = 0;
+							hp = 3;
+						}
+						else if( building.name.indexOf( 'electricalbox' ) > -1 ) {
+							type = 'Electrical Box';
+							armour = 0;
+							hp = 1;
+						}
+						else if( building.name.indexOf( 'telegraphpole' ) > -1 || building.name.indexOf( 'goalposts' ) > -1 ) {
+							type = 'Telegraph Pole';
+							armour = 0;
+							hp = 1;
+						}
+						else {
+							type = 'Building';
+							armour = 3;
+							let width = building.geometry.boundingBox.max.x - building.geometry.boundingBox.min.x;
+							let length = building.geometry.boundingBox.max.z - building.geometry.boundingBox.min.z;
+							hp = 1 + Math.floor( ( width * length ) / 5000 );
+						}
+						
+						let x = Math.floor( building.position.x / 1000 );
+						let z = Math.floor( building.position.z / 1000 );
+						
+						if( ! self.buildings[z] ) self.buildings[z] = [];
+						if( ! self.buildings[z][x] ) self.buildings[z][x] = [];
+
+						self.buildings[z][x].push({
+							ent: building,
+							bounds: {
+								min: { x: building.geometry.boundingBox.min.x , z: building.geometry.boundingBox.min.z },
+								max: { x: building.geometry.boundingBox.max.x , z: building.geometry.boundingBox.max.z },
+							},
+							type: type,
+							armour: armour,
+							hp: hp,
+						});
+					});
+				}
+				
 				if( child.isMesh ) {
 					
 					child.geometry.computeBoundingBox();
@@ -192,11 +265,141 @@ export class World {
 			console.log( (x*100/mapX).toFixed(2) + '%' );
 		}
 		
-		console.log( this.pixelData );
 		this.context.putImageData(this.pixelData, 0,0);
 		
 	}
-	update( camIndex ) {
+	
+	destroy( x,z,area=1 ) {
+		
+		let mx = Math.floor( x/1000 );
+		let mz = Math.floor( z/1000 );
+
+		if( this.buildings[mz] && this.buildings[mz][mx] ) {
+			this.buildings[mz][mx].map( building => {
+				if( building.hp > 0 ) {
+					
+					let destroy = false;
+					if( x-area > building.bounds.min.x && x+area < building.bounds.max.x
+					&&	z-area > building.bounds.min.z && z+area < building.bounds.max.z
+					) {
+						destroy = true;
+					}
+					else {
+						let dx = building.ent.position.x - x;
+						let dz = building.ent.position.z - z;
+						let dr = Math.sqrt( dx*dx + dz*dz );
+						if( dr < area ) destroy = true;
+					}
+					
+					if( destroy ) {
+						building.hp = 0;
+						building.destroyOrigin = {
+							x: x,
+							z: z,
+						};
+						this.collapse.push( building );
+						console.log( 'destroying' , building );
+					}
+				}
+			});
+		}
+
+	}
+	
+	update( delta ) {
+		let removeIndex = [];
+		this.collapse.map( (building,index) => {
+
+			let keep;
+			if( ['Wall','Hedge'].includes( building.type ) ) {
+				keep = this.collapseFall({ building , delta });
+			}
+			else if( ['Telegraph Pole','Fence','Wheelie Bin'].includes( building.type ) ) {
+				keep = this.collapseBounce({ building , delta });
+			}
+			else if( ['Shed','Building','Electrical Box'].includes( building.type ) ) {
+				keep = this.collapseDust({ building , delta });
+			}
+			if( ! keep ) {
+				console.log( building.ent );
+				if( building.ent.parent ) {
+					building.ent.parent.remove( building.ent );
+				}
+				G.scene.remove( building.ent );
+				removeIndex.push( index );
+			}
+		});
+		while( removeIndex.length > 0 ) {
+			this.collapse.splice( removeIndex.shift() , 1 );
+		}
+	}
+	collapseFall({ building , delta }) {
+		if( ! building.fallSide ) {
+			building.fallSide = Math.floor( Math.random() * 2 );
+		}
+		if( building.fallSide === 0 ) {
+			let angle = Math.min( Math.PI/2 , building.ent.rotation.z + delta );
+			if( angle === Math.PI/2 ) return false;
+			building.ent.rotation.set( building.ent.rotation.x , building.ent.rotation.y , angle );
+		}
+		else {
+			let angle = Math.max( -Math.PI/2 , building.ent.rotation.z - delta );
+			if( angle === -Math.PI/2 ) return false;
+			building.ent.rotation.set( building.ent.rotation.x , building.ent.rotation.y , angle );			
+		}
+		return true;
+	}
+	collapseBounce({ building , delta }) {
+		if( ! building.bounceMomentum ) {
+			let dx = building.ent.position.x - building.destroyOrigin.x;
+			let dz = building.ent.position.z - building.destroyOrigin.z;
+			let dr = Math.sqrt( dx*dx + dz*dz );
+			building.bounceMomentum = ( 500 / (dr + 1) ) * 500 * Math.random();
+			building.bounceFacing = Math.atan2( dx , dz );
+			building.bounceAttitude = Math.PI * Math.random();
+			building.spinX = Math.random() * Math.PI/5;
+			building.spinY = Math.random() * Math.PI/5;
+			building.spinZ = Math.random() * Math.PI/5;
+		}
+		
+		let x = Math.cos( building.bounceFacing ) * building.bounceMomentum * delta;
+		let z = Math.sin( building.bounceFacing ) * building.bounceMomentum * delta;
+		let y = Math.cos( building.bounceAttitude ) * building.bounceMomentum * delta;
+		let sin = Math.sin( building.bounceAttitude );
+		x *= sin;
+		z *= sin;
+		
+		y = building.ent.position.y + y;
+		if( y < 0 ) {
+			building.bounceMomentum *= 0.95;
+			building.bounceAttitude = Math.abs( building.bounceAttitude ) * 0.95;
+			
+			building.spinX = Math.random() * Math.PI/5;
+			building.spinY = Math.random() * Math.PI/5;
+			building.spinZ = Math.random() * Math.PI/5;
+			building.bounceFacing += Math.random()*0.8 - 0.4;
+			if( building.bounceMomentum < 25 ) {
+				return false;
+			}
+		}
+		else {
+			building.bounceAttitude = Math.max( -Math.PI , building.bounceAttitude - delta );
+		}
+		building.ent.position.set( building.ent.position.x + x , y , building.ent.position.z + z );
+		building.ent.rotation.set(
+			building.ent.rotation.x + building.spinX * delta,
+			building.ent.rotation.y + building.spinY * delta,
+			building.ent.rotation.z + building.spinZ * delta,
+		);
+		
+		return true;
+		
+	}
+	collapseDust({ building, delta }) {
+		return false;
+	}
+	
+	updateForCam( camIndex ) {
 		this.floorPlane.position.set(
 			G.camera[ camIndex ].position.x,
 			-20,

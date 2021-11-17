@@ -48,6 +48,7 @@ const animate = ( time ) => {
 		
 		G.mechs.update( delta );
 		G.zombies.update( delta );
+		G.world.update( delta );
 		
 		for( let camIndex=0 ; camIndex<4 ; camIndex++ ) {
 			if( G.glViewports[camIndex] ) {
@@ -60,7 +61,7 @@ const animate = ( time ) => {
 					)
 				);
 		
-				G.world.update( camIndex );
+				G.world.updateForCam( camIndex );
 				G.renderer.setViewport( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
 				G.renderer.setScissor( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
 				G.renderer.render( G.scene , G.camera[camIndex] );
@@ -124,11 +125,15 @@ onmessage = (e) => {
 		G.renderer.setPixelRatio( e.data.pixelRatio );
 		G.scene = new THREE.Scene();
 				
-		G.ambient = new THREE.AmbientLight(0xaaaaaa);
+		G.ambient = new THREE.AmbientLight(0xc8c8c8);
 		G.scene.add( G.ambient );
 
 		G.directional = new THREE.DirectionalLight(0xffffff);
-		G.directional.position.set(-1,0,-1);
+		G.directional.position.set(42500,5000,-22750);
+		G.directionalTarget = new THREE.Object3D();
+		G.directionalTarget.position.set( -42500,0,22750 );
+		G.scene.add( G.directionalTarget );
+		G.directional.target = G.directionalTarget;
 		G.scene.add( G.directional );
 
 		G.cameraPan = [
