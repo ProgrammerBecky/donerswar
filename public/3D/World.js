@@ -37,39 +37,13 @@ export class World {
 			
 			model.traverse( (child) => {
 				if( child.isMesh ) {
-					child.geometry.computeBoundingBox();
-					child.geometry.needsUpdate = true;
-
-					const { type , armour , hp , collapse , lightness } = this.getMeshLookup({ building: child });
-					if( hp > 0 ) {
-
-						let x = Math.floor( child.position.x / 1000 );
-						let z = Math.floor( child.position.z / 1000 );
-						
-						if( ! self.buildings[z] ) self.buildings[z] = [];
-						if( ! self.buildings[z][x] ) self.buildings[z][x] = [];
-
-						self.buildings[z][x].push({
-							ent: child,
-							bounds: {
-								min: { x: child.geometry.boundingBox.min.x , z: child.geometry.boundingBox.min.z },
-								max: { x: child.geometry.boundingBox.max.x , z: child.geometry.boundingBox.max.z },
-							},
-							type: type,
-							armour: armour,
-							hp: hp,
-							lightness: lightness,
-						});
-					}
 
 					//child.castShadow = true;
 					//child.receiveShadow = true;
 					
 					child.rotation.y = Math.random() * Math.PI * 2;
 					child.scale.set( 0.4+Math.random()*0.2 , 0.4+Math.random()*0.2 , 0.4+Math.random()*0.2 );
-					
-					//self.addToColliders( child );
-					
+
 					if( child.material && child.material ) {
 						if( Array.isArray( child.material ) ) {
 							child.material[1].transparent = true;
@@ -82,7 +56,7 @@ export class World {
 			});
 
 			console.log( 'Foliage Loaded' );
-			this.map.add( model );
+			self.map.add( model );
 			self.loadingComplete();
 			
 		});
@@ -91,38 +65,14 @@ export class World {
 		
 		G.fbx.load( '/high/city/CityCentre.fbx' , model => {
 			
+			let removeList = [];
+			
 			model.traverse( (child) => {
 				if( child.isMesh ) {
-						
-					child.geometry.computeBoundingBox();
-					child.geometry.needsUpdate = true;
-					const { type , armour , hp , collapse , lightness } = this.getMeshLookup({ building: child });
-
-					if( hp > 0 ) {
-
-						let x = Math.floor( child.position.x / 1000 );
-						let z = Math.floor( child.position.z / 1000 );
-						
-						if( ! self.buildings[z] ) self.buildings[z] = [];
-						if( ! self.buildings[z][x] ) self.buildings[z][x] = [];
-
-						self.buildings[z][x].push({
-							ent: child,
-							bounds: {
-								min: { x: child.geometry.boundingBox.min.x , z: child.geometry.boundingBox.min.z },
-								max: { x: child.geometry.boundingBox.max.x , z: child.geometry.boundingBox.max.z },
-							},
-							type: type,
-							armour: armour,
-							hp: hp,
-							lightness: lightness,
-						});
-					}
+					if( child.name === 'Col' ) removeList.push( child );
 					
 					//child.castShadow = true;
 					//child.receiveShadow = true;
-					
-					//self.addToColliders( child );
 					
 					if( child.material && child.material.map ) {
 						child.material.map.magFilter = G.MinMagFilter;
@@ -132,8 +82,13 @@ export class World {
 				}				
 			});
 			
+			while( removeList.length > 0 ) {
+				const node = removeList.shift();
+				node.parent.remove( node );
+			}
+			
 			console.log( 'Concrete Loaded' );
-			this.map.add( model );
+			self.map.add( model );
 			self.loadingComplete();
 			
 		});
@@ -141,7 +96,7 @@ export class World {
 	}
 	getMeshLookup({ building }) {
 
-		let type = 'Unknown', armour = 0, hp = 0, collapse = 0, lightness = 0, navigable = 255;
+		let type = 'Unknown', armour = 0, hp = 0, collapse = 0, lightness = 0, navigable = 200;
 		if( building.name.indexOf( 'wall' ) > -1 ) {
 			type = 'Wall';
 			armour = 1;
@@ -160,7 +115,7 @@ export class World {
 			type = 'Fence';
 			armour = 0;
 			hp = 1;
-			lightness = 0.4;
+			lightness = 0.35;
 			navigable = 160;
 		}
 		else if( building.name.indexOf( 'hedge' ) > -1 || building.name.indexOf( 'Bush' ) > -1 ) {
@@ -174,7 +129,7 @@ export class World {
 			type = 'Wheelie Bin';
 			armour = 0;
 			hp = 1;
-			lightness = 0.5;
+			lightness = 0.4;
 			navigable = 245;
 		}
 		else if( building.name.indexOf( 'shed' ) > -1 ) {
@@ -188,7 +143,7 @@ export class World {
 			type = 'Electrical Box';
 			armour = 0;
 			hp = 1;
-			lightness = 0.2;
+			lightness = 0.3;
 			navigable = 64;
 		}
 		else if(
@@ -203,7 +158,7 @@ export class World {
 			type = 'Telegraph Pole';
 			armour = 0;
 			hp = 1;
-			lightness = 0.4;
+			lightness = 0.35;
 			navigable = 200;
 		}
 		else if( building.name.indexOf( 'Tree' ) > -1 ) {
@@ -212,6 +167,17 @@ export class World {
 			hp = 5;
 			lightness = 0.25;
 			navigable = 96;
+		}
+		else if( building.name.indexOf( '_roadside' ) > -1 ) {
+			navigable = 200;
+			hp = 0;			
+		}
+		else if( building.name.indexOf( '_road' ) > -1 ) {
+			navigable = 255;
+			hp = 0;
+		}
+		else if( building.name.indexOf( '_sidewalk' ) > -1 ) {
+			navigable = 210;
 		}
 		else if(
 			building.name.indexOf( 'sidewalk' ) > -1
@@ -222,7 +188,7 @@ export class World {
 			|| building.name.indexOf( 'park' ) > -1
 		) { 
 			hp = 0;
-			navigable = 255;
+			navigable = 200;
 		}
 		else if(
 			building.name.indexOf( 'ukpub' ) > -1
@@ -269,6 +235,20 @@ export class World {
 
 		const context = canvas.getContext( '2d' );
 		
+
+		this.buildings.map( building => {
+			if( ['wall','hedge','fence'].includes( building.type ) ) {
+				
+				let pos = building.ent.getWorldPosition();
+				let wx = Math.floor( pos.x/NAV_TO_WORLD_SCALE );
+				let wz = Math.floor( pos.z/NAV_TO_WORLD_SCALE );
+				const index = ((wz*this.width)+wx)*4;
+				mapData.data[index+0] = 128;
+				mapData.data[index+1] = 128;
+				mapData.data[index+2] = 128;
+			}
+		});		
+		
 		for( let x=0 ; x<this.width ; x++ ) {
 			console.log( x );
 			for( let z=0 ; z<this.height ; z++ ) {
@@ -303,31 +283,6 @@ export class World {
 		context.putImageData(mapData, 0,0);
 		
 	}
-	addToColliders( child ) {
-
-		let vector = new THREE.Vector3();
-		let quaternion = new THREE.Quaternion();
-
-		const box = child.geometry.boundingBox;
-		
-		if( box.max.x-box.min.x > 1000 || box.max.z-box.min.z > 1000 ) {
-			this.colliders.push( child );		
-		}
-		else {
-			let geo = new THREE.BoxBufferGeometry( box.max.x-box.min.x , box.max.y-box.min.y , box.max.z-box.min.z );
-
-			child.getWorldPosition( vector );
-			child.getWorldQuaternion( quaternion );
-
-			let collider = new THREE.Mesh( geo , this.wireframe );
-			collider.position.set( vector.x , (box.max.y-box.min.y)/2 , vector.z );
-			collider.applyQuaternion( quaternion );
-			G.scene.add( collider );
-
-			this.colliders.push( collider );		
-		}
-		
-	}
 	setBuildCanvas({ canvas }) {
 		console.log( 'Canvas Loaded' );
 		this.canvas = canvas;
@@ -336,17 +291,49 @@ export class World {
 	}
 	loadingComplete() {
 		this.loaded++;
-		if( this.loaded < 2 ) return; /* Raise this by 1 when NavBuilder sends a canvas for nav map creation */
+		if( this.loaded < 2 ) return;
 		G.scene.add( this.map );
-		console.log( 'World Loaded' );
+		
+		setTimeout( (self) => {
+			
+			let pos = new THREE.Vector3();
+			self.map.updateWorldMatrix( true , true );
+			self.map.traverse( child => {
+				
+				if( child.isMesh ) {
+					child.geometry.computeBoundingBox();
+					child.geometry.needsUpdate = true;
+					const { type , armour , hp , collapse , lightness } = this.getMeshLookup({ building: child });
 
-		/* In production we return here
-		 * To generate a new nav map image this code
-		 * needs to execute
-		 * but like, it takes yonks....
-		 * so we save out the image and just load it in production
-		 */
-		 return;
+					if( hp > 0 ) {
+
+						child.getWorldPosition( pos );
+						let x = Math.floor( pos.x / 1000 );
+						let z = Math.floor( pos.z / 1000 );
+
+						let bounds = {
+							min: { x: pos.x + child.geometry.boundingBox.min.x , z: pos.z + child.geometry.boundingBox.min.z },
+							max: { x: pos.x + child.geometry.boundingBox.max.x , z: pos.z + child.geometry.boundingBox.max.z },							
+						}
+
+						if( ! self.buildings[z] ) self.buildings[z] = [];
+						if( ! self.buildings[z][x] ) self.buildings[z][x] = [];
+						self.buildings[z][x].push({
+							ent: child,
+							bounds: bounds,
+							type: type,
+							armour: armour,
+							hp: hp,
+							lightness: lightness,
+						});
+					}		
+				}
+				
+			});
+						
+		} , 0 , this );
+		
+		console.log( 'World Loaded' );
 	}
 	
 	destroy( x,z,area=1 ) {
@@ -391,7 +378,7 @@ export class World {
 		this.collapse.map( (building,index) => {
 
 			let keep;
-			if( ['Electrical Box','Shed','Wall','Hedge','Telegraph Pole','Fence','Wheelie Bin'].includes( building.type ) ) {
+			if( ['Electrical Box','Shed','Wall','Hedge','Telegraph Pole','Fence','Wheelie Bin','Barrier'].includes( building.type ) ) {
 				keep = this.collapseBounce({ building , delta: delta });
 			}
 			else if( [,'Building'].includes( building.type ) ) {
@@ -416,8 +403,7 @@ export class World {
 		if( ! building.bounceMomentum ) {
 			let dx = building.ent.position.x - building.destroyOrigin.x;
 			let dz = building.ent.position.z - building.destroyOrigin.z;
-			let dr = Math.sqrt( dx*dx + dz*dz );
-			building.bounceMomentum = ( 500 / (dr + 1) ) * 2000 * Math.random() * building.lightness;;
+			building.bounceMomentum = 2000 * Math.random() * building.lightness;
 			building.bounceFacing = Math.atan2( dx , dz );
 			building.bounceAttitude = Math.PI * Math.random();
 			building.spinX = Math.random() * Math.PI/6;
@@ -436,7 +422,7 @@ export class World {
 
 		building.gravity += delta;
 		y = building.ent.position.y + y - building.gravity;
-		if( y < 0 && building.bounceAttitude < 0 ) {
+		if( y < (building.bounds.max.y-building.bounds.min.y)/2 && building.bounceAttitude < 0 ) {
 			building.bounceMomentum *= building.lightness;
 			building.bounceAttitude = Math.abs( building.bounceAttitude ) * 0.3;
 			
