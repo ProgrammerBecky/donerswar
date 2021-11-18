@@ -378,7 +378,7 @@ export class World {
 		this.collapse.map( (building,index) => {
 
 			let keep;
-			if( ['Electrical Box','Shed','Wall','Hedge','Telegraph Pole','Fence','Wheelie Bin','Barrier'].includes( building.type ) ) {
+			if( ['Electrical Box','Shed','Wall','Hedge','Telegraph Pole','Tree','Fence','Wheelie Bin','Barrier'].includes( building.type ) ) {
 				keep = this.collapseBounce({ building , delta: delta });
 			}
 			else if( [,'Building'].includes( building.type ) ) {
