@@ -6,6 +6,7 @@ import { World } from './3D/World.js';
 import { Zombies } from './3D/Zombies.js';
 import { Mech } from './3D/Mech.js';
 import { ScreenPicker } from './3D/ScreenPicker.js';
+import { Particles } from './3D/Particles.js';
 
 //* ThreeJS Worker Polyfill */
 THREE.ImageLoader.prototype.load = function ( url, onLoad, onProgress, onError ) {
@@ -49,6 +50,7 @@ const animate = ( time ) => {
 		G.mechs.update( delta );
 		G.zombies.update( delta );
 		G.world.update( delta );
+		G.particles.update( delta );
 		
 		for( let camIndex=0 ; camIndex<4 ; camIndex++ ) {
 			if( G.glViewports[camIndex] ) {
@@ -181,6 +183,7 @@ onmessage = (e) => {
 		G.world = new World();
 		G.zombies = new Zombies();
 		G.mechs = new Mech();
+		G.particles = new Particles();
 		
 		G.screenPicker = new ScreenPicker();
 		

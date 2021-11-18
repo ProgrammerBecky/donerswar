@@ -338,39 +338,43 @@ export class World {
 	
 	destroy( x,z,area=1 ) {
 		
-		let mx = Math.floor( x/1000 );
-		let mz = Math.floor( z/1000 );
+		let wx = Math.floor( x/1000 );
+		let wz = Math.floor( z/1000 );
 
-		if( this.buildings[mz] && this.buildings[mz][mx] ) {
-			this.buildings[mz][mx].map( building => {
-				if( building.hp > 0 ) {
-					
-					let destroy = false;
-					if( x+area > building.bounds.min.x && x-area < building.bounds.max.x
-					&&	z+area > building.bounds.min.z && z-area < building.bounds.max.z
-					) {
-						destroy = true;
-					}
-					else {
-						let dx = building.ent.position.x - x;
-						let dz = building.ent.position.z - z;
-						let dr = Math.sqrt( dx*dx + dz*dz );
-						if( dr < area ) destroy = true;
-					}
-					
-					if( destroy ) {
-						building.hp = 0;
-						building.destroyOrigin = {
-							x: x,
-							z: z,
-						};
-						this.collapse.push( building );
-						console.log( 'destroying' , building );
-					}
+		for( let mx=wx-2 ; mx<wx+2 ; mx++ ) {
+			for( let mz=wz-2 ; mz<wz+2 ; mz++ ) {
+
+				if( this.buildings[mz] && this.buildings[mz][mx] ) {
+					this.buildings[mz][mx].map( building => {
+						if( building.hp > 0 ) {
+							
+							let destroy = false;
+							if( x+area > building.bounds.min.x && x-area < building.bounds.max.x
+							&&	z+area > building.bounds.min.z && z-area < building.bounds.max.z
+							) {
+								destroy = true;
+							}
+							else {
+								let dx = building.ent.position.x - x;
+								let dz = building.ent.position.z - z;
+								let dr = Math.sqrt( dx*dx + dz*dz );
+								if( dr < area ) destroy = true;
+							}
+							
+							if( destroy ) {
+								building.hp = 0;
+								building.dustSpawns = 25;
+								building.destroyOrigin = {
+									x: x,
+									z: z,
+								};
+								this.collapse.push( building );
+							}
+						}
+					});
 				}
-			});
+			}
 		}
-
 	}
 	
 	update( delta ) {
@@ -381,19 +385,26 @@ export class World {
 			if( ['Electrical Box','Shed','Wall','Hedge','Telegraph Pole','Tree','Fence','Wheelie Bin','Barrier'].includes( building.type ) ) {
 				keep = this.collapseBounce({ building , delta: delta });
 			}
-			else if( [,'Building'].includes( building.type ) ) {
-				keep = this.collapseDust({ building , delta });
+			else if( ['Building'].includes( building.type ) ) {
+				if( building.dustSpawns > 0 ) {
+					building.dustSpawns--;
+					G.particles.spawnBuildingDestroy({ building });
+				}
+				keep = this.collapseBounce({ building , delta: delta });
 			}
 			if( ! keep ) {
 				console.log( building.ent );
 				if( building.ent.parent ) {
 					building.ent.parent.remove( building.ent );
 				}
+				else {
+					G.scene.remove( building.ent );					
+				}
 				building.ent.position.set( 85000*10,-85000*10,-85000*10 );
-				G.scene.remove( building.ent );
 				removeIndex.push( index );
 			}
 		});
+		
 		removeIndex = removeIndex.reverse();
 		while( removeIndex.length > 0 ) {
 			this.collapse.splice( removeIndex.shift() , 1 );
@@ -403,12 +414,22 @@ export class World {
 		if( ! building.bounceMomentum ) {
 			let dx = building.ent.position.x - building.destroyOrigin.x;
 			let dz = building.ent.position.z - building.destroyOrigin.z;
-			building.bounceMomentum = 2000 * Math.random() * building.lightness;
-			building.bounceFacing = Math.atan2( dx , dz );
-			building.bounceAttitude = Math.PI * Math.random();
-			building.spinX = Math.random() * Math.PI/6;
-			building.spinY = Math.random() * Math.PI/6;
-			building.spinZ = Math.random() * Math.PI/6;
+			if( building.lightness === 0 ) {
+				building.bounceMomentum = 0;
+				building.bounceFacing = Math.atan2( dx , dz );
+				building.bounceAttitude = -Math.PI;
+				building.spinX = 0;
+				building.spinY = 0;
+				building.spinZ = 0;
+			}
+			else {
+				building.bounceMomentum = 2000 * Math.random() * building.lightness;
+				building.bounceFacing = Math.atan2( dx , dz );
+				building.bounceAttitude = Math.PI * Math.random();
+				building.spinX = Math.random() * Math.PI/6;
+				building.spinY = Math.random() * Math.PI/6;
+				building.spinZ = Math.random() * Math.PI/6;
+			}
 			building.gravity = 0;
 		}
 		
@@ -420,7 +441,7 @@ export class World {
 		x *= vertical;
 		z *= vertical;
 
-		building.gravity += delta;
+		building.gravity += delta * 100;
 		y = building.ent.position.y + y - building.gravity;
 		if( y < (building.bounds.max.y-building.bounds.min.y)/2 && building.bounceAttitude < 0 ) {
 			building.bounceMomentum *= building.lightness;
@@ -447,9 +468,6 @@ export class World {
 		
 		return true;
 		
-	}
-	collapseDust({ building, delta }) {
-		return false;
 	}
 	
 	updateForCam( camIndex ) {
