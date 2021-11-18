@@ -438,12 +438,12 @@ export class Mech {
 		const rotSpeed = delta * 0.5;
 		
 		moveSpeed = ( Math.abs( df - mech.ent.rotation.y ) < 0.05 )
-			? delta * 450
-			: delta * 100;
+			? delta * 400
+			: delta * 80;
 		
 		if( right < left ) {
 			if( right > rotSpeed ) {
-				if( right > Math.PI/4 ) moveSpeed = 0;
+				if( right > Math.PI/2 ) moveSpeed = 0;
 				mech.ent.rotation.y += rotSpeed;
 				G.cameraPan[mech.id].y -= rotSpeed;
 			}
@@ -453,7 +453,7 @@ export class Mech {
 		}
 		else if( left < right ) {
 			if( left > rotSpeed ) {
-				if( left > Math.PI/4 ) moveSpeed = 0;
+				if( left > Math.PI/2 ) moveSpeed = 0;
 				mech.ent.rotation.y -= rotSpeed;
 				G.cameraPan[mech.id].y += rotSpeed;
 			}

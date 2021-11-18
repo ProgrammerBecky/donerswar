@@ -104,6 +104,14 @@ const setViewports = ( width , height ) => {
 
 /* Messaging from Main Thread */
 onmessage = (e) => {
+	if( e.data.type === 'rebuild-map' ) {
+		G.world.rebuildNavMap({
+			canvas: e.data.canvas,
+			mapData: e.data.mapData,
+			width: e.data.width,
+			height: e.data.height,
+		});
+	}
 	if( e.data.type === 'init' ) {
 		
 		let canvas = e.data.canvas;

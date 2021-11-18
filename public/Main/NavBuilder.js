@@ -23,25 +23,6 @@ export class NavBuilder {
 			context.drawImage( map,0,0 );
 			const data = context.getImageData( 0,0, canvas.width,canvas.height );
 			//document.getElementById('Content').appendChild( canvas );
-
-			/* Debug */
-			/*
-			canvas = document.createElement( 'canvas' );
-			canvas.width = map.width;
-			canvas.height = map.height;
-			canvas.style.position = 'absolute';
-			canvas.style.top = 0;
-			canvas.style.left = 0;
-			canvas.style.zIndex = 1;
-			document.getElementById('Content').appendChild( canvas );
-			const offscreen = canvas.transferControlToOffscreen();
-			route.postMessage({
-				type:	'init',
-				canvas: offscreen,
-				mapData: data,
-			}, [offscreen]);
-			/* End Debug */
-			
 			
 			route.postMessage({
 				type:	'init',
@@ -49,38 +30,51 @@ export class NavBuilder {
 				mapData: data,
 			});
 			
-			setTimeout( () => {
-				route.postMessage({
-					type:	'route',
-					sx: 0, sz: 650,
-					dx: 256, dz: 320,
-					debug: false,
-					quick: true,
-				});
-			} , 1 );			
-
 		};
 		map.src = '/map.png';
 
 	}
 	buildNewNavMapFromGeo({ threeD }) {
 		/* To build a new nav map from the geo */
-		
-		const canvas = document.createElement( 'canvas' );
-		canvas.style.position = 'absolute';
-		canvas.style.top = 0;
-		canvas.style.left = 0;
-		canvas.style.opacity = 1;
-		canvas.style.zIndex = 2;
-		canvas.width = 64;
-		canvas.height = 64;
-		document.getElementById('Content').appendChild( canvas );		
-		
-		const offscreen = canvas.transferControlToOffscreen();
-		threeD.postMessage({
-			type:	'buildRoutes',
-			canvas: offscreen,
-		} , [offscreen]);
+
+		let map = new Image();
+		map.onload = image => {
+			
+			let canvas = document.createElement( 'canvas' );
+			canvas.style.position = 'absolute';
+			canvas.style.top = 0;
+			canvas.style.left = 0;
+			canvas.style.zIndex = 1;
+			canvas.width = map.width;
+			canvas.height = map.height;
+			
+			const context = canvas.getContext( '2d' );
+			context.drawImage( map,0,0 );
+			const data = context.getImageData( 0,0, canvas.width,canvas.height );			
+			
+			let newCanvas = document.createElement( 'canvas' );
+			newCanvas.width = map.width;
+			newCanvas.height = map.height;
+			newCanvas.style.position = 'absolute';
+			newCanvas.style.top = 0;
+			newCanvas.style.left = 0;
+			newCanvas.style.zIndex = 1;
+			document.getElementById('Content').appendChild( newCanvas );
+			const offscreen = newCanvas.transferControlToOffscreen();
+			
+			setTimeout( () => {
+				console.log( 'REBUILD MAP' );
+				threeD.postMessage({
+					type:	'rebuild-map',
+					canvas: offscreen,
+					mapData: data,
+					width: map.width,
+					height: map.height,
+				}, [offscreen]);
+			} , 30000 );
+			
+		};
+		map.src = '/map.png';		
 		
 	}
 }
