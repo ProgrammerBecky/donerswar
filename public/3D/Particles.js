@@ -34,8 +34,6 @@ export class Particles {
 		
 	spawnBuildingDestroy({ building }) {
 		
-		console.log('spawn building destroy' , building );
-		
 		for( let x=building.bounds.min.x; x<building.bounds.max.x ; x+= 1000 ) {
 			for( let y=building.ent.geometry.boundingBox.min.y; y<building.ent.geometry.boundingBox.max.y ; y+= 1000 ) {
 				for( let z=building.bounds.min.z; z<building.bounds.max.z ; z+= 1000 ) {
@@ -52,8 +50,6 @@ export class Particles {
 				}
 			}
 		}
-		
-		console.log( this.particles , G.scene );
 		
 	}
 	

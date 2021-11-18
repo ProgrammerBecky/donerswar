@@ -15,6 +15,9 @@ export class World {
 		let self = this;
 		this.map = new THREE.Group();
 		this.colliders = [];
+
+		this.mapUpdates = [];
+		this.sendMapPacket = [];
 		
 		this.wireframe = new THREE.MeshBasicMaterial({
 			color: 0x00ff00,
@@ -32,6 +35,9 @@ export class World {
 		this.floorPlane.position.set( 0 , -20 , 0 );
 		G.scene.add( this.floorPlane );
 			
+		this.rayCaster = new THREE.Raycaster();
+		this.source = new THREE.Vector3();
+		this.dir = new THREE.Vector3();
 		
 		G.fbx.load( '/high/city/Foliage.fbx' , model => {
 			
@@ -235,7 +241,6 @@ export class World {
 
 		const context = canvas.getContext( '2d' );
 		
-
 		this.buildings.map( building => {
 			if( ['wall','hedge','fence'].includes( building.type ) ) {
 				
@@ -361,6 +366,19 @@ export class World {
 								if( dr < area ) destroy = true;
 							}
 							
+							if( destroy && building.type === 'Building' ) {
+								this.source.set(x,1500,z);
+								this.dir.set(0,-1,0);
+								this.rayCaster.set( this.source , this.dir );
+								const intersects = this.rayCaster.intersectObject( this.map , true );
+								destroy = false;
+								intersects.map( intersection => {
+									if( intersection.object === building.ent ) {
+										destroy = true;
+									}
+								});
+							}
+
 							if( destroy ) {
 								building.hp = 0;
 								building.dustSpawns = 25;
@@ -377,7 +395,66 @@ export class World {
 		}
 	}
 	
+	remapRoutefinding({ building }) {
+
+		const minX = building.bounds.min.x - NAV_TO_WORLD_SCALE;
+		const maxX = building.bounds.max.x + NAV_TO_WORLD_SCALE;
+		const minZ = building.bounds.min.z - NAV_TO_WORLD_SCALE;
+		const maxZ = building.bounds.max.z + NAV_TO_WORLD_SCALE;
+	
+		for( let z=minZ; z<maxZ ; z+= NAV_TO_WORLD_SCALE ) {
+			for( let x=minX; x<maxX ; x+= NAV_TO_WORLD_SCALE ) {
+				this.mapUpdates.push({
+					x,z
+				});
+			}
+		}
+	
+	}
+	
+	doMapUpdate() {
+
+		let batchSize = 10;
+		
+		while( batchSize > 0 && this.mapUpdates.length > 0 ) {
+			
+			batchSize--;
+
+			let update = this.mapUpdates.shift();
+			const mx = Math.floor( update.x / 1000 );
+			const mz = Math.floor( update.z / 1000 );
+			
+			this.source.set( update.x, 5000 , update.z );
+			this.dir.set(0,-1,0);
+			this.rayCaster.set( this.source , this.dir );
+				
+			if( ! this.sendMapPacket[mz] ) this.sendMapPacket[mz] = [];
+				
+			const intersects = this.rayCaster.intersectObject( this.map , true );
+			if( intersects.length > 0 ) {
+				const { navigable } = this.getMeshLookup({ building: intersects[0].object });
+				this.sendMapPacket[mz][mx] = navigable;
+			}
+			else {
+				this.sendMapPacket[mz][mx] = 255;
+			}
+			
+			if( this.mapUpdates.length === 0 || this.sendMapPacket.length > 249 ) {
+				console.log( 'SEND UPDATE' , this.sendMapPacket );
+				this.sendMapPacket = [];
+			}
+		}
+
+		console.log( '...' , this.mapUpdates.length );
+		
+	}
+	
 	update( delta ) {
+		
+		if( this.mapUpdates.length > 0 ) {
+			this.doMapUpdate();
+		}
+		
 		let removeIndex = [];
 		this.collapse.map( (building,index) => {
 
@@ -393,7 +470,9 @@ export class World {
 				keep = this.collapseBounce({ building , delta: delta });
 			}
 			if( ! keep ) {
-				console.log( building.ent );
+				if( building.type === 'Building' ) {
+					this.remapRoutefinding({ building });
+				}
 				if( building.ent.parent ) {
 					building.ent.parent.remove( building.ent );
 				}
@@ -443,7 +522,7 @@ export class World {
 
 		building.gravity += delta * 100;
 		y = building.ent.position.y + y - building.gravity;
-		if( y < (building.bounds.max.y-building.bounds.min.y)/2 && building.bounceAttitude < 0 ) {
+		if( y < 0 && building.type !== 'Building' ) {
 			building.bounceMomentum *= building.lightness;
 			building.bounceAttitude = Math.abs( building.bounceAttitude ) * 0.3;
 			
@@ -455,6 +534,9 @@ export class World {
 			if( building.bounceMomentum < 50 ) {
 				return false;
 			}
+		}
+		else if( y < -2000 ) {
+			return false;
 		}
 		else {
 			building.bounceAttitude = Math.max( -Math.PI , building.bounceAttitude - delta );
