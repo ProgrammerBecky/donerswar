@@ -22,7 +22,10 @@ onmessage = (e) => {
 		flowMap = new FlowMap({ width: e.data.mapData.width , height: e.data.mapData.height, map: map });
 
 	}
-	if( e.data.type === 'flowMap' ) {
+	else if( e.data.type == 'update-route' ) {
+		map.updateRoute({ route: e.data.route });
+	}
+	else if( e.data.type === 'flowMap' ) {
 		const { sx,sz,dx,dz } = reduceCoords({
 			sx: e.data.sx , sz: e.data.sz,
 			dx: e.data.dx , dz: e.data.dz,

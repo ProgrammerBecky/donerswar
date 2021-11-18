@@ -66,6 +66,12 @@
 						});
 					}
 				}
+				else if( e.data.type === 'update-route' ) {
+					route.postMessage({
+						type: 'update-route',
+						route: e.data.route,
+					});
+				}
 			});
 			threeD.postMessage({
 				type: 'init',

@@ -34,6 +34,22 @@ export class Particles {
 		
 	spawnBuildingDestroy({ building }) {
 		
+		/*
+		const vb = building.ent.geometry.attributes.position.array;
+		for( let i=0 ; i<vb.length ; i+=3 ) {
+			if( Math.random() < 0.05 ) {
+				let wx = building.ent.position.x + vb[i];
+				let wy = building.ent.position.y + vb[i+1];
+				let wz = building.ent.position.z + vb[i+2];
+				this.spawnSand({
+					x: wx + Math.random() * 250 - 125,
+					y: wy + Math.random() * 250 - 125,
+					z: wz + Math.random() * 250 - 125,
+				});
+			}
+		}
+		*/
+		
 		for( let x=building.bounds.min.x; x<building.bounds.max.x ; x+= 1000 ) {
 			for( let y=building.ent.geometry.boundingBox.min.y; y<building.ent.geometry.boundingBox.max.y ; y+= 1000 ) {
 				for( let z=building.bounds.min.z; z<building.bounds.max.z ; z+= 1000 ) {
@@ -55,7 +71,9 @@ export class Particles {
 	
 	spawnSand({ x,y,z }) {
 		let t = Math.floor( Math.random() * 16 );
-		let life = 5 + Math.random() * 15;
+		let life = ( Math.random() < 0.1 )
+			? 5 + Math.random() * 55
+			: 5 + Math.random() * 10
 		
 		let ent = new THREE.Sprite( this.sandTex[ t ].clone() );
 		ent.position.set( x,y,z );
@@ -69,7 +87,7 @@ export class Particles {
 			scale: 150 + Math.random()*300,
 			life: life,
 			maxLife: life,
-			drift: 5 + Math.random() * 25,
+			drift: 5 + Math.random() * 15,
 			type: 'sand',
 		});
 		

@@ -40,6 +40,20 @@ export class Map {
 		}
 	}
 	
+	updateRoute({ route }) {
+		console.log( 'UPDATE MAP' , route );
+		for( var z in route ) {
+			for( var x in route[z] ) {
+				const index = ((z*this.width)+x)*4;
+				this.pixelData.data[ index+2 ] = route[z][x];
+				this.nodes[z][x] = ( route[z][x] > 0 )
+					? 255 / route[z][x]
+					: 0;
+			}
+		}
+		
+	}
+	
 	getNeighboursOf({ node }) {
 		
 		const x = node.x;

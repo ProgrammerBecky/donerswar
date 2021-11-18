@@ -17,7 +17,8 @@ export class World {
 		this.colliders = [];
 
 		this.mapUpdates = [];
-		this.sendMapPacket = [];
+		this.sendMapPacket = {};
+		this.sendMapCount = 0;
 		
 		this.wireframe = new THREE.MeshBasicMaterial({
 			color: 0x00ff00,
@@ -414,21 +415,22 @@ export class World {
 	
 	doMapUpdate() {
 
-		let batchSize = 10;
+		let batchSize = 50;
 		
 		while( batchSize > 0 && this.mapUpdates.length > 0 ) {
 			
 			batchSize--;
 
 			let update = this.mapUpdates.shift();
-			const mx = Math.floor( update.x / 1000 );
-			const mz = Math.floor( update.z / 1000 );
+			const mx = Math.floor( update.x / NAV_TO_WORLD_SCALE );
+			const mz = Math.floor( update.z / NAV_TO_WORLD_SCALE );
 			
 			this.source.set( update.x, 5000 , update.z );
 			this.dir.set(0,-1,0);
 			this.rayCaster.set( this.source , this.dir );
 				
-			if( ! this.sendMapPacket[mz] ) this.sendMapPacket[mz] = [];
+			if( ! this.sendMapPacket[mz] ) this.sendMapPacket[mz] = {};
+			this.sendMapCount++;
 				
 			const intersects = this.rayCaster.intersectObject( this.map , true );
 			if( intersects.length > 0 ) {
@@ -439,13 +441,15 @@ export class World {
 				this.sendMapPacket[mz][mx] = 255;
 			}
 			
-			if( this.mapUpdates.length === 0 || this.sendMapPacket.length > 249 ) {
-				console.log( 'SEND UPDATE' , this.sendMapPacket );
-				this.sendMapPacket = [];
+			if( this.mapUpdates.length === 0 || this.sendMapCount > 99 ) {
+				self.postMessage({
+					type: 'update-route',
+					route: this.sendMapPacket,
+				});
+				this.sendMapPacket = {};
+				this.sendMapCount = 0;
 			}
 		}
-
-		console.log( '...' , this.mapUpdates.length );
 		
 	}
 	
