@@ -429,7 +429,7 @@ export class Mech {
 		const dz = targetZ - mech.z;
 		const df = Math.atan2( dx , dz );
 		
-		let moveSpeed = delta * 450;
+		let throttle = 2;
 		
 		let right = df - mech.ent.rotation.y;
 		if( right < 0 ) right += Math.PI*2;
@@ -437,13 +437,11 @@ export class Mech {
 		if( left < 0 ) left += Math.PI*2;
 		const rotSpeed = delta * 0.5;
 		
-		moveSpeed = ( Math.abs( df - mech.ent.rotation.y ) < 0.05 )
-			? delta * 400
-			: delta * 80;
+		throttle = ( Math.abs( df - mech.ent.rotation.y ) < 0.05 ) ? 2 : 1;
 		
 		if( right < left ) {
 			if( right > rotSpeed ) {
-				if( right > Math.PI/2 ) moveSpeed = 0;
+				if( right > Math.PI/2 ) throttle = 0;
 				mech.ent.rotation.y += rotSpeed;
 				G.cameraPan[mech.id].y -= rotSpeed;
 			}
@@ -453,7 +451,7 @@ export class Mech {
 		}
 		else if( left < right ) {
 			if( left > rotSpeed ) {
-				if( left > Math.PI/2 ) moveSpeed = 0;
+				if( left > Math.PI/2 ) throttle = 0;
 				mech.ent.rotation.y -= rotSpeed;
 				G.cameraPan[mech.id].y += rotSpeed;
 			}
@@ -462,16 +460,23 @@ export class Mech {
 			}
 		}
 		
-		if( moveSpeed > 0 ) {
-			if( mech.action !== 'Walk' ) {
+		if( throttle > 0 ) {
+
+			if( mech.action !== 'Walk' && throttle === 2 ) {
 				mech.action = 'Walk';
 				this.setAnimation({ mech });
 			}
-			mech.x += Math.sin( mech.ent.rotation.y ) * moveSpeed;
-			mech.z += Math.cos( mech.ent.rotation.y ) * moveSpeed;
-			const dr = Math.sqrt( dx*dx + dz*dz );
+			if( mech.action !== 'Idle' ) {
+
+				const moveSpeed = ( throttle === 2 )
+					? delta * 400
+					: delta * 80;
+
+				mech.x += Math.sin( mech.ent.rotation.y ) * moveSpeed;
+				mech.z += Math.cos( mech.ent.rotation.y ) * moveSpeed;				
+			}
 		}
-		else if( mech.action !== 'Idle' ) {
+		else if( mech.action !== 'Idle' && throttle === 0 ) {
 			mech.action = 'Idle';
 			this.setAnimation({ mech });
 		}		
