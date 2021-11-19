@@ -415,7 +415,6 @@ export class Mech {
 		if( ! mech.route[z] || ! mech.route[z][x] || mech.route[z][x] === 'DESTINATION' ) {
 			mech.action = 'Idle';
 			this.setAnimation({ mech });
-			console.log( 'DESTINATION' , mech.x , mech.dx , mech.z , mech.dz );
 			mech.route = false;
 			return;
 		}
@@ -473,7 +472,13 @@ export class Mech {
 					: delta * 80;
 
 				mech.x += Math.sin( mech.ent.rotation.y ) * moveSpeed;
-				mech.z += Math.cos( mech.ent.rotation.y ) * moveSpeed;				
+				mech.z += Math.cos( mech.ent.rotation.y ) * moveSpeed;	
+				if( Math.abs( mech.dx - mech.x ) + Math.abs( mech.dz - mech.z ) < moveSpeed ) {
+					mech.action = 'Idle';
+					this.setAnimation({ mech });
+					mech.route = false;
+					return;					
+				}
 			}
 		}
 		else if( mech.action !== 'Idle' && throttle === 0 ) {

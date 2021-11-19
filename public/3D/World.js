@@ -347,8 +347,8 @@ export class World {
 		let wx = Math.floor( x/1000 );
 		let wz = Math.floor( z/1000 );
 
-		for( let mx=wx-2 ; mx<wx+2 ; mx++ ) {
-			for( let mz=wz-2 ; mz<wz+2 ; mz++ ) {
+		for( let mx=wx-4 ; mx<wx+4 ; mx++ ) {
+			for( let mz=wz-4 ; mz<wz+4 ; mz++ ) {
 
 				if( this.buildings[mz] && this.buildings[mz][mx] ) {
 					this.buildings[mz][mx].map( building => {
@@ -415,7 +415,9 @@ export class World {
 	
 	doMapUpdate() {
 
-		let batchSize = 20;
+		let batchSize = 5;
+		this.dir.set(0,-1,0);
+		this.rayCaster.far = 1550;
 		
 		while( batchSize > 0 && this.mapUpdates.length > 0 ) {
 			
@@ -425,8 +427,13 @@ export class World {
 			const mx = Math.floor( update.x / NAV_TO_WORLD_SCALE );
 			const mz = Math.floor( update.z / NAV_TO_WORLD_SCALE );
 			
-			this.source.set( update.x, 5000 , update.z );
-			this.dir.set(0,-1,0);
+			this.sendMapCount++;
+			if( ! this.sendMapPacket[mz] ) this.sendMapPacket[mz] = {};
+			this.sendMapCount++;
+			this.sendMapPacket[mz][mx] = 200;
+			
+			/*
+			this.source.set( update.x, 1500 , update.z );
 			this.rayCaster.set( this.source , this.dir );
 				
 			if( ! this.sendMapPacket[mz] ) this.sendMapPacket[mz] = {};
@@ -440,8 +447,9 @@ export class World {
 			else {
 				this.sendMapPacket[mz][mx] = 255;
 			}
+			*/
 			
-			if( this.mapUpdates.length === 0 || this.sendMapCount > 99 ) {
+			if( this.mapUpdates.length === 0 || this.sendMapCount > 49 ) {
 				self.postMessage({
 					type: 'update-route',
 					route: this.sendMapPacket,

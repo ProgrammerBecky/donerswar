@@ -71,9 +71,11 @@ export class Particles {
 	
 	spawnSand({ x,y,z }) {
 		let t = Math.floor( Math.random() * 16 );
-		let life = ( Math.random() < 0.1 )
-			? 5 + Math.random() * 55
-			: 5 + Math.random() * 10
+		let life = ( Math.random() < 0.02 )
+			? 5 + Math.random() * 235
+			: ( Math.random() < 0.02 )
+			? 5 + Math.random() * 45
+			: 5 + Math.random() * 15
 		
 		let ent = new THREE.Sprite( this.sandTex[ t ].clone() );
 		ent.position.set( x,y,z );

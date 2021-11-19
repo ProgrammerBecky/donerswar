@@ -1,5 +1,5 @@
 const MAP_SIZE = 85000;
-const MAX_ZOMBIE_COUNT = 100;
+const MAX_ZOMBIE_COUNT = 5;
 
 export class Zombie {
 	constructor({ threeD, route }) {

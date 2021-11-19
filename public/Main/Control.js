@@ -1,8 +1,9 @@
 export class Control {
 	
-	constructor({ threeD }) {
+	constructor({ threeD, ui }) {
 
 		this.threeD = threeD;
+		this.ui = ui;
 
 		this.mouse = {
 			x: 0,
@@ -30,7 +31,7 @@ export class Control {
 		window.addEventListener( 'mousedown' , this.mousedown );
 		window.addEventListener( 'mouseup' , this.mouseup );
 		window.addEventListener( 'mousewheel' , this.mousewheel );
-		window.addEventListener( 'contextmenu', this.contextMenu );
+		 window.addEventListener( 'contextmenu', this.contextMenu );
 		
 		this.resize();
 					
@@ -52,6 +53,7 @@ export class Control {
 	}
 	
 	mousemove( e ) {
+		if( ! e.target instanceof HTMLCanvasElement ) return;
 		if( this.button.right ) {
 			this.threeD.postMessage({
 				type: 'panView',
@@ -77,10 +79,11 @@ export class Control {
 		});		
 	}
 	mousedown( e ) {
+		if( ! e.target instanceof HTMLCanvasElement ) return;
 		if( e.button === 0 ) this.button.left = true;
 		if( e.button === 1 ) this.button.middle = true;
 		if( e.button === 2 ) this.button.right = true;
-		
+	
 		if( e.button === 0 ) {
 			const cam = this.detectCam(e);
 			this.threeD.postMessage({
@@ -98,13 +101,19 @@ export class Control {
 		if( e.button === 2 ) this.button.right = false;		
 	}
 	detectCam( e ) {
-		if( e.clientX > this.hWidth ) {
-			if( e.clientY > this.hHeight ) return 3;
-			return 1;
+		
+		if( this.ui.mode === 'quad' ) {
+			if( e.clientX > this.hWidth ) {
+				if( e.clientY > this.hHeight ) return 3;
+				return 1;
+			}
+			else {
+				if( e.clientY > this.hHeight ) return 2;
+				return 0;
+			}
 		}
 		else {
-			if( e.clientY > this.hHeight ) return 2;
-			return 0;
+			return this.ui.showPilot;
 		}
 	}
 	

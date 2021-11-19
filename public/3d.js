@@ -40,6 +40,7 @@ G.frustum = [
 ]
 
 /* Render loop */
+let trackTime = 0;
 const animate = ( time ) => {
 	
 	const delta = (time-lastTime)/1000;
@@ -47,28 +48,38 @@ const animate = ( time ) => {
 	
 	if( ! isNaN( delta ) ) {
 		
+		trackTime += delta;
+		if( trackTime > 0 ) {
+			console.log( (1/delta).toFixed(2) + 'fps' );
+			trackTime = -1;
+		}
+		
 		G.mechs.update( delta );
 		G.zombies.update( delta );
 		G.world.update( delta );
 		G.particles.update( delta );
 		
 		for( let camIndex=0 ; camIndex<4 ; camIndex++ ) {
-			if( G.glViewports[camIndex] ) {
-				G.camera[camIndex].updateMatrix();
-				G.camera[camIndex].updateMatrixWorld();
-				G.frustum[camIndex].setFromMatrix(
-					new THREE.Matrix4().multiplyMatrices(
-						G.camera[camIndex].projectionMatrix,
-						G.camera[camIndex].matrixWorldInverse
-					)
-				);
-		
-				G.world.updateForCam( camIndex );
-				G.renderer.setViewport( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
-				G.renderer.setScissor( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
-				G.renderer.render( G.scene , G.camera[camIndex] );
+			if( G.cameraViews.includes( camIndex ) ) {
+				if( G.glViewports[camIndex] ) {
+					G.camera[camIndex].updateMatrix();
+					G.camera[camIndex].updateMatrixWorld();
+					G.frustum[camIndex].setFromMatrix(
+						new THREE.Matrix4().multiplyMatrices(
+							G.camera[camIndex].projectionMatrix,
+							G.camera[camIndex].matrixWorldInverse
+						)
+					);
+			
+					G.world.updateForCam( camIndex );
+					G.zombies.updateForCam( camIndex );
+					G.renderer.setViewport( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
+					G.renderer.setScissor( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
+					G.renderer.render( G.scene , G.camera[camIndex] );
+				}
 			}
 		}
+
 	}
 	
 	requestAnimationFrame( animate );
@@ -78,29 +89,61 @@ const setViewports = ( width , height ) => {
 	
 	let hWidth = Math.floor(width/2);
 	let hHeight = Math.floor(height/2);
+
+	if( G.cameraViews.length === 4 ) {
 	
-	G.renderer.setSize( width, height );
-	
-	for( let camIndex=0 ; camIndex < 4 ; camIndex++ ) {
-		if( G.camera[ camIndex ] ) {
-			G.camera[camIndex].aspect = width/height;
-			G.camera[camIndex].updateProjectionMatrix();
+		G.renderer.setSize( width, height );
+		
+		for( let camIndex=0 ; camIndex < 4 ; camIndex++ ) {
+			if( G.camera[ camIndex ] ) {
+				G.camera[camIndex].aspect = width/height;
+				G.camera[camIndex].far = 20000;
+				G.camera[camIndex].fov = 65;
+				G.camera[camIndex].updateProjectionMatrix();
+			}
 		}
+		
+		G.viewHeight = hHeight;
+		G.glViewports = [
+			new THREE.Vector4( 0,hHeight,hWidth,hHeight),
+			new THREE.Vector4( hWidth,hHeight,hWidth,hHeight),
+			new THREE.Vector4( 0,0,hWidth,hHeight),
+			new THREE.Vector4( hWidth,0,hWidth,hHeight),
+		];
+		G.humanViewports = [
+			new THREE.Vector4( 0,0,hWidth,hHeight),
+			new THREE.Vector4( hWidth,0,hWidth,hHeight),	
+			new THREE.Vector4( 0,hHeight,hWidth,hHeight),
+			new THREE.Vector4( hWidth,hHeight,hWidth,hHeight),
+		];
+		
 	}
-	
-	G.viewHeight = hHeight;
-	G.glViewports = [
-		new THREE.Vector4( 0,hHeight,hWidth,hHeight),
-		new THREE.Vector4( hWidth,hHeight,hWidth,hHeight),
-		new THREE.Vector4( 0,0,hWidth,hHeight),
-		new THREE.Vector4( hWidth,0,hWidth,hHeight),
-	];
-	G.humanViewports = [
-		new THREE.Vector4( 0,0,hWidth,hHeight),
-		new THREE.Vector4( hWidth,0,hWidth,hHeight),	
-		new THREE.Vector4( 0,hHeight,hWidth,hHeight),
-		new THREE.Vector4( hWidth,hHeight,hWidth,hHeight),
-	];
+	else {
+		
+		let port = G.cameraViews[0];
+		
+		G.renderer.setSize( width , height );
+		G.camera[port].aspect = width/height;
+		G.camera[port].far = 100000;
+		G.camera[port].fov = 45;
+		G.camera[port].updateProjectionMatrix();
+		
+		G.glViewports = [
+			new THREE.Vector4( 0,0,0,0),
+			new THREE.Vector4( 0,0,0,0),
+			new THREE.Vector4( 0,0,0,0),
+			new THREE.Vector4( 0,0,0,0),
+		];
+		G.humanViewports = [
+			new THREE.Vector4( 0,0,0,0),
+			new THREE.Vector4( 0,0,0,0),
+			new THREE.Vector4( 0,0,0,0),
+			new THREE.Vector4( 0,0,0,0),
+		];		
+		
+		G.glViewports[port] = new THREE.Vector4( 0,0,width,height );
+		G.humanViewports[port] = new THREE.Vector4( 0,0,width,height );
+	}
 	
 }
 
@@ -114,6 +157,10 @@ onmessage = (e) => {
 			height: e.data.height,
 		});
 	}
+	if( e.data.type === 'cameras-on-off' ) {
+		G.cameraViews = e.data.cameras;
+		setViewports( e.data.width , e.data.height );
+	}
 	if( e.data.type === 'init' ) {
 		
 		let canvas = e.data.canvas;
@@ -126,7 +173,7 @@ onmessage = (e) => {
 		G.renderer = new THREE.WebGLRenderer({
 			canvas: canvas,
 			logarithmicDepthBuffer: true,
-			antialias: true,			
+			antialias: false,			
 			preserveDrawingBuffer: true,
 		});
 		
@@ -146,6 +193,7 @@ onmessage = (e) => {
 		G.directional.target = G.directionalTarget;
 		G.scene.add( G.directional );
 
+		G.cameraViews = [0,1,2,3];
 		G.cameraPan = [
 			new THREE.Vector2( 0 , Math.PI ),
 			new THREE.Vector2( 0 , Math.PI ),
@@ -155,7 +203,7 @@ onmessage = (e) => {
 		G.cameraZoom = [1500,1500,1500,1500];
 		G.camera = [];
 		for( let i=0 ; i<4 ; i++ ) {
-			G.camera[i] = new THREE.PerspectiveCamera( 45 , e.data.width / e.data.height , 1 , 30000 );
+			G.camera[i] = new THREE.PerspectiveCamera( 45 , e.data.width / e.data.height , 1 , 20000 );
 			G.camera[i].position.set(42500,5000,42500);
 			G.camera[i].rotation._order = 'ZYX';
 			//G.camera.rotation.set( -Math.PI/2,0,0);

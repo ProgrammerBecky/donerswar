@@ -42,14 +42,6 @@ export class Zombies {
 				zombie.z += zombie.mz * delta;
 				zombie.ent.position.set( zombie.x , 0 , zombie.z );
 				
-				this.vector.set( zombie.x , zombie.y , zombie.z );
-				
-				zombie.ent.visible =
-					( G.frustum[0].containsPoint( this.vector ) ) ? true
-					: ( G.frustum[1].containsPoint( this.vector ) ) ? true
-					: ( G.frustum[2].containsPoint( this.vector ) ) ? true
-					: ( G.frustum[3].containsPoint( this.vector ) );
-					
 				if( zombie.ent.visible ) {
 					zombie.ent.rotation.set( 0 , zombie.f , 0 );
 					zombie.mixer.update( delta );
@@ -58,6 +50,19 @@ export class Zombies {
 		});
 	}
 	
+	updateForCam( camIndex ) {
+		
+		this.zombies.map( zombie => {
+			if( zombie.ent ) {
+				this.vector.set( zombie.x , zombie.y , zombie.z );
+				zombie.ent.visible =
+					( G.frustum[camIndex].containsPoint( this.vector ) )
+						? true
+						: false;
+			}
+		});
+							
+	}
 	updateZombie({ updated }) {
 		let index = this.zombies.findIndex( search => search.id === updated.id );
 		if( index > -1 ) {

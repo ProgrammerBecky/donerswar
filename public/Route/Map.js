@@ -41,7 +41,6 @@ export class Map {
 	}
 	
 	updateRoute({ route }) {
-		console.log( 'UPDATE MAP' , route );
 		for( var z in route ) {
 			for( var x in route[z] ) {
 				const index = ((z*this.width)+x)*4;
