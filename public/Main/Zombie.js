@@ -1,11 +1,10 @@
+import { G } from './G.js';
+
 const MAP_SIZE = 85000;
 const MAX_ZOMBIE_COUNT = 5;
 
 export class Zombie {
-	constructor({ threeD, route }) {
-		this.threeD = threeD;
-		this.route = route;
-		
+	constructor() {
 		this.zombies = [];
 	
 	}
@@ -49,7 +48,7 @@ export class Zombie {
 		});
 	}
 	updateZombie({ zombie }) {
-		this.threeD.postMessage({
+		G.threeD.postMessage({
 			type: 'update-zombie',
 			x: zombie.x,
 			z: zombie.z,
@@ -77,7 +76,7 @@ export class Zombie {
 		};
 		this.zombies.push( zombie );
 		
-		this.threeD.postMessage({
+		G.threeD.postMessage({
 			type: 'spawn-zombie',
 			x: zombie.x,
 			z: zombie.z,

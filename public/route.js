@@ -15,7 +15,6 @@ const reduceCoords = ({ sx , sz , dx , dz }) => {
 }
 
 onmessage = (e) => {
-	
 	if( e.data.type === 'init' ) {
 		map = new Map({ data: e.data.mapData , canvas: e.data.canvas });
 		//astar = new AStar({ map: map });
@@ -26,6 +25,7 @@ onmessage = (e) => {
 		map.updateRoute({ route: e.data.route });
 	}
 	else if( e.data.type === 'flowMap' ) {
+
 		const { sx,sz,dx,dz } = reduceCoords({
 			sx: e.data.sx , sz: e.data.sz,
 			dx: e.data.dx , dz: e.data.dz,
@@ -35,9 +35,9 @@ onmessage = (e) => {
 			sx: sx, sz: sz,
 			dx: dx, dz: dz,
 			debug: false,
-			quick: true,
+			quick: ( e.data.collection === 'Ant' ) ? false : true,
 		});
-		console.log( route );
+		
 		self.postMessage({
 			type: 'flowMap',
 			collection: e.data.collection,

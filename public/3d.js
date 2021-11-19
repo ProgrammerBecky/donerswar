@@ -286,6 +286,14 @@ onmessage = (e) => {
 			route: e.data.route,
 		});
 	}
+	else if( e.data.type === 'ant-route-flowMap' ) {
+		G.ants.newRoute({
+			unit: e.data.unit,
+			dx: e.data.dx,
+			dz: e.data.dz,
+			route: e.data.route,
+		});
+	}
 	
 }
 

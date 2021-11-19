@@ -1,11 +1,13 @@
-export class NavBuilder {
-	constructor({ threeD, route }) {
+import { G } from './G.js';
 
-		this.loadNavMapFromFile({ route });
-		//this.buildNewNavMapFromGeo({ threeD });
+export class NavBuilder {
+	constructor() {
+
+		this.loadNavMapFromFile();
+		//this.buildNewNavMapFromGeo();
 		
 	}
-	loadNavMapFromFile({ route }) {
+	loadNavMapFromFile() {
 
 		/* To load a new map from image file */
 		let map = new Image();
@@ -24,7 +26,7 @@ export class NavBuilder {
 			const data = context.getImageData( 0,0, canvas.width,canvas.height );
 			//document.getElementById('Content').appendChild( canvas );
 			
-			route.postMessage({
+			G.route.postMessage({
 				type:	'init',
 				canvas: false,
 				mapData: data,
@@ -34,7 +36,7 @@ export class NavBuilder {
 		map.src = '/map.png';
 
 	}
-	buildNewNavMapFromGeo({ threeD }) {
+	buildNewNavMapFromGeo() {
 		/* To build a new nav map from the geo */
 
 		let map = new Image();
@@ -64,7 +66,7 @@ export class NavBuilder {
 			
 			setTimeout( () => {
 				console.log( 'REBUILD MAP' );
-				threeD.postMessage({
+				G.threeD.postMessage({
 					type:	'rebuild-map',
 					canvas: offscreen,
 					mapData: data,

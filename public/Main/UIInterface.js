@@ -1,16 +1,17 @@
+import { G } from './G.js';
+
 export class UIInterface {
-	constructor({ threeD }) {
+	constructor() {
 	
 		this.pilots = [
-			'Dinky',
-			'Mocha',
+			'Dink',
+			'Gruber',
 			'Boston',
 			'Claret',
 		];
 	
 		this.mode = 'single';
-		this.threeD = threeD;
-
+		
 		this._setPilot( 0 );
 		
 		
@@ -22,7 +23,7 @@ export class UIInterface {
 		this.showInterface();
 		
 		if( mode === 'quad' ) {
-			this.threeD.postMessage({
+			G.threeD.postMessage({
 				type: 'cameras-on-off',
 				cameras: [0,1,2,3],		
 				width: window.innerWidth,
@@ -36,7 +37,7 @@ export class UIInterface {
 		this.showPilot = pilot;
 		this.showInterface();
 		
-		this.threeD.postMessage({
+		G.threeD.postMessage({
 			type: 'cameras-on-off',
 			cameras: [this.showPilot],	
 			width: window.innerWidth,

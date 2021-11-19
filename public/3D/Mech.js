@@ -58,6 +58,7 @@ export class Mech {
 			normalMap: G.texture.load( 'high/mechs/Mechs_LtMed_Normals.png' ),
 			specularMap: G.texture.load( 'high/mechs/Mechs_LtMed_Unity_Specular.png' ),
 			skinning: true,
+			envMap: G.environmentMap,
 		});
 		
 		this.mechs.map( (object,index) => {
@@ -410,17 +411,12 @@ export class Mech {
 		let x = Math.floor( mech.x / NAV_TO_WORLD_SCALE );
 		let z = Math.floor( mech.z / NAV_TO_WORLD_SCALE );
 
-		let sx = Math.floor( mech.x / NAV_TO_WORLD_SCALE );
-		let sz = Math.floor( mech.z / NAV_TO_WORLD_SCALE );
 		if( ! mech.route[z] || ! mech.route[z][x] || mech.route[z][x] === 'DESTINATION' ) {
 			mech.action = 'Idle';
 			this.setAnimation({ mech });
 			mech.route = false;
 			return;
 		}
-		//console.log( mech.route[z][x] , { x: sx , z: sz } );
-		//console.log( '>' , mech.route[z][x].x-sx , mech.route[z][x].z-sz );
-
 		let targetX = mech.route[z][x].x * NAV_TO_WORLD_SCALE;
 		let targetZ = mech.route[z][x].z * NAV_TO_WORLD_SCALE;
 
@@ -489,5 +485,16 @@ export class Mech {
 		mech.ent.position.set( mech.x , mech.ent.position.y , mech.z );
 		G.world.destroy( mech.ent.position.x , mech.ent.position.z , 500 );
 		
+		/*
+		self.postMessage({
+			type: 'mech-pos',
+			mech: {
+				id: mech.id,
+				x: mech.x,
+				z: mech.z,
+			}
+		});
+		*/
+			
 	}
 }

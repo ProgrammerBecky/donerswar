@@ -1,8 +1,9 @@
+import { G } from './G.js';
+
 export class Control {
 	
-	constructor({ threeD, ui }) {
+	constructor({ ui }) {
 
-		this.threeD = threeD;
 		this.ui = ui;
 
 		this.mouse = {
@@ -55,7 +56,7 @@ export class Control {
 	mousemove( e ) {
 		if( ! e.target instanceof HTMLCanvasElement ) return;
 		if( this.button.right ) {
-			this.threeD.postMessage({
+			G.threeD.postMessage({
 				type: 'panView',
 				mouse: {
 					x: e.clientX - this.mouse.x,
@@ -70,7 +71,7 @@ export class Control {
 	}
 	mousewheel( e ) {
 		this.mouse.z = -e.wheelDeltaY;
-		this.threeD.postMessage({
+		G.threeD.postMessage({
 			type: 'zoomView',
 			mouse: {
 				z: this.mouse.z,
@@ -86,7 +87,7 @@ export class Control {
 	
 		if( e.button === 0 ) {
 			const cam = this.detectCam(e);
-			this.threeD.postMessage({
+			G.threeD.postMessage({
 				type: 'mech-navigate',
 				x: e.clientX,
 				y: e.clientY,
