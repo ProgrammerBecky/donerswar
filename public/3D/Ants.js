@@ -53,6 +53,7 @@ export class Ants {
 	
 		ant.ent = SkeletonUtils.clone( this.masterMesh );
 		ant.ent.scale.set( 5000,5000,5000 );
+		ant.decisionTimer = Math.random() * 10;
 		G.scene.add( ant.ent );
 		this.setAnimation({ ant });
 	
@@ -82,9 +83,18 @@ export class Ants {
 
 	}	
 	
+	makeDecision() {
+		
+	}
+	
 	update( delta ) {
 	
 		this.ants.map( ant => {
+		
+			ant.decisionTimer -= delta;
+			if( ant.decisionTimer < 0 ) {
+				this.makeDecision();
+			}
 		
 			if( ! ant.ent ) {
 				this.getAntMesh({ ant });
