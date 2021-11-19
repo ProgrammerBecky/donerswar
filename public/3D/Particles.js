@@ -51,7 +51,7 @@ export class Particles {
 		*/
 		
 		for( let x=building.bounds.min.x; x<building.bounds.max.x ; x+= 1000 ) {
-			for( let y=building.ent.geometry.boundingBox.min.y; y<building.ent.geometry.boundingBox.max.y ; y+= 1000 ) {
+			for( let y=building.bounds.min.y; y<building.bounds.max.y ; y+= 1000 ) {
 				for( let z=building.bounds.min.z; z<building.bounds.max.z ; z+= 1000 ) {
 			
 					let wx = x + Math.random()*1000-500;

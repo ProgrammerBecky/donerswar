@@ -318,8 +318,8 @@ export class World {
 						let z = Math.floor( pos.z / 1000 );
 
 						let bounds = {
-							min: { x: pos.x + child.geometry.boundingBox.min.x , z: pos.z + child.geometry.boundingBox.min.z },
-							max: { x: pos.x + child.geometry.boundingBox.max.x , z: pos.z + child.geometry.boundingBox.max.z },							
+							min: { x: pos.x + child.geometry.boundingBox.min.x , z: pos.z + child.geometry.boundingBox.min.z, y: child.geometry.boundingBox.min.y },
+							max: { x: pos.x + child.geometry.boundingBox.max.x , z: pos.z + child.geometry.boundingBox.max.z, y: child.geometry.boundingBox.max.y },							
 						}
 
 						if( ! self.buildings[z] ) self.buildings[z] = [];
@@ -415,7 +415,7 @@ export class World {
 	
 	doMapUpdate() {
 
-		let batchSize = 50;
+		let batchSize = 20;
 		
 		while( batchSize > 0 && this.mapUpdates.length > 0 ) {
 			
@@ -497,7 +497,7 @@ export class World {
 		if( ! building.bounceMomentum ) {
 			let dx = building.ent.position.x - building.destroyOrigin.x;
 			let dz = building.ent.position.z - building.destroyOrigin.z;
-			if( building.lightness === 0 ) {
+			if( building.type === 'Building' ) {
 				building.bounceMomentum = 0;
 				building.bounceFacing = Math.atan2( dx , dz );
 				building.bounceAttitude = -Math.PI;
@@ -506,7 +506,7 @@ export class World {
 				building.spinZ = 0;
 			}
 			else {
-				building.bounceMomentum = 2000 * Math.random() * building.lightness;
+				building.bounceMomentum = 5000 * Math.random() * building.lightness;
 				building.bounceFacing = Math.atan2( dx , dz );
 				building.bounceAttitude = Math.PI * Math.random();
 				building.spinX = Math.random() * Math.PI/6;
@@ -526,16 +526,18 @@ export class World {
 
 		building.gravity += delta * 100;
 		y = building.ent.position.y + y - building.gravity;
-		if( y < 0 && building.type !== 'Building' ) {
-			building.bounceMomentum *= building.lightness;
-			building.bounceAttitude = Math.abs( building.bounceAttitude ) * 0.3;
+		
+		if( y < (building.bounds.max.y+building.bounds.min.y)/2 && building.type !== 'Building' ) {
+			
+			building.bounceMomentum *= 0.9;
+			building.bounceAttitude = Math.abs( building.bounceAttitude ) * building.lightness;
 			
 			building.spinX *= 0.9
 			building.spinY *= 0.9
 			building.spinZ *= 0.9			
 			building.bounceFacing += Math.random()*0.4 - 0.2;
 			building.gravity = 0;
-			if( building.bounceMomentum < 50 ) {
+			if( building.bounceMomentum < 10 ) {
 				return false;
 			}
 		}
