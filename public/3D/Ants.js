@@ -3,8 +3,10 @@ import { SkeletonUtils } from './../jsm/utils/SkeletonUtils.js';
 import { G } from './G.js';
 
 const WORLD_SIZE = 85000;
-const NAV_MAP_SIZE = 1024;
+const NAV_MAP_SIZE = 512;
 const NAV_TO_WORLD_SCALE = WORLD_SIZE / NAV_MAP_SIZE;
+
+const ANT_COUNT = 30;
 
 export class Ants {
 
@@ -154,13 +156,11 @@ export class Ants {
 			}
 		}
 		
-		console.log( throttle );
-		
 		if( throttle > 0 ) {
 
 			const moveSpeed = ( throttle === 2 )
-				? delta * 600
-				: delta * 80;
+				? delta * 900
+				: delta * 300;
 
 			ant.x += Math.sin( ant.f ) * moveSpeed;
 			ant.z += Math.cos( ant.f ) * moveSpeed;	
@@ -214,8 +214,6 @@ export class Ants {
 				ant.action = 'Idle';
 				this.setAnimation({ ant });
 			}
-			
-			console.log( ant.id + ' is now ' + ant.action );
 
 		}
 		return;
@@ -229,18 +227,19 @@ export class Ants {
 			this.collectiveDecisionTimer = 60 + Math.random() * 60;
 			this.makeCollectiveDecision();
 		}
+		if( this.ants.length < ANT_COUNT ) this.spawnAnt();
 	
 		this.ants.map( ant => {
-		
-			ant.decisionTimer -= delta;
-			if( ant.decisionTimer < 0 ) {
-				this.makeDecision({ ant });
-			}
 		
 			if( ! ant.ent ) {
 				this.getAntMesh({ ant });
 			}
 			else {
+
+				ant.decisionTimer -= delta;
+				if( ant.decisionTimer < 0 ) {
+					this.makeDecision({ ant });
+				}
 				
 				if( ant.action === 'Walk' ) this.doWalk({ ant , delta });
 				

@@ -2,7 +2,7 @@ import * as THREE from './../build/three.module.js';
 import { G } from './G.js';
 
 const WORLD_SIZE = 85000;
-const NAV_MAP_SIZE = 1024;
+const NAV_MAP_SIZE = 512;
 const NAV_TO_WORLD_SCALE = WORLD_SIZE / NAV_MAP_SIZE;
 
 export class Mech {
@@ -362,7 +362,7 @@ export class Mech {
 				if( mech.cockpit_bevel ) {
 					const right = G.cameraPan[mech.id].y - mech.cockpit_bevel.rotation.y;
 					const left = mech.cockpit_bevel.rotation.y - G.cameraPan[mech.id].y;
-					const rotSpeed = delta * 0.75;
+					const rotSpeed = delta * 5;
 					if( right > left ) {
 						if( right > rotSpeed ) {
 							mech.cockpit_bevel.rotation.y += rotSpeed;

@@ -2,7 +2,7 @@ import * as THREE from './../build/three.module.js';
 import { G } from './G.js';
 
 const WORLD_SIZE = 85000;
-const NAV_MAP_SIZE = 1024;
+const NAV_MAP_SIZE = 512;
 const NAV_TO_WORLD_SCALE = WORLD_SIZE / NAV_MAP_SIZE;
 
 export class World {
@@ -62,6 +62,7 @@ export class World {
 				}
 			});
 
+			model.updateMatrixWorld(true);
 			console.log( 'Foliage Loaded' );
 			self.map.add( model );
 			self.loadingComplete();
@@ -94,6 +95,7 @@ export class World {
 				node.parent.remove( node );
 			}
 			
+			model.updateMatrixWorld(true);
 			console.log( 'Concrete Loaded' );
 			self.map.add( model );
 			self.loadingComplete();
@@ -245,6 +247,7 @@ export class World {
 		this.buildings.map( building => {
 			if( ['wall','hedge','fence'].includes( building.type ) ) {
 				
+				building.ent.updateMatrixWorld(true);
 				let pos = building.ent.getWorldPosition();
 				let wx = Math.floor( pos.x/NAV_TO_WORLD_SCALE );
 				let wz = Math.floor( pos.z/NAV_TO_WORLD_SCALE );
