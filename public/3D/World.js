@@ -335,7 +335,6 @@ export class World {
 						pos.applyMatrix4( child.matrixWorld );
 						
 						lightRef = G.lights.registerLight({
-							on: true,
 							x: pos.x,
 							z: pos.z,
 							f: 0,

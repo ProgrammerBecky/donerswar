@@ -35,7 +35,7 @@ export class Lights {
 		
 		this.splats = [];
 		
-		for( let i=0 ; i<=0 ; i++ ) {
+		for( let i=0 ; i<=1 ; i++ ) {
 			
 			const img = new Image();
 			img.setAttribute( 'data-index' , i );

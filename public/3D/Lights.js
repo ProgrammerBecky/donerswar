@@ -39,6 +39,16 @@ export class Lights {
 		this.needsUpdate = true;
 		return instance.id;
 	}
+	updateLight({ lightId , x , z , f }) {
+		
+		const index = this.lights.findIndex( search => search.id === lightId );
+		if( index > -1 ) {
+			this.lights[index].x = x/LIGHT_TO_WORLD_SCALE;
+			this.lights[index].z = z/LIGHT_TO_WORLD_SCALE;
+			this.lights[index].f = f;
+		}
+
+	}
 	removeLight( ref ) {
 		const index = this.lights.findIndex( search => search.id === ref );
 		if( index > - 1 ) {
@@ -229,7 +239,7 @@ console.log( shader.fragmentShader );
 				
 		this.context.globalCompositeOperation = 'lighter';
 		this.lights.map( light => {
-			if( light.on && this.splats[ light.splat ] ) {
+			if( this.splats[ light.splat ] ) {
 									
 				let x = light.x;
 				let z = LIGHT_MAP_SIZE - light.z;
