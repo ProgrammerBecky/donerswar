@@ -43,14 +43,14 @@ export class Zombies {
 			}
 			
 			if( zombie.ent ) {
-				zombie.x += zombie.mx * delta;
-				zombie.z += zombie.mz * delta;
-				zombie.ent.position.set( zombie.x , 0 , zombie.z );
-				
-				if( zombie.ent.visible ) {
-					zombie.ent.rotation.set( 0 , zombie.f , 0 );
-					zombie.mixer.update( delta );
+				if( zombie.alive ) {
+					zombie.x += zombie.mx * delta;
+					zombie.z += zombie.mz * delta;
+					zombie.ent.position.set( zombie.x , 0 , zombie.z );
 				}
+				
+				zombie.ent.rotation.set( 0 , zombie.f , 0 );
+				zombie.mixer.update( delta );
 			}
 		});
 	}
@@ -72,17 +72,19 @@ export class Zombies {
 		let index = this.zombies.findIndex( search => search.id === updated.id );
 		if( index > -1 ) {
 			let zombie = this.zombies[ index ];
+			if( zombie.action !== 'Death' ) {
 
-			zombie.x = updated.x;
-			zombie.z = updated.z;
-			zombie.f = updated.f;
-			zombie.mx = updated.mx;
-			zombie.mz = updated.mz;
-			zombie.action = updated.action;
-			zombie.animation = updated.animation;
-			
-			if( zombie.ent ) this.setAnimation({ zombie });
-			this.zombies[ index ] = zombie;
+				zombie.x = updated.x;
+				zombie.z = updated.z;
+				zombie.f = updated.f;
+				zombie.mx = updated.mx;
+				zombie.mz = updated.mz;
+				zombie.action = updated.action;
+				zombie.animation = updated.animation;
+				
+				if( zombie.ent ) this.setAnimation({ zombie });
+				this.zombies[ index ] = zombie;
+			}
 		}
 	}
 	
@@ -103,6 +105,7 @@ export class Zombies {
 				? THREE.LoopOnce
 				: THREE.LoopRepeat
 		);
+		if( zombie.action === 'Death' ) zombie.animAction.clampWhenFinished = true;
 
 		zombie.animAction.play();
 	}
@@ -120,7 +123,22 @@ export class Zombies {
 	}
 	spawn({ zombie }) {
 		zombie.type = Math.floor( Math.random() * ZOMBIE_MESHES );
+		zombie.alive = true;
 		this.zombies.push( zombie );
+	}
+	destroy( x,z,area,damage ) {
+		this.zombies.map( zombie => {
+			if( zombie.x > x-area && zombie.x < x+area &&
+			zombie.z > z-area && zombie.z < z+area ) {
+				
+				zombie.action = 'Death';
+				let animId = Math.floor( Math.random() * 10 ) + 1;
+				zombie.animation = `Death${animId}`;
+				zombie.alive = false;
+				this.setAnimation({ zombie });
+				
+			}
+		});
 	}
 
 }

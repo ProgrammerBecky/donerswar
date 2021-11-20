@@ -58,6 +58,7 @@ export class Ants {
 			f: Math.random() * Math.PI * 2,
 			action: 'Idle',
 			decisionTimer: 5,
+			hp: 10,
 		});
 	}
 	
@@ -90,6 +91,7 @@ export class Ants {
 				? THREE.LoopOnce
 				: THREE.LoopRepeat
 		);
+		if( ant.action === 'Death' ) ant.animAction.clampWhenFinished = true;
 
 		ant.animAction.play();
 
@@ -238,12 +240,14 @@ export class Ants {
 			}
 			else {
 
-				ant.decisionTimer -= delta;
-				if( ant.decisionTimer < 0 ) {
-					this.makeDecision({ ant });
+				if( ant.action !== 'Death' ) {
+					ant.decisionTimer -= delta;
+					if( ant.decisionTimer < 0 ) {
+						this.makeDecision({ ant });
+					}
+					
+					if( ant.action === 'Walk' ) this.doWalk({ ant , delta });
 				}
-				
-				if( ant.action === 'Walk' ) this.doWalk({ ant , delta });
 				
 				ant.ent.position.set( ant.x , ant.y , ant.z );
 				ant.ent.rotation.set( 0 , ant.f , 0 );
@@ -253,6 +257,24 @@ export class Ants {
 		});
 	
 	}
+	
+	destroy( x,z,area,damage ) {
+		this.ants.map( ant => {
+			if( ant.hp > 0 ) {
+				if( ant.x > x-area && ant.x < x+area &&
+				ant.z > z-area && ant.z < z+area ) {
+					
+					ant.hp -= damage;
+					console.log( ant.hp );
+					if( ant.hp <= 0 ) {
+						ant.action = 'Death';
+						this.setAnimation({ ant });
+					}
+					
+				}
+			}
+		});
+	}	
 
 
 }

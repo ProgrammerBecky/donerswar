@@ -1,7 +1,7 @@
 import { G } from './G.js';
 
 const MAP_SIZE = 85000;
-const MAX_ZOMBIE_COUNT = 5;
+const MAX_ZOMBIE_COUNT = 250;
 
 export class Zombie {
 	constructor() {

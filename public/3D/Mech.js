@@ -29,6 +29,7 @@ export class Mech {
 						"mount": "Mount_Weapon_top",
 						"offsetX": -300,
 						"invertArcY": true,
+						"damage": 500,
 					}
 				]
 			},
@@ -61,6 +62,7 @@ export class Mech {
 						"mount": "Mount_Weapon_HR",
 						"offsetX": 250,
 						"invertArcY": false,
+						"damage": 500,
 					}
 				]
 			},
@@ -448,28 +450,31 @@ export class Mech {
 						if( flash.duration < 0 ) {
 							G.lights.removeLight( flash.lightId );
 							mech.muzzleFlashes.splice( index , 1 );
+							G.lights.needsUpdate = true;
 						}
 						else {
-							let rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y + flash.mount.rotation.y;
+							if( flash.barrelEnd ) {
+								let rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y + flash.mount.rotation.y;
 
-							flash.barrelEnd.updateWorldMatrix();
-							this.vector.set(
-								flash.barrelEnd.position.x,
-								flash.barrelEnd.position.y,
-								flash.barrelEnd.position.z
-							);
-							this.vector.applyMatrix4( flash.barrelEnd.matrixWorld );
+								flash.barrelEnd.updateWorldMatrix();
+								this.vector.set(
+									flash.barrelEnd.position.x,
+									flash.barrelEnd.position.y,
+									flash.barrelEnd.position.z
+								);
+								this.vector.applyMatrix4( flash.barrelEnd.matrixWorld );
 
-							G.lights.updateLight({
-								lightId: flash.lightId,
-								x: this.vector.x + Math.cos( rotation ) * flash.offsetX,
-								z: this.vector.z - Math.sin( rotation ) * flash.offsetX,
-								f: rotation
-							});
+								G.lights.updateLight({
+									lightId: flash.lightId,
+									x: this.vector.x + Math.cos( rotation ) * flash.offsetX,
+									z: this.vector.z - Math.sin( rotation ) * flash.offsetX,
+									f: rotation
+								});
+								G.lights.needsUpdate = true;
+							}
 						}
 						flash.duration -= delta;
 					});
-					G.lights.needsUpdate = true;
 				}
 				
 				
@@ -557,7 +562,7 @@ export class Mech {
 		}		
 
 		mech.ent.position.set( mech.x , mech.ent.position.y , mech.z );
-		G.world.destroy( mech.ent.position.x , mech.ent.position.z , 500 );
+		G.world.destroy( mech.ent.position.x , mech.ent.position.z , 250 , 'walk' );
 		
 		/*
 		self.postMessage({
@@ -631,6 +636,19 @@ export class Mech {
 							size: 250,
 							emitFrequency: 0.025
 						});
+						
+						mech.muzzleFlashes.push({
+							duration: 0.2,
+							lightId: G.lights.registerLight({
+								x: hitTarget.point.x,
+								z: hitTarget.point.z,
+								f: 0,
+								splat: 2,
+								splatSize: 32,
+							})
+						});		
+
+						G.world.destroy( hitTarget.point.x , hitTarget.point.z , 1000 , gun.damage , hitTarget.object );
 						
 					}
 					

@@ -376,21 +376,28 @@ export class World {
 		console.log( 'World Loaded' );
 	}
 	
-	destroy( x,z,area=1 ) {
+	destroy( x,z,area=1, damage=1, directHitOn=null ) {
 		
 		let wx = Math.floor( x/1000 );
 		let wz = Math.floor( z/1000 );
 
-		for( let mx=wx-4 ; mx<wx+4 ; mx++ ) {
-			for( let mz=wz-4 ; mz<wz+4 ; mz++ ) {
+		G.zombies.destroy( x,z,area, damage );
+		G.ants.destroy( x,z,area,damage );
+
+		for( let mx=wx-6 ; mx<wx+6 ; mx++ ) {
+			for( let mz=wz-6 ; mz<wz+6 ; mz++ ) {
 
 				if( this.buildings[mz] && this.buildings[mz][mx] ) {
 					this.buildings[mz][mx].map( building => {
 						if( building.hp > 0 ) {
 							
 							let destroy = false;
-							if( x+area > building.bounds.min.x && x-area < building.bounds.max.x
-							&&	z+area > building.bounds.min.z && z-area < building.bounds.max.z
+							if( 
+								(
+									x+area > building.bounds.min.x && x-area < building.bounds.max.x
+								&&	z+area > building.bounds.min.z && z-area < building.bounds.max.z
+								)
+								|| directHitOn === building.ent
 							) {
 								destroy = true;
 							}
@@ -400,12 +407,13 @@ export class World {
 								let dr = Math.sqrt( dx*dx + dz*dz );
 								if( dr < area ) destroy = true;
 							}
-							
+
 							if( destroy && building.lightRef ) {
 								G.lights.removeLight( building.lightRef );
 							}
 							
-							if( destroy && building.type === 'Building' ) {
+							if( destroy && building.type === 'Building' && damage === 'walk' ) {
+								damage = 100;
 								this.source.set(x,1500,z);
 								this.dir.set(0,-1,0);
 								this.rayCaster.set( this.source , this.dir );
@@ -417,7 +425,17 @@ export class World {
 									}
 								});
 							}
-
+							
+							if( destroy ) {
+								
+								let dmg = Math.max( 0 , damage - building.armour );
+								building.hp -= dmg;
+								
+								console.log( building.type , damage , building.hp );
+								
+								if( building.hp > 0 ) destroy = false;
+							}
+												
 							if( destroy ) {
 								building.hp = 0;
 								building.dustSpawns = 25;
