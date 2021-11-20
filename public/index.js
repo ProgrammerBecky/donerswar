@@ -4,6 +4,7 @@ import { NavBuilder } from '/Main/NavBuilder.js';
 import { Zombie } from './Main/Zombie.js';
 import { UIInterface } from './Main/UIInterface.js';
 import { Mech } from './Main/Mech.js';
+import { Lights } from './Main/Lights.js';
 
 let zombie;
 
@@ -25,6 +26,7 @@ G.route = new Worker(
 		type: 'module'
 	},
 );		
+G.lights = new Lights();
 
 
 /* Setup 3D */

@@ -8,6 +8,7 @@ import { Mech } from './3D/Mech.js';
 import { ScreenPicker } from './3D/ScreenPicker.js';
 import { Particles } from './3D/Particles.js';
 import { Ants } from './3D/Ants.js';
+import { Lights } from './3D/Lights.js';
 
 //* ThreeJS Worker Polyfill */
 THREE.ImageLoader.prototype.load = function ( url, onLoad, onProgress, onError ) {
@@ -29,6 +30,8 @@ THREE.ImageLoader.prototype.load = function ( url, onLoad, onProgress, onError )
 	
 }
 
+G.world = new World();
+G.lights = new Lights();
 G.glViewports = [];
 G.viewHeight = 0;
 let lastTime = 0;
@@ -60,6 +63,7 @@ const animate = ( time ) => {
 		G.world.update( delta );
 		G.particles.update( delta );
 		G.ants.update( delta );
+		G.lights.update( delta );
 		
 		for( let camIndex=0 ; camIndex<4 ; camIndex++ ) {
 			if( G.cameraViews.includes( camIndex ) ) {
@@ -184,16 +188,18 @@ onmessage = (e) => {
 		G.renderer.setPixelRatio( e.data.pixelRatio );
 		G.scene = new THREE.Scene();
 				
-		G.ambient = new THREE.AmbientLight(0xc8c8c8);
+		G.ambient = new THREE.AmbientLight(0x444444);
 		G.scene.add( G.ambient );
 
-		G.directional = new THREE.DirectionalLight(0xffffff);
+		/*
+		G.directional = new THREE.DirectionalLight(0xa2a2a2);
 		G.directional.position.set(42500,5000,-22750);
 		G.directionalTarget = new THREE.Object3D();
 		G.directionalTarget.position.set( -42500,0,22750 );
 		G.scene.add( G.directionalTarget );
 		G.directional.target = G.directionalTarget;
 		G.scene.add( G.directional );
+		*/
 
 		G.cameraViews = [0,1,2,3];
 		G.cameraPan = [
@@ -230,7 +236,7 @@ onmessage = (e) => {
 		G.gltf = new GLTFLoader();
 		G.texture = new THREE.TextureLoader();
 		
-		G.world = new World();
+		G.world.load();
 		G.zombies = new Zombies();
 		G.mechs = new Mech();
 		G.particles = new Particles();
@@ -297,7 +303,18 @@ onmessage = (e) => {
 	else if( e.data.type === 'canon-hit' ) {
 		G.mechs.canonHit({ mech: e.data.mech });
 	}
-
+	else if( e.data.type === 'init-lighting' ) {
+		G.lights.registerCanvas({
+			canvas: e.data.canvas,
+		});
+	}
+	else if( e.data.type === 'lightSplat' ) {
+		G.lights.registerSplat({
+			index: e.data.index,
+			splat: e.data.splat,
+			imageData: e.data.imageData,
+		});
+	}
 	
 }
 

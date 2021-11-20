@@ -25,6 +25,11 @@ export class Zombies {
 	
 		let self = this;
 		G.gltf.load( '/zombies/tramp' + id + '.glb' , result => {
+			result.scene.traverse( child => {
+				if( child.isMesh ) {
+					child.material = G.lights.applyLightMap( child.material );
+				}
+			});
 			self.masterMeshes.push( result.scene );
 			if( self.animations.length === 0 && result.animations ) self.animations = result.animations;
 		});

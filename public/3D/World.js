@@ -12,19 +12,25 @@ export class World {
 		this.collapse = [];
 		
 		this.loaded = 0;
-		let self = this;
-		this.map = new THREE.Group();
 		this.colliders = [];
 
 		this.mapUpdates = [];
 		this.sendMapPacket = {};
 		this.sendMapCount = 0;
+			
+		this.rayCaster = new THREE.Raycaster();
+		this.source = new THREE.Vector3();
+		this.dir = new THREE.Vector3();
 		
-		this.wireframe = new THREE.MeshBasicMaterial({
-			color: 0x00ff00,
-			visible: false,
-		});
-		
+	}
+	load() {
+
+		if( typeof( this.map ) !== 'undefined' || typeof( G.scene ) === 'undefined' ) return;
+
+		let pos = new THREE.Vector3();
+		this.map = new THREE.Group();
+
+		let self = this;
 		let mat = new THREE.MeshStandardMaterial({
 			color: 0x6D6E71,
 		});
@@ -35,10 +41,6 @@ export class World {
 		this.floorPlane.rotation.set( -Math.PI/2 , 0 , 0 );
 		this.floorPlane.position.set( 0 , -20 , 0 );
 		G.scene.add( this.floorPlane );
-			
-		this.rayCaster = new THREE.Raycaster();
-		this.source = new THREE.Vector3();
-		this.dir = new THREE.Vector3();
 		
 		G.fbx.load( '/high/city/Foliage.fbx' , model => {
 			
@@ -55,8 +57,12 @@ export class World {
 						if( Array.isArray( child.material ) ) {
 							child.material[1].transparent = true;
 							child.material[1].alphaTest = 0.95;
-							child.material[1].map.magFilter = G.MinMagFilter;
-							child.material[1].map.minFilter = G.MinMagFilter;
+							child.material.map( mat => {
+								mat = G.lights.applyLightMapFromLambert( mat );
+							});
+						}
+						else {
+							child.material = G.lights.applyLightMapFromLambert( child.material )
 						}
 					}
 				}
@@ -77,14 +83,17 @@ export class World {
 			
 			model.traverse( (child) => {
 				if( child.isMesh ) {
-					if( child.name === 'Col' ) removeList.push( child );
-					
-					//child.castShadow = true;
-					//child.receiveShadow = true;
-					
-					if( child.material && child.material.map ) {
-						child.material.map.magFilter = G.MinMagFilter;
-						child.material.map.minFilter = G.MinMagFilter;
+					if( child.name === 'Col' ) {
+						removeList.push( child );
+					}
+					else {
+						
+						//child.castShadow = true;
+						//child.receiveShadow = true;
+						
+						if( child.material ) {
+							child.material = G.lights.applyLightMapFromLambert( child.material );
+						}
 					}
 					
 				}				
@@ -314,6 +323,28 @@ export class World {
 					child.geometry.needsUpdate = true;
 					const { type , armour , hp , collapse , lightness } = this.getMeshLookup({ building: child });
 
+					let lightRef;
+					if( child.name.indexOf( 'Lantern' ) > -1 ) {
+						child.updateWorldMatrix( true , true );
+						
+						pos.set(
+							child.geometry.attributes.position.array[0],
+							child.geometry.attributes.position.array[1],
+							child.geometry.attributes.position.array[2]
+						);
+						pos.applyMatrix4( child.matrixWorld );
+						
+						lightRef = G.lights.registerLight({
+							on: true,
+							x: pos.x,
+							z: pos.z,
+							f: 0,
+							splatSize: 8,
+							splat: 0,
+						});
+					}
+
+
 					if( hp > 0 ) {
 
 						child.getWorldPosition( pos );
@@ -334,6 +365,7 @@ export class World {
 							armour: armour,
 							hp: hp,
 							lightness: lightness,
+							lightRef: lightRef,
 						});
 					}		
 				}
@@ -368,6 +400,10 @@ export class World {
 								let dz = building.ent.position.z - z;
 								let dr = Math.sqrt( dx*dx + dz*dz );
 								if( dr < area ) destroy = true;
+							}
+							
+							if( destroy && building.lightRef ) {
+								G.lights.removeLight( building.lightRef );
 							}
 							
 							if( destroy && building.type === 'Building' ) {
@@ -570,11 +606,13 @@ export class World {
 	}
 	
 	updateForCam( camIndex ) {
-		this.floorPlane.position.set(
-			G.camera[ camIndex ].position.x,
-			-20,
-			G.camera[ camIndex ].position.z,
-		);
+		if( this.floorPlane ) {
+			this.floorPlane.position.set(
+				G.camera[ camIndex ].position.x,
+				-20,
+				G.camera[ camIndex ].position.z,
+			);
+		}
 	}
 
 }

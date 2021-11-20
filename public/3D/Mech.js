@@ -53,13 +53,18 @@ export class Mech {
 			}},
 		];
 
-		this.material = new THREE.MeshLambertMaterial({
-			map: G.texture.load( 'high/mechs/Mechs_diffuse_atlas_beige.png' ),
-			normalMap: G.texture.load( 'high/mechs/Mechs_LtMed_Normals.png' ),
-			specularMap: G.texture.load( 'high/mechs/Mechs_LtMed_Unity_Specular.png' ),
-			skinning: true,
-			envMap: G.environmentMap,
-		});
+		//const spec = G.texture.load( 'high/mechs/Mechs_LtMed_Unity_Specular.png' );
+		this.material = G.lights.applyLightMap(
+			new THREE.MeshStandardMaterial({
+				name: 'BROWN-MECH',
+				map: G.texture.load( 'high/mechs/Mechs_diffuse_atlas_beige.png' ),
+				normalMap: G.texture.load( 'high/mechs/Mechs_LtMed_Normals.png' ),
+				roughness: 1,
+				metalness: 0,
+				skinning: true,
+				envMap: G.environmentMap,
+			})
+		);
 		
 		this.mechs.map( (object,index) => {
 			object.id = index;

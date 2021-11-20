@@ -14,12 +14,14 @@ export class Particles {
 				new THREE.SpriteMaterial({
 					map: G.texture.load( `/high/sand/sand${s}.png` ),
 					transparent: true,
+					name: 'SANDTEX'+s,
 				})
 			);
 			this.smokeTex.push(
 				new THREE.SpriteMaterial({
 					map: G.texture.load( `/high/smoke/smoke${s}.png` ),
 					transparent: true,
+					name: 'SMOKETEX'+s,
 				})			
 			);
 		}
@@ -65,6 +67,8 @@ export class Particles {
 		const ent = new THREE.Sprite( this.sandTex[ t ].clone() );
 		ent.position.set( x,y,z );
 		G.scene.add( ent );
+		
+		ent.material.color = G.lights.getSpriteColour({ x,z });
 		
 		this.particles.push({
 			ent: ent,
@@ -116,6 +120,8 @@ export class Particles {
 		ent.position.set( emitter.x, emitter.y, emitter.z );
 		G.scene.add( ent );
 		
+		ent.material.color = G.lights.getSpriteColour({ x: emitter.x, z: emitter.z });
+		
 		this.particles.push({
 			ent: ent,
 			scale: emitter.scale + Math.random()*emitter.scale,
@@ -165,7 +171,6 @@ export class Particles {
 	}
 
 	update( delta ) {
-		if( Math.random() < 0.05 ) console.log( 'particles' , this.particles.length );
 		this.particles.map( (particle,index) => {
 			if( particle.type === 'cloud' ) {
 				this.updateCloud({ index, particle , delta });

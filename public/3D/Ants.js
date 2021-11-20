@@ -20,13 +20,15 @@ export class Ants {
 			this.spawnAnt();
 		}
 	
-		const metRough = G.texture.load( '/high/ant/antMetRough.png' );
-		this.antMat = new THREE.MeshStandardMaterial({
-			metalnessMap: metRough,
-			roughnessMap: metRough,
-			entMap: G.environmentMap,
-			skinning: true,
-		});
+		//const metRough = G.texture.load( '/high/ant/antMetRough.png' );
+		this.antMat = G.lights.applyLightMap(
+			new THREE.MeshStandardMaterial({
+				metalness: 0.3,
+				roughness: 0.7,
+				envMap: G.environmentMap,
+				skinning: true,
+			})
+		);
 	
 		let self = this;
 		G.gltf.load( '/high/ant/Ant.glb' , result => {
