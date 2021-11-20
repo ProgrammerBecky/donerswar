@@ -435,7 +435,7 @@ export class Mech {
 		if( right < 0 ) right += Math.PI*2;
 		let left = mech.ent.rotation.y - df;
 		if( left < 0 ) left += Math.PI*2;
-		const rotSpeed = delta * 0.5;
+		const rotSpeed = delta * 2.5;
 		
 		throttle = ( Math.abs( df - mech.ent.rotation.y ) < 0.05 ) ? 2 : 1;
 		

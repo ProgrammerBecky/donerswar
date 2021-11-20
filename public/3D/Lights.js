@@ -95,6 +95,7 @@ export class Lights {
 			material.hasLightMap = true;
 			material.lightMap = this.globalLightMap;
 			material.lightMapIntensity = 1.0;
+			if( ! material.envMap ) material.envMap = G.environmentMap;
 
 			material.onBeforeCompile = function ( shader ) {
 
@@ -196,14 +197,19 @@ console.log( shader.fragmentShader );
 	getSpriteColour({ x,z }) {
 		
 		if( ! this.hasPixelData ) {
+			console.log( 'get pixel data' );
 			this.hasPixelData = this.context.getImageData( 0,0, LIGHT_MAP_SIZE,LIGHT_MAP_SIZE );
 		}
 		
 		const px = Math.floor( x/LIGHT_TO_WORLD_SCALE );
-		const pz = Math.floor( z/LIGHT_TO_WORLD_SCALE );
+		const pz = LIGHT_MAP_SIZE - Math.floor( z/LIGHT_TO_WORLD_SCALE );
 		const index = ((pz*LIGHT_MAP_SIZE)+px)*4;
-		
-		return new THREE.Color( this.hasPixelData.data[ index+0 ]/255 , this.hasPixelData.data[ index+1 ]/255 , this.hasPixelData.data[ index+2 ]/255 );
+
+		const r = Math.min( 1 , this.hasPixelData.data[ index+0 ]/255 + G.ambient.color.r );
+		const g = Math.min( 1 , this.hasPixelData.data[ index+1 ]/255 + G.ambient.color.g );
+		const b = Math.min( 1 , this.hasPixelData.data[ index+2 ]/255 + G.ambient.color.b );
+
+		return new THREE.Color( r,g,b );
 		
 	}
 	
@@ -258,6 +264,14 @@ console.log( shader.fragmentShader );
 		}	
 		this.needsUpdate = false;
 		this.hasPixelData = false;
+		G.particles.particles.map( particle => {
+			if( particle.ent ) {
+				particle.ent.material.color = this.getSpriteColour({
+					x: particle.ent.position.x,
+					z: particle.ent.position.z
+				});
+			}
+		});
 		
 	}
 
