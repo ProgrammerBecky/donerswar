@@ -497,4 +497,20 @@ export class Mech {
 		*/
 			
 	}
+	
+	canonHit({ mech }) {
+		
+		G.particles.spawnSmokeEmitter({
+			x: this.mechs[mech].x,
+			y: 0,
+			z: this.mechs[mech].z,
+			drift: 300,
+			speed: 550,
+			ringDensity: 12,
+			duration: 2.5,
+			size: 250,
+			emitFrequency: 0.025
+		});
+		
+	}
 }

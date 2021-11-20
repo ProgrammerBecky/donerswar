@@ -25,6 +25,7 @@ export class Control {
 		this.mousedown = this.mousedown.bind( this );
 		this.mouseup = this.mouseup.bind( this );
 		this.mousewheel = this.mousewheel.bind( this );
+		this.keydown = this.keydown.bind( this );
 		this.contextMenu = this.contextMenu.bind( this );
 		
 		window.addEventListener( 'resize' , this.resize );
@@ -32,6 +33,7 @@ export class Control {
 		window.addEventListener( 'mousedown' , this.mousedown );
 		window.addEventListener( 'mouseup' , this.mouseup );
 		window.addEventListener( 'mousewheel' , this.mousewheel );
+		window.addEventListener( 'keydown' , this.keydown );
 		window.addEventListener( 'contextmenu', this.contextMenu );
 		
 		this.resize();
@@ -100,6 +102,13 @@ export class Control {
 		if( e.button === 0 ) this.button.left = false;
 		if( e.button === 1 ) this.button.middle = false;
 		if( e.button === 2 ) this.button.right = false;		
+	}
+	keydown( e ) {
+		const cam = this.detectCam( e );
+		G.threeD.postMessage({
+			type: 'canon-hit',
+			mech: cam,
+		});
 	}
 	detectCam( e ) {
 		

@@ -294,6 +294,10 @@ onmessage = (e) => {
 			route: e.data.route,
 		});
 	}
+	else if( e.data.type === 'canon-hit' ) {
+		G.mechs.canonHit({ mech: e.data.mech });
+	}
+
 	
 }
 
