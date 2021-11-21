@@ -217,8 +217,6 @@ export class Particles {
 	
 	spawnFire({ x,y,z,size }) {
 		
-		console.log( 'spawn fire' , x , y , z );
-
 		const rotation = Math.PI*2*Math.random();
 
 		const ent = new THREE.Sprite( this.fireTex[ 0 ].clone() );
@@ -248,6 +246,99 @@ export class Particles {
 		
 	}	
 	
+	spawnRocket({ x,y,z,dir,speed,duration,arc }) {
+		
+		this.particles.push({
+			x: x,
+			y: y,
+			z: z,
+			speed: speed,
+			duration: duration,
+			dir: new THREE.Vector3( dir.x , dir.y , dir.z ),
+			source: new THREE.Vector3( x,y,z ),
+			raycaster: new THREE.Raycaster(),
+			arc: arc,
+			puffTimer: 0,
+			type: 'rocket',
+			lightRef: G.lights.registerLight({
+				x: x,
+				z: z,
+				f: 0,
+				splatSize: 8,
+				splat: 0,
+			})
+		});
+
+	}
+	
+	detonateRocket({ particle, target=false }) {
+		
+		this.spawnSmokeEmitter({
+			x: particle.x,
+			y: particle.y,
+			z: particle.z,
+			drift: 3000,
+			speed: 3000,
+			ringDensity: 12,
+			duration: 1.5,
+			size: 500,
+			emitFrequency: 0.025
+		});			
+		
+		G.world.destroy( particle.x , particle.z , 1500 , 5000 , target );
+	}
+	
+	updateRocket({ index, particle, delta }) {
+		
+		particle.duration -= delta;
+		if( particle.duration < 0 || particle.y < 0 ) {
+			this.detonateRocket({ particle });
+			this.destroy({ index, particle });
+		}
+		else {
+				
+			particle.speed -= delta * 2000;
+			
+			particle.raycaster.far = particle.speed * delta;
+			particle.source.set( particle.x , particle.y , particle.z );
+			particle.raycaster.set( particle.source , particle.dir );
+			const intersects = particle.raycaster.intersectObject( G.world.map , true );
+			
+			if( intersects.length > 0 ) {
+				this.detonateRocket({ particle });
+				this.destroy({ index, particle });				
+			}
+			else {
+			
+				let altSpeed = 1-particle.dir.y;
+				particle.x += particle.dir.x * delta * particle.speed * altSpeed;
+				particle.z += particle.dir.z * delta * particle.speed * altSpeed;
+				particle.dir.y += particle.arc * delta;
+				
+				particle.puffTimer += delta;
+				while( particle.puffTimer > 0 ) {
+					particle.puffTimer -= 0.0375;
+					this.spawnFire({
+						x: particle.x,
+						y: particle.y,
+						z: particle.z,
+						size: 450,
+					});
+				}
+				particle.y += particle.dir.y * delta * particle.speed;
+			
+				G.lights.updateLight({
+					lightId: particle.lightRef,
+					x: particle.x,
+					z: particle.z,
+					f: 0,
+				});
+			}
+			
+		}
+		
+	}
+	
 	update( delta ) {
 		this.particles.map( (particle,index) => {
 			if( particle.type === 'cloud' ) {
@@ -258,6 +349,9 @@ export class Particles {
 			}
 			else if( particle.type === 'fire' ) {
 				this.updateFire({ index, particle, delta });
+			}
+			else if( particle.type === 'rocket' ) {
+				this.updateRocket({ index, particle, delta });
 			}
 		});
 	}

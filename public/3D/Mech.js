@@ -89,7 +89,7 @@ export class Mech {
 					"weaponSR": "high/mechs/Weapons_machinegun_lvl5.glb",
 					"weaponT": "high/mechs/Weapons_Flamethrower_lvl5.glb"
 				},
-				"guns": [
+				"guns": [/*
 					{
 						"type": "canon",
 						"barrelEnd": "weaponR",
@@ -123,6 +123,14 @@ export class Mech {
 						"invertArcY": true,
 						"damage": 3,
 						"shots": 5,
+					}	*/	
+					{
+						"type": "rockets",
+						"barrelEnd": "weaponSL",
+						"mount": "Mount_Shoulder_rockets_lvl1_L",
+						"offsetX": 0,
+						"invertArcY": true,
+						"damage": 50,
 					}					
 				]
 			},
@@ -753,6 +761,21 @@ export class Mech {
 						}
 					}
 						
+				}
+				else if( gun.type === 'rockets' ) {
+
+					this.dir.set( Math.sin( rotation ) , Math.sin( arcAngle ) , Math.cos( rotation ) );
+					
+					G.particles.spawnRocket({
+						x: this.vector.x,
+						y: this.vector.y,
+						z: this.vector.z,
+						dir: this.dir,
+						speed: 8000,
+						duration: 4,
+						arc: -0.15,
+					});
+					
 				}
 				else if( gun.type === 'canon' ) {
 									
