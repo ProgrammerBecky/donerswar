@@ -676,7 +676,7 @@ export class Mech {
 					this.vector.applyMatrix4( barrel.matrixWorld );
 					
 					this.dir.set( Math.sin( rotation ) , Math.sin( arcAngle ) , Math.cos( rotation ) );
-					const hitTarget = this.shoot({ arc: -0.08 });
+					const hitTarget = this.shootFire({ arc: -0.08 });
 					
 				}
 				else if( gun.type === 'canon' ) {
@@ -734,10 +734,54 @@ export class Mech {
 		
 	}
 	
+	shootFire({ arc }) {
+		
+		let maxRange = 6000;
+		let size = 1500;
+		let dam = 13;
+		
+		while( maxRange > 0 ) {
+
+			G.world.destroy(
+				this.vector.x,
+				this.vector.z,
+				500,
+				dam,
+				false,
+				true
+			);
+
+			G.particles.spawnFire({
+				x: this.vector.x,
+				y: this.vector.y,
+				z: this.vector.z,
+				size: size,
+			});
+
+			size *= 1.1;
+			
+			this.dir.y += arc;
+			this.dir.normalize();
+			this.vector.set(
+				this.vector.x + this.dir.x * 500,
+				this.vector.y + this.dir.y * 500,
+				this.vector.z + this.dir.z * 500
+			);
+			if( this.vector.y < 0 ) {
+				this.vector.y = 0;
+				this.arc = 0;
+			}
+			
+			maxRange -= 500;
+			dam--;
+			
+		}		
+		
+	}
 	shoot({ arc }) {
 
-let mat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-let geo = new THREE.CubeGeometry( 100,100,100 );
+//let mat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+//let geo = new THREE.CubeGeometry( 100,100,100 );
 
 		this.raycaster.far = 500;
 		let maxRange = 40000;
@@ -756,9 +800,9 @@ let geo = new THREE.CubeGeometry( 100,100,100 );
 				}
 			}
 
-let obj = new THREE.Mesh( geo , mat );
-obj.position.set( this.vector.x , this.vector.y , this.vector.z );
-G.scene.add( obj );
+//let obj = new THREE.Mesh( geo , mat );
+//obj.position.set( this.vector.x , this.vector.y , this.vector.z );
+//G.scene.add( obj );
 			
 			this.dir.y += arc;
 			this.dir.normalize();

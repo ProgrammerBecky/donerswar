@@ -7,6 +7,7 @@ export class Particles {
 		
 		this.smokeTex = [];
 		this.sandTex = [];
+		this.fireTex = [];
 		this.particles = [];
 		
 		for( let s=1 ; s<=16 ; s++ ) {
@@ -25,11 +26,21 @@ export class Particles {
 				})			
 			);
 		}
+		for( let s=1 ; s<=20 ; s++ ) {
+			this.fireTex.push(
+				new THREE.SpriteMaterial({
+					map: G.texture.load( `/high/flame/flame${s}.png` ),
+					transparent: true,
+					name: 'SMOKETEX'+s,
+				})			
+			);
+		}
 		
 	}
 	
 	destroy({ index, particle }) {
 		if( particle.ent ) G.scene.remove( particle.ent );
+		if( particle.lightRef ) G.lights.removeLight( particle.lightRef );
 		if( index > -1 ) {
 			this.particles.splice( index , 1 );
 		}
@@ -65,6 +76,7 @@ export class Particles {
 			: 5 + Math.random() * 15
 		
 		const ent = new THREE.Sprite( this.sandTex[ t ].clone() );
+		ent.material.rotation = Math.PI*2*Math.random();
 		ent.position.set( x,y,z );
 		G.scene.add( ent );
 		
@@ -77,6 +89,7 @@ export class Particles {
 			maxLife: life,
 			drift: 5 + Math.random() * 15,
 			type: 'cloud',
+			lightSensitive: true,
 		});
 		
 	}
@@ -118,6 +131,7 @@ export class Particles {
 			
 		const ent = new THREE.Sprite( this.smokeTex[ t ].clone() );
 		ent.position.set( emitter.x, emitter.y, emitter.z );
+		ent.material.rotation = Math.PI*2*Math.random();
 		G.scene.add( ent );
 		
 		ent.material.color = G.lights.getSpriteColour({ x: emitter.x, z: emitter.z });
@@ -129,6 +143,7 @@ export class Particles {
 			maxLife: life,
 			drift: emitter.drift * Math.random() * 0.1,
 			type: 'cloud',
+			lightSensitive: true,
 		});
 		
 	}
@@ -169,7 +184,67 @@ export class Particles {
 			this.destroy({ index, particle });
 		}
 	}
+	
+	updateFire({ index, particle, delta }) {
+		particle.elapsed += delta;
+		let frame = Math.floor( particle.elapsed / (particle.lifespan/20) );
+		if( frame !== particle.frame ) {
+			if( frame > 15 ) {
+				G.lights.removeLight( particle.lightRef );
+				particle.lightRef = false;
+			}
+			if( frame >= 20 ) {
+				this.destroy({ index, particle });
+				return;
+			}
+			else {
+				particle.ent.material = this.fireTex[ frame ].clone();
+				particle.ent.material.rotation = particle.rotation;
+				particle.frame = frame;
+			}
+		}
+		
+		const size = particle.size * (particle.elapsed/particle.lifespan);
+		particle.ent.scale.set( size , size , size );
+		
+		particle.gravity += delta * 25;
+		particle.ent.position.y = Math.max( particle.ent.position.y - particle.gravity * delta , 0 );
+		
+	}
+	
+	spawnFire({ x,y,z,size }) {
+		
+		console.log( 'spawn fire' , x , y , z );
 
+		const rotation = Math.PI*2*Math.random();
+
+		const ent = new THREE.Sprite( this.fireTex[ 0 ].clone() );
+		ent.position.set( x,y,z );
+		ent.scale.set( size/20,size/20,size/20 );
+		ent.material.rotation = rotation;
+		G.scene.add( ent );
+		
+		this.particles.push({
+			ent: ent,
+			frame: 1,
+			elapsed: 0,
+			lifespan: 1,
+			rotation: rotation,
+			type: 'fire',
+			gravity: 0,
+			size: size,
+			lightSensitive: false,
+			lightRef: G.lights.registerLight({
+				x: ent.position.x,
+				z: ent.position.z,
+				f: 0,
+				splatSize: 8,
+				splat: 3,
+			})
+		});
+		
+	}	
+	
 	update( delta ) {
 		this.particles.map( (particle,index) => {
 			if( particle.type === 'cloud' ) {
@@ -177,6 +252,9 @@ export class Particles {
 			}
 			else if( particle.type === 'smokeEmitter' ) {
 				this.updateSmokeEmitter({ index, particle , delta });
+			}
+			else if( particle.type === 'fire' ) {
+				this.updateFire({ index, particle, delta });
 			}
 		});
 	}

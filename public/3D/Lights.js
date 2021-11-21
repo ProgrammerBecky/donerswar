@@ -301,7 +301,7 @@ console.log( shader.fragmentShader );
 		this.needsUpdate = false;
 		this.hasPixelData = false;
 		G.particles.particles.map( particle => {
-			if( particle.ent ) {
+			if( particle.lightSensitive ) {
 				particle.ent.material.color = this.getSpriteColour({
 					x: particle.ent.position.x,
 					z: particle.ent.position.z
