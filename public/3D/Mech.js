@@ -71,8 +71,7 @@ export class Mech {
 						"invertArcY": false,
 						"damage": 3,
 						"shots": 1,
-					}				
-					
+					}	
 				]
 			},
 			{
@@ -89,7 +88,7 @@ export class Mech {
 					"weaponSR": "high/mechs/Weapons_machinegun_lvl5.glb",
 					"weaponT": "high/mechs/Weapons_Flamethrower_lvl5.glb"
 				},
-				"guns": [/*
+				"guns": [
 					{
 						"type": "canon",
 						"barrelEnd": "weaponR",
@@ -123,30 +122,68 @@ export class Mech {
 						"invertArcY": true,
 						"damage": 3,
 						"shots": 5,
-					}	*/	
+					},	
 					{
 						"type": "rockets",
 						"barrelEnd": "weaponSL",
 						"mount": "Mount_Shoulder_rockets_lvl1_L",
 						"offsetX": 0,
 						"invertArcY": true,
-						"damage": 50,
 					}					
 				]
 			},
-			{"assembly":{
-				"legs": "high/mechs/Legs_Md.glb",
-				"hips": "high/mechs/Hips0.glb",
-				"cockpit": "high/mechs/Cockpit3.glb",
-				"backpack": "high/mechs/Backpack_Ballons.glb",
-				"shoulderL": "high/mechs/HalfShoulder_Shield.glb",
-				"shoulderR": "high/mechs/RHalfShoulder_Shield.glb",
-				"weaponL": "high/mechs/Weapons_rockets_2x_lvl5.glb",
-				"weaponR": "high/mechs/Weapons_rockets_2x_lvl5.glb",
-				"weaponSL": "high/mechs/TopWeapons_rockets_1x_lvl5.glb",
-				"weaponSR": "high/mechs/TopWeapons_rockets_1x_lvl5.glb",
-				"weaponT": "high/mechs/TopWeapons_rockets_2x_lvl5.glb"
-			}},
+			{
+				"assembly":{
+					"legs": "high/mechs/Legs_Md.glb",
+					"hips": "high/mechs/Hips0.glb",
+					"cockpit": "high/mechs/Cockpit3.glb",
+					"backpack": "high/mechs/Backpack_Ballons.glb",
+					"shoulderL": "high/mechs/HalfShoulder_Shield.glb",
+					"shoulderR": "high/mechs/RHalfShoulder_Shield.glb",
+					"weaponL": "high/mechs/Weapons_rockets_2x_lvl5.glb",
+					"weaponR": "high/mechs/Weapons_rockets_2x_lvl5.glb",
+					"weaponSL": "high/mechs/TopWeapons_rockets_1x_lvl5.glb",
+					"weaponSR": "high/mechs/TopWeapons_rockets_1x_lvl5.glb",
+					"weaponT": "high/mechs/TopWeapons_rockets_2x_lvl5.glb"
+				},
+				"guns": [
+					{
+						"type": "rockets",
+						"barrelEnd": "weaponSL",
+						"mount": "Mount_Shoulder_rockets_lvl1_L",
+						"offsetX": 0,
+						"invertArcY": true,
+					},
+					{
+						"type": "rockets",
+						"barrelEnd": "weaponSR",
+						"mount": "Mount_Shoulder_rockets_lvl1_R",
+						"offsetX": 0,
+						"invertArcY": false,
+					},
+					{
+						"type": "rockets",
+						"barrelEnd": "weaponL",
+						"mount": "Mount_Weapon_HL",
+						"offsetX": 0,
+						"invertArcY": true,
+					},	
+					{
+						"type": "rockets",
+						"barrelEnd": "weaponR",
+						"mount": "Mount_Weapon_HR",
+						"offsetX": 0,
+						"invertArcY": false,
+					},	
+					{
+						"type": "rockets",
+						"barrelEnd": "weaponT",
+						"mount": "Mount_Weapon_top",
+						"offsetX": 0,
+						"invertArcY": true,
+					}
+				]
+			},
 		];
 
 		//const spec = G.texture.load( 'high/mechs/Mechs_LtMed_Unity_Specular.png' );
