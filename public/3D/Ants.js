@@ -334,9 +334,11 @@ export class Ants {
 				if( ant.x > x-area && ant.x < x+area &&
 				ant.z > z-area && ant.z < z+area ) {
 					
-					ant.hp -= damage;
-					if( generateHeat ) {
-						ant.heat += damage*2;
+					if( damage > 0 ) {
+						ant.hp -= damage;
+						if( generateHeat ) {
+							ant.heat += damage*2;
+						}
 					}
 					
 				}

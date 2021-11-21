@@ -27,14 +27,14 @@ export class Mech {
 					"weaponT": "high/mechs/Weapons_cannon_lvl1.glb"
 				},
 				"guns": [
-					/*{
+					{
 						"type": "canon",
 						"barrelEnd": "weaponT",
 						"mount": "Mount_Weapon_top",
 						"offsetX": -300,
 						"invertArcY": true,
 						"damage": 500,
-					},*/
+					},
 					{
 						"type": "laser",
 						"barrelEnd": "weaponL",
@@ -68,14 +68,22 @@ export class Mech {
 					"weaponT": "high/mechs/Weapons_Flamethrower_lvl5.glb"
 				},
 				"guns": [
-					{
+					/*{
 						"type": "canon",
 						"barrelEnd": "weaponR",
 						"mount": "Mount_Weapon_HR",
 						"offsetX": 250,
 						"invertArcY": false,
 						"damage": 500,
-					}
+					}*/
+					{
+						"type": "flamer",
+						"barrelEnd": "weaponT",
+						"mount": "Mount_Weapon_top",
+						"offsetX": 0,
+						"invertArcY": true,
+						"damage": 1,
+					}					
 				]
 			},
 			{"assembly":{
@@ -416,35 +424,6 @@ export class Mech {
 		this.mechs.map( (mech) => {
 			if( mech.mixer ) {
 				
-				//Rotate Body
-				if( mech.cockpit_bevel ) {
-					const right = G.cameraPan[mech.id].y - mech.cockpit_bevel.rotation.y;
-					const left = mech.cockpit_bevel.rotation.y - G.cameraPan[mech.id].y;
-					const rotSpeed = delta * 5;
-					if( right > left ) {
-						if( right > rotSpeed ) {
-							mech.cockpit_bevel.rotation.y += rotSpeed;
-						}
-						else {
-							mech.cockpit_bevel.rotation.y = G.cameraPan[mech.id].y;
-						}
-					}
-					else if( left > right ) {
-						if( left > rotSpeed ) {
-							mech.cockpit_bevel.rotation.y -= rotSpeed;
-						}
-						else {
-							mech.cockpit_bevel.rotation.y = G.cameraPan[mech.id].y;
-						}
-					}
-
-					this.aim({
-						object: mech,
-						pan: G.cameraPan[mech.id],
-						facing: mech.cockpit_bevel.rotation.y,
-					});
-				}
-				
 				//action
 				if( mech.route ) {
 					this.followRoute({ mech, delta });
@@ -510,11 +489,40 @@ export class Mech {
 					});
 				}
 				
-				
 				//FPS Camera
 				G.camera[mech.id].position.set( mech.ent.position.x , mech.ent.position.y + 1500 , mech.ent.position.z );
 				G.camera[mech.id].rotation.set( G.cameraPan[mech.id].x , Math.PI + G.cameraPan[mech.id].y + mech.ent.rotation.y , 0 );
 				G.camera[mech.id].translateZ( G.cameraZoom[mech.id] );
+				
+				//Rotate Body
+				if( mech.cockpit_bevel ) {
+					const right = G.cameraPan[mech.id].y - mech.cockpit_bevel.rotation.y;
+					const left = mech.cockpit_bevel.rotation.y - G.cameraPan[mech.id].y;
+					const rotSpeed = delta * 1.5;
+					if( right > left ) {
+						if( right > rotSpeed ) {
+							mech.cockpit_bevel.rotation.y += rotSpeed;
+						}
+						else {
+							mech.cockpit_bevel.rotation.y = G.cameraPan[mech.id].y;
+						}
+					}
+					else if( left > right ) {
+						if( left > rotSpeed ) {
+							mech.cockpit_bevel.rotation.y -= rotSpeed;
+						}
+						else {
+							mech.cockpit_bevel.rotation.y = G.cameraPan[mech.id].y;
+						}
+					}
+
+					this.aim({
+						object: mech,
+						pan: G.cameraPan[mech.id],
+						facing: mech.cockpit_bevel.rotation.y,
+					});
+				}				
+				
 			}
 		});
 	}
@@ -633,7 +641,7 @@ export class Mech {
 					gunLimb.position.z
 				);
 				this.vector.applyMatrix4( gunLimb.matrixWorld );
-				const rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y + gunLimb.rotation.y;
+				const rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y - gunLimb.rotation.y;
 				
 				if( gun.invertArcY ) arcAngle = -arcAngle;			
 	
@@ -655,6 +663,20 @@ export class Mech {
 						laserTimer: 0,
 						cam: mechId,
 					});					
+					
+				}
+				else if( gun.type === 'flamer' ) {
+					
+					barrel.updateWorldMatrix();
+					this.vector.set(
+						barrel.position.x,
+						barrel.position.y,
+						barrel.position.z
+					);
+					this.vector.applyMatrix4( barrel.matrixWorld );
+					
+					this.dir.set( Math.sin( rotation ) , Math.sin( arcAngle ) , Math.cos( rotation ) );
+					const hitTarget = this.shoot({ arc: -0.08 });
 					
 				}
 				else if( gun.type === 'canon' ) {
@@ -714,8 +736,8 @@ export class Mech {
 	
 	shoot({ arc }) {
 
-//let mat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-//let geo = new THREE.CubeGeometry( 100,100,100 );
+let mat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+let geo = new THREE.CubeGeometry( 100,100,100 );
 
 		this.raycaster.far = 500;
 		let maxRange = 40000;
@@ -734,9 +756,9 @@ export class Mech {
 				}
 			}
 
-//let obj = new THREE.Mesh( geo , mat );
-//obj.position.set( this.vector.x , this.vector.y , this.vector.z );
-//G.scene.add( obj );
+let obj = new THREE.Mesh( geo , mat );
+obj.position.set( this.vector.x , this.vector.y , this.vector.z );
+G.scene.add( obj );
 			
 			this.dir.y += arc;
 			this.dir.normalize();
