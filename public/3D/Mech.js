@@ -31,7 +31,7 @@ export class Mech {
 						"type": "canon",
 						"barrelEnd": "weaponT",
 						"mount": "Mount_Weapon_top",
-						"offsetX": -300,
+						"offsetX": 0,
 						"invertArcY": true,
 						"damage": 500,
 					},
@@ -45,14 +45,36 @@ export class Mech {
 					}
 				]
 			},
-			{"assembly":{
-				"legs": "high/mechs/Legs_Lt.glb",
-				"cockpit": "high/mechs/Cockpit1.glb",
-				"shoulderL": "high/mechs/HalfShoulder_Wall.glb",
-				"shoulderR": "high/mechs/RHalfShoulder_Wall.glb",
-				"weaponL": "high/mechs/Weapons_Flamethrower_lvl3.glb",
-				"weaponR": "high/mechs/Weapons_machinegun_lvl3.glb"
-			}},
+			{
+				"assembly":{
+					"legs": "high/mechs/Legs_Lt.glb",
+					"cockpit": "high/mechs/Cockpit1.glb",
+					"shoulderL": "high/mechs/HalfShoulder_Wall.glb",
+					"shoulderR": "high/mechs/RHalfShoulder_Wall.glb",
+					"weaponL": "high/mechs/Weapons_Flamethrower_lvl3.glb",
+					"weaponR": "high/mechs/Weapons_machinegun_lvl3.glb"
+				},
+				"guns": [
+					{
+						"type": "flamer",
+						"barrelEnd": "weaponL",
+						"mount": "Mount_Weapon_L",
+						"offsetX": 0,
+						"invertArcY": true,
+						"damage": 1,
+					},
+					{
+						"type": "machinegun",
+						"barrelEnd": "weaponR",
+						"mount": "Mount_Weapon_R",
+						"offsetX": 0,
+						"invertArcY": false,
+						"damage": 3,
+						"shots": 1,
+					}				
+					
+				]
+			},
 			{
 				"assembly":{
 					"legs": "high/mechs/Legs_LtMd.glb",
@@ -68,14 +90,14 @@ export class Mech {
 					"weaponT": "high/mechs/Weapons_Flamethrower_lvl5.glb"
 				},
 				"guns": [
-					/*{
+					{
 						"type": "canon",
 						"barrelEnd": "weaponR",
 						"mount": "Mount_Weapon_HR",
-						"offsetX": 250,
+						"offsetX": 0,
 						"invertArcY": false,
 						"damage": 500,
-					}*/
+					},
 					{
 						"type": "flamer",
 						"barrelEnd": "weaponT",
@@ -83,6 +105,24 @@ export class Mech {
 						"offsetX": 0,
 						"invertArcY": true,
 						"damage": 1,
+					},		
+					{
+						"type": "machinegun",
+						"barrelEnd": "weaponSR",
+						"mount": "Mount_Shoulder_rockets_lvl1_R",
+						"offsetX": 0,
+						"invertArcY": false,
+						"damage": 3,
+						"shots": 1,
+					},				
+					{
+						"type": "machinegun",
+						"barrelEnd": "weaponL",
+						"mount": "Mount_Weapon_HL",
+						"offsetX": 0,
+						"invertArcY": true,
+						"damage": 3,
+						"shots": 5,
 					}					
 				]
 			},
@@ -490,7 +530,7 @@ export class Mech {
 				}
 				
 				//FPS Camera
-				G.camera[mech.id].position.set( mech.ent.position.x , mech.ent.position.y + 1500 , mech.ent.position.z );
+				G.camera[mech.id].position.set( mech.ent.position.x , mech.ent.position.y + 1800 , mech.ent.position.z );
 				G.camera[mech.id].rotation.set( G.cameraPan[mech.id].x , Math.PI + G.cameraPan[mech.id].y + mech.ent.rotation.y , 0 );
 				G.camera[mech.id].translateZ( G.cameraZoom[mech.id] );
 				
@@ -635,12 +675,14 @@ export class Mech {
 				});	
 
 				gunLimb.updateWorldMatrix();
+				barrel.updateWorldMatrix();
 				this.vector.set(
-					gunLimb.position.x,
-					gunLimb.position.y,
-					gunLimb.position.z
+					barrel.position.x,
+					barrel.position.y,
+					barrel.position.z
 				);
-				this.vector.applyMatrix4( gunLimb.matrixWorld );
+				this.vector.applyMatrix4( barrel.matrixWorld );				
+				
 				const rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y - gunLimb.rotation.y;
 				
 				if( gun.invertArcY ) arcAngle = -arcAngle;			
@@ -666,18 +708,51 @@ export class Mech {
 					
 				}
 				else if( gun.type === 'flamer' ) {
-					
-					barrel.updateWorldMatrix();
-					this.vector.set(
-						barrel.position.x,
-						barrel.position.y,
-						barrel.position.z
-					);
-					this.vector.applyMatrix4( barrel.matrixWorld );
-					
+										
 					this.dir.set( Math.sin( rotation ) , Math.sin( arcAngle ) , Math.cos( rotation ) );
 					const hitTarget = this.shootFire({ arc: -0.08 });
 					
+				}
+				else if( gun.type === 'machinegun' ) {
+
+					this.dir.set( Math.sin( rotation ) , Math.sin( arcAngle ) , Math.cos( rotation ) );
+					const hitTarget = this.shoot({ arc: -0.02 });
+
+					mech.muzzleFlashes.push({
+						duration: 0.1,
+						barrelEnd: barrel,
+						mount: gunLimb,
+						offsetX: gun.offsetX,
+						lightId: G.lights.registerLight({
+							x: -1000,
+							z: 0,
+							f: 0,
+							splat: 1,
+							splatSize: 16,
+						})
+					});
+						
+					if( hitTarget ) {
+
+						for( let i=0 ; i<gun.shots ; i++ ) {
+
+							G.particles.spawnSand({
+								x: hitTarget.point.x,
+								y: hitTarget.point.y,
+								z: hitTarget.point.z,
+								size: 30 * gun.shots,
+								maxLife: 3,
+							});
+							
+							G.world.destroy( hitTarget.point.x , hitTarget.point.z , 500 , gun.damage , hitTarget.object );
+							
+							hitTarget.point.x += Math.random()* 150 - 125;
+							hitTarget.point.y += Math.random()* 150 - 125;
+							hitTarget.point.z += Math.random()* 150 - 125;
+							
+						}
+					}
+						
 				}
 				else if( gun.type === 'canon' ) {
 									
@@ -734,6 +809,62 @@ export class Mech {
 		
 	}
 	
+
+	shoot({ arc }) {
+
+/*
+let mat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+let geo = new THREE.CubeGeometry( 100,100,100 );
+//*/
+
+		this.raycaster.far = 500;
+		let maxRange = 40000;
+		
+		while( maxRange > 0 ) {
+
+			this.raycaster.set( this.vector , this.dir );
+			let intersects = this.raycaster.intersectObject( G.world.map , true );
+			const hits = this.raycaster.intersectObjects( G.ants.colliders );
+			
+			if( hits.length > 0 ) {
+				if( ! intersects.length > 0 ) {
+					intersects = hits;
+				}
+				else {
+					if( hits[0].distance < intersects[0].distance ) {
+						intersects = hits;
+					}
+				}
+			}
+			
+			if( intersects.length > 0 ) return intersects[0]
+			if( this.vector.y < 0 ) return {
+				point: {
+					x: this.vector.x,
+					y: 0,
+					z: this.vector.z
+				}
+			}
+
+/*
+let obj = new THREE.Mesh( geo , mat );
+obj.position.set( this.vector.x , this.vector.y , this.vector.z );
+G.scene.add( obj );
+//*/
+			
+			this.dir.y += arc;
+			this.dir.normalize();
+			this.vector.set(
+				this.vector.x + this.dir.x * 500,
+				this.vector.y + this.dir.y * 500,
+				this.vector.z + this.dir.z * 500
+			);
+			maxRange -= 500;
+			
+		}		
+		
+	}
+	
 	shootFire({ arc }) {
 		
 		let maxRange = 6000;
@@ -778,44 +909,7 @@ export class Mech {
 		}		
 		
 	}
-	shoot({ arc }) {
-
-//let mat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-//let geo = new THREE.CubeGeometry( 100,100,100 );
-
-		this.raycaster.far = 500;
-		let maxRange = 40000;
-		
-		while( maxRange > 0 ) {
-
-			this.raycaster.set( this.vector , this.dir );
-			const intersects = this.raycaster.intersectObject( G.world.map , true );
-			
-			if( intersects.length > 0 ) return intersects[0]
-			if( this.vector.y < 0 ) return {
-				point: {
-					x: this.vector.x,
-					y: 0,
-					z: this.vector.z
-				}
-			}
-
-//let obj = new THREE.Mesh( geo , mat );
-//obj.position.set( this.vector.x , this.vector.y , this.vector.z );
-//G.scene.add( obj );
-			
-			this.dir.y += arc;
-			this.dir.normalize();
-			this.vector.set(
-				this.vector.x + this.dir.x * 500,
-				this.vector.y + this.dir.y * 500,
-				this.vector.z + this.dir.z * 500
-			);
-			maxRange -= 500;
-			
-		}		
-		
-	}
+	
 	shootLaser({ laser }) {
 
 		this.raycaster.far = 20000;

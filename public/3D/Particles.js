@@ -67,13 +67,16 @@ export class Particles {
 		
 	}
 	
-	spawnSand({ x,y,z }) {
+	spawnSand({ x,y,z, size=150, maxLife = 300 }) {
 		const t = Math.floor( Math.random() * 16 );
-		const life = ( Math.random() < 0.02 )
-			? 5 + Math.random() * 235
-			: ( Math.random() < 0.02 )
-			? 5 + Math.random() * 45
-			: 5 + Math.random() * 15
+		const life = Math.min(
+			maxLife,
+				( Math.random() < 0.02 )
+				? 5 + Math.random() * 235
+				: ( Math.random() < 0.02 )
+				? 5 + Math.random() * 45
+				: 5 + Math.random() * 15
+			);
 		
 		const ent = new THREE.Sprite( this.sandTex[ t ].clone() );
 		ent.material.rotation = Math.PI*2*Math.random();
@@ -84,7 +87,7 @@ export class Particles {
 		
 		this.particles.push({
 			ent: ent,
-			scale: 150 + Math.random()*300,
+			scale: size + Math.random()*size*2,
 			life: life,
 			maxLife: life,
 			drift: 5 + Math.random() * 15,
