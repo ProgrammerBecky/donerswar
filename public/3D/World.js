@@ -376,13 +376,13 @@ export class World {
 		console.log( 'World Loaded' );
 	}
 	
-	destroy( x,z,area=1, damage=1, directHitOn=null ) {
+	destroy( x,z,area=1, damage=1, directHitOn=null, generateHeat=false ) {
 		
 		let wx = Math.floor( x/1000 );
 		let wz = Math.floor( z/1000 );
 
 		G.zombies.destroy( x,z,area, damage );
-		G.ants.destroy( x,z,area,damage );
+		G.ants.destroy( x,z,area,damage,generateHeat );
 
 		for( let mx=wx-6 ; mx<wx+6 ; mx++ ) {
 			for( let mz=wz-6 ; mz<wz+6 ; mz++ ) {

@@ -6,11 +6,13 @@ const WORLD_SIZE = 85000;
 const NAV_MAP_SIZE = 512;
 const NAV_TO_WORLD_SCALE = WORLD_SIZE / NAV_MAP_SIZE;
 
-const ANT_COUNT = 30;
+let ANT_COUNT = 30;
 
 export class Ants {
 
 	constructor() {
+	
+		this.colliders = [];
 	
 		this.route = false;
 		this.collectiveDecisionTimer = 5;
@@ -32,9 +34,20 @@ export class Ants {
 	
 		let self = this;
 		G.gltf.load( '/high/ant/Ant.glb' , result => {
+
+			let body = null;
+		
+			result.scene.scale.set( 5000,5000,5000 );
 		
 			result.scene.traverse( child => {
 				if( child.isMesh ) {
+					
+					body = child;
+					
+					child.updateWorldMatrix( true , true );					
+					child.geometry.computeBoundingBox();
+					child.geometry.needsUpdate = true;
+					
 					if( ! self.antMat.map ) {
 						self.antMat.map = child.material.map;
 						self.antMat.normalMap = child.material.normalMap;
@@ -42,7 +55,21 @@ export class Ants {
 					child.material = self.antMat;
 				}
 			});
-			self.masterMesh = result.scene;
+			
+			const par = new THREE.Group();
+			par.add( result.scene );
+
+			const mat = new THREE.MeshBasicMaterial({
+				color: 0xff0000,
+				visible: false,
+			});
+			const geo = new THREE.CubeGeometry( 250,100,850 );
+			const collider = new THREE.Mesh( geo , mat );
+			collider.name = 'Collider';
+			collider.position.set( 0,100,-150 );
+			par.add( collider );
+
+			self.masterMesh = par;
 			self.animations = result.animations;
 		
 		});
@@ -58,7 +85,9 @@ export class Ants {
 			f: Math.random() * Math.PI * 2,
 			action: 'Idle',
 			decisionTimer: 5,
-			hp: 10,
+			hp: 50,
+			heat: 0,
+			hasOwnMat: false,
 		});
 	}
 	
@@ -66,8 +95,15 @@ export class Ants {
 		if( ! this.masterMesh ) return;
 	
 		ant.ent = SkeletonUtils.clone( this.masterMesh );
-		ant.ent.scale.set( 5000,5000,5000 );
 		G.scene.add( ant.ent );
+
+		ant.ent.traverse( child => {
+			if( child.name === 'Collider' ) {
+				this.colliders.push( child );
+			}
+		});
+		
+		
 		this.setAnimation({ ant });
 	
 	}
@@ -75,6 +111,7 @@ export class Ants {
 	
 	setAnimation({ ant }) {
 	
+		if( ant.hp <= 0 && ant.action !== 'Death' ) return ;
 		if( ant.mixer ) {
 			ant.animAction.stop();
 		}
@@ -106,8 +143,18 @@ export class Ants {
 	}
 	
 	despawnAnt({ ant }) {
+		
+		G.scene.remove( ant.ent );
+		ant.ent.traverse( child => {
+			if( child.name === 'Collider' ) {
+				const colIndex = this.colliders.findIndex( search => search === child );
+				if( colIndex > -1 ) {
+					this.colliders.splice( colIndex , 1 );
+				}
+			}
+		});
+		
 		let index = this.ants.findIndex( search => search.id === ant.id );
-		G.scene.remove( ant );
 		this.ants.splice( index , 1 );
 	}
 	
@@ -240,6 +287,12 @@ export class Ants {
 			}
 			else {
 
+				if( ant.hp <=0 && ant.action !== 'Death' ) {
+					ant.action = 'Death';
+					this.setAnimation({ ant });
+					ANT_COUNT++;
+				}
+
 				if( ant.action !== 'Death' ) {
 					ant.decisionTimer -= delta;
 					if( ant.decisionTimer < 0 ) {
@@ -247,6 +300,23 @@ export class Ants {
 					}
 					
 					if( ant.action === 'Walk' ) this.doWalk({ ant , delta });
+				}
+				if( ant.heat > 0 ) {
+					if( ! ant.hasOwnMat ) {
+						ant.ent.traverse( child => {
+							if( child.isMesh ) {
+								child.material = child.material.clone();
+							}
+						});
+						ant.hasOwnMat = true;
+					}
+					ant.heat = Math.max( 0 , ant.heat - delta*10 );
+					let heat = Math.min( ant.heat , 255 );
+					ant.ent.traverse( child => {
+						if( child.isMesh ) {
+							child.material.color = new THREE.Color( 1+heat , 1+heat/2 , 1 );
+						}
+					});
 				}
 				
 				ant.ent.position.set( ant.x , ant.y , ant.z );
@@ -258,17 +328,15 @@ export class Ants {
 	
 	}
 	
-	destroy( x,z,area,damage ) {
+	destroy( x,z,area,damage,generateHeat ) {
 		this.ants.map( ant => {
 			if( ant.hp > 0 ) {
 				if( ant.x > x-area && ant.x < x+area &&
 				ant.z > z-area && ant.z < z+area ) {
 					
 					ant.hp -= damage;
-					console.log( ant.hp );
-					if( ant.hp < 1 ) {
-						ant.action = 'Death';
-						this.setAnimation({ ant });
+					if( generateHeat ) {
+						ant.heat += damage*2;
 					}
 					
 				}

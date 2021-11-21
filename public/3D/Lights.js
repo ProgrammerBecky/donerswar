@@ -143,6 +143,7 @@ export class Lights {
 						varying vec2 worldUV;
 						varying vec2 worldUV2;
 						varying float lightMapAltitude;
+						uniform vec3 heatBurn;
 					`
 				);
 											

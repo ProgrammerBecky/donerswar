@@ -138,11 +138,13 @@ export class Zombies {
 			if( zombie.x > x-area && zombie.x < x+area &&
 			zombie.z > z-area && zombie.z < z+area ) {
 				
-				zombie.action = 'Death';
-				let animId = Math.floor( Math.random() * 10 ) + 1;
-				zombie.animation = `Death${animId}`;
-				zombie.alive = false;
-				this.setAnimation({ zombie });
+				if( zombie.action !== 'Death' ) {
+					zombie.action = 'Death';
+					let animId = Math.floor( Math.random() * 10 ) + 1;
+					zombie.animation = `Death${animId}`;
+					zombie.alive = false;
+					this.setAnimation({ zombie });
+				}
 				
 			}
 		});

@@ -5,6 +5,10 @@ const WORLD_SIZE = 85000;
 const NAV_MAP_SIZE = 512;
 const NAV_TO_WORLD_SCALE = WORLD_SIZE / NAV_MAP_SIZE;
 
+const laserMat = new THREE.LineBasicMaterial({
+	color: 0xff8800
+});
+
 export class Mech {
 	
 	constructor() {
@@ -456,6 +460,9 @@ export class Mech {
 				if( mech.muzzleFlashes.length > 0 ) {
 					mech.muzzleFlashes.map( (flash,index) => {
 						if( flash.duration < 0 ) {
+							if( flash.laserEnt ) {
+								G.scene.remove( flash.laserEnt );
+							}
 							G.lights.removeLight( flash.lightId );
 							mech.muzzleFlashes.splice( index , 1 );
 							G.lights.needsUpdate = true;
@@ -471,6 +478,24 @@ export class Mech {
 									flash.barrelEnd.position.z
 								);
 								this.vector.applyMatrix4( flash.barrelEnd.matrixWorld );
+
+								if( flash.isLaser ) {
+									flash.laserTimer += delta;
+									
+									const rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y + flash.mount.rotation.y;
+									this.dir.set( Math.sin( rotation ) , Math.sin( -flash.mount.rotation.x ) , Math.cos( rotation ) );										
+
+									const hitTarget = this.shootLaser({ laser: flash });
+									
+									if( flash.laserTimer > 0 ) {
+										while( flash.laserTimer > 0 ) {
+											flash.laserTimer -= 0.1;
+											if( hitTarget ) {
+												G.world.destroy( hitTarget.point.x , hitTarget.point.z , 500 , 4 , hitTarget.object , true );
+											}
+										}
+									}
+								}
 
 								G.lights.updateLight({
 									lightId: flash.lightId,
@@ -591,19 +616,29 @@ export class Mech {
 		
 		mech.guns.map( gun => {
 	
-			if( gun.type === 'laser' ) {
+			const barrel = mech.barrelEnd[ gun.barrelEnd ];
+			if( barrel ) {
+				let gunLimb, arcAngle = 0;
+				mech.mounts.map( mount => {
+					if( mount.name === gun.mount ) {
+						gunLimb = mount;
+						arcAngle = mount.rotation.x;
+					}
+				});	
 
-				const barrel = mech.barrelEnd[ gun.barrelEnd ];
-				if( barrel ) {
-					
-					let gunLimb, arcAngle = 0;
-					mech.mounts.map( mount => {
-						if( mount.name === gun.mount ) {
-							gunLimb = mount;
-							arcAngle = mount.rotation.x;
-						}
-					});
-								
+				gunLimb.updateWorldMatrix();
+				this.vector.set(
+					gunLimb.position.x,
+					gunLimb.position.y,
+					gunLimb.position.z
+				);
+				this.vector.applyMatrix4( gunLimb.matrixWorld );
+				const rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y + gunLimb.rotation.y;
+				
+				if( gun.invertArcY ) arcAngle = -arcAngle;			
+	
+				if( gun.type === 'laser' ) {
+							
 					mech.muzzleFlashes.push({
 						duration: 10,
 						barrelEnd: barrel,
@@ -615,24 +650,15 @@ export class Mech {
 							f: 0,
 							splat: -1,
 							splatSize: 0,
-						})
+						}),
+						isLaser: true,
+						laserTimer: 0,
+						cam: mechId,
 					});					
 					
 				}
-				
-			}
-			else if( gun.type === 'canon' ) {
-				const barrel = mech.barrelEnd[ gun.barrelEnd ];
-				if( barrel ) {
-					
-					let gunLimb, arcAngle = 0;
-					mech.mounts.map( mount => {
-						if( mount.name === gun.mount ) {
-							gunLimb = mount;
-							arcAngle = mount.rotation.x;
-						}
-					});
-								
+				else if( gun.type === 'canon' ) {
+									
 					mech.muzzleFlashes.push({
 						duration: 0.1,
 						barrelEnd: barrel,
@@ -646,22 +672,11 @@ export class Mech {
 							splatSize: 16,
 						})
 					});
-					
-					gunLimb.updateWorldMatrix();
-					this.vector.set(
-						gunLimb.position.x,
-						gunLimb.position.y,
-						gunLimb.position.z
-					);
-					this.vector.applyMatrix4( gunLimb.matrixWorld );
-					const rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y + gunLimb.rotation.y;
-					
-					if( gun.invertArcY ) arcAngle = -arcAngle;
+				
 					this.dir.set( Math.sin( rotation ) , Math.sin( arcAngle ) , Math.cos( rotation ) );
 					
 					const hitTarget = this.shoot({ arc: -0.015 });
 					if( hitTarget ) {
-						console.log( hitTarget );
 
 						G.particles.spawnSmokeEmitter({
 							x: hitTarget.point.x,
@@ -704,19 +719,20 @@ export class Mech {
 
 		this.raycaster.far = 500;
 		let maxRange = 40000;
-
+		
 		while( maxRange > 0 ) {
-			
+
 			this.raycaster.set( this.vector , this.dir );
 			const intersects = this.raycaster.intersectObject( G.world.map , true );
-			if( intersects.length > 0 ) return intersects[0];
+			
+			if( intersects.length > 0 ) return intersects[0]
 			if( this.vector.y < 0 ) return {
 				point: {
 					x: this.vector.x,
 					y: 0,
 					z: this.vector.z
 				}
-			};
+			}
 
 //let obj = new THREE.Mesh( geo , mat );
 //obj.position.set( this.vector.x , this.vector.y , this.vector.z );
@@ -732,6 +748,62 @@ export class Mech {
 			maxRange -= 500;
 			
 		}		
+		
+	}
+	shootLaser({ laser }) {
+
+		this.raycaster.far = 20000;
+		
+		let points = [
+			new THREE.Vector3( 0,0,0 )
+		];
+
+		this.raycaster.set( this.vector , this.dir );
+		let intersects = this.raycaster.intersectObject( G.world.map , true );
+		const hits = this.raycaster.intersectObjects( G.ants.colliders );
+		
+		if( hits.length > 0 ) {
+			if( ! intersects.length > 0 ) {
+				intersects = hits;
+			}
+			else {
+				if( hits[0].distance < intersects[0].distance ) {
+					intersects = hits;
+				}
+			}
+		}
+		
+		if( intersects[0] ) {
+			points.push(
+				new THREE.Vector3(
+					intersects[0].point.x - this.vector.x,
+					intersects[0].point.y - this.vector.y,
+					intersects[0].point.z - this.vector.z,
+				)
+			);
+			this.drawLaser({ laser, points });
+			return intersects[0];
+		}
+		else {
+			points.push(
+				new THREE.Vector3(
+					this.dir.x * 20000,
+					this.dir.y * 20000,
+					this.dir.z * 20000,
+				)
+			);
+			this.drawLaser({ laser, points });
+			return false;
+		}
+		
+	}
+	drawLaser({ laser, points }) {
+		if( laser.laserEnt ) G.scene.remove( laser.laserEnt );
+		
+		const geo = new THREE.BufferGeometry().setFromPoints( points );
+		laser.laserEnt = new THREE.Line( geo , laserMat );
+		laser.laserEnt.position.set( this.vector.x , this.vector.y , this.vector.z );
+		G.scene.add( laser.laserEnt );
 		
 	}
 }
