@@ -266,7 +266,7 @@ export class Ants {
 					
 					ant.hp -= damage;
 					console.log( ant.hp );
-					if( ant.hp <= 0 ) {
+					if( ant.hp < 1 ) {
 						ant.action = 'Death';
 						this.setAnimation({ ant });
 					}

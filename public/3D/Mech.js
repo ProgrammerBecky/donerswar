@@ -23,13 +23,21 @@ export class Mech {
 					"weaponT": "high/mechs/Weapons_cannon_lvl1.glb"
 				},
 				"guns": [
-					{
+					/*{
 						"type": "canon",
 						"barrelEnd": "weaponT",
 						"mount": "Mount_Weapon_top",
 						"offsetX": -300,
 						"invertArcY": true,
 						"damage": 500,
+					},*/
+					{
+						"type": "laser",
+						"barrelEnd": "weaponL",
+						"mount": "Mount_Weapon_L",
+						"offsetX": 0,
+						"invertArcY": false,
+						"damage": 5,
 					}
 				]
 			},
@@ -577,13 +585,43 @@ export class Mech {
 			
 	}
 	
-	canonHit({ mech }) {
-		
-		mech = this.mechs[ mech ];
+	canonHit( mechId ) {
+
+		const mech = this.mechs[ mechId ];
 		
 		mech.guns.map( gun => {
-			
-			if( gun.type === 'canon' ) {
+	
+			if( gun.type === 'laser' ) {
+
+				const barrel = mech.barrelEnd[ gun.barrelEnd ];
+				if( barrel ) {
+					
+					let gunLimb, arcAngle = 0;
+					mech.mounts.map( mount => {
+						if( mount.name === gun.mount ) {
+							gunLimb = mount;
+							arcAngle = mount.rotation.x;
+						}
+					});
+								
+					mech.muzzleFlashes.push({
+						duration: 10,
+						barrelEnd: barrel,
+						mount: gunLimb,
+						offsetX: gun.offsetX,
+						lightId: G.lights.registerLight({
+							x: -1000,
+							z: 0,
+							f: 0,
+							splat: -1,
+							splatSize: 0,
+						})
+					});					
+					
+				}
+				
+			}
+			else if( gun.type === 'canon' ) {
 				const barrel = mech.barrelEnd[ gun.barrelEnd ];
 				if( barrel ) {
 					

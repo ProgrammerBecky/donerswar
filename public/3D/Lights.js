@@ -239,7 +239,7 @@ console.log( shader.fragmentShader );
 				
 		this.context.globalCompositeOperation = 'lighter';
 		this.lights.map( light => {
-			if( this.splats[ light.splat ] ) {
+			if( this.splats[ light.splat ] || light.splat === -1 ) {
 									
 				let x = light.x;
 				let z = LIGHT_MAP_SIZE - light.z;
@@ -248,15 +248,40 @@ console.log( shader.fragmentShader );
 				&&	x < LIGHT_MAP_SIZE+light.splatSize && z < LIGHT_MAP_SIZE+light.splatSize
 				) {
 					
-					this.context.save();
-					this.context.translate( x , z );
-					this.context.rotate( light.f );
-					this.context.drawImage(
-						this.splats[ light.splat ],
-						-light.splatSize,
-						-light.splatSize
-					);
-					this.context.restore();
+					if( light.splat === -1 ) {
+
+						let dx = Math.sin( light.f );
+						let dz = Math.cos( light.f );
+						let brightness = 255;
+					
+						while( brightness > 0 ) {
+
+							const hBrightness = Math.floor( brightness/2 );
+
+							this.context.beginPath();
+							this.context.strokeStyle = `rgb(${brightness},${hBrightness},0)`;
+							this.context.moveTo( x,z );
+							this.context.lineTo( x + dx*3, z - dz*3 );
+							this.context.stroke();
+
+							x += dx * 3;
+							z -= dz * 3;
+							brightness -= 10;
+							
+						}
+						
+					}
+					else {
+						this.context.save();
+						this.context.translate( x , z );
+						this.context.rotate( light.f );
+						this.context.drawImage(
+							this.splats[ light.splat ],
+							-light.splatSize,
+							-light.splatSize
+						);
+						this.context.restore();
+					}
 					
 				}
 			}

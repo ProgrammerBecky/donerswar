@@ -91,23 +91,30 @@ export class Zombies {
 	setAnimation({ zombie }) {
 		
 		if( zombie.mixer ) {
-			zombie.animAction.stop();
+			if( zombie.animAction ) {
+				zombie.animAction.stop();
+			}
 		}
 		else {
 			zombie.mixer = new THREE.AnimationMixer( zombie.ent );
 		}
 		
 		const clip = THREE.AnimationClip.findByName( this.animations , zombie.animation );
-		zombie.animAction = zombie.mixer.clipAction( clip );
-		
-		zombie.animAction.setLoop(
-			( zombie.action === 'Death' )
-				? THREE.LoopOnce
-				: THREE.LoopRepeat
-		);
-		if( zombie.action === 'Death' ) zombie.animAction.clampWhenFinished = true;
+		if( clip ) {
+			zombie.animAction = zombie.mixer.clipAction( clip );
+			
+			zombie.animAction.setLoop(
+				( zombie.action === 'Death' )
+					? THREE.LoopOnce
+					: THREE.LoopRepeat
+			);
+			if( zombie.action === 'Death' ) zombie.animAction.clampWhenFinished = true;
 
-		zombie.animAction.play();
+			zombie.animAction.play();
+		}
+		else {
+			console.log( 'cannot find ' , zombie.animation , ' in animation stack' , this.animations );
+		}
 	}
 	
 	loadZombieEnt({ zombie }) {

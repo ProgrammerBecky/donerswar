@@ -301,7 +301,7 @@ onmessage = (e) => {
 		});
 	}
 	else if( e.data.type === 'canon-hit' ) {
-		G.mechs.canonHit({ mech: e.data.mech });
+		G.mechs.canonHit( e.data.mech );
 	}
 	else if( e.data.type === 'init-lighting' ) {
 		G.lights.registerCanvas({

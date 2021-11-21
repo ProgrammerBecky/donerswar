@@ -55,11 +55,11 @@ export class World {
 
 					if( child.material && child.material ) {
 						if( Array.isArray( child.material ) ) {
-							child.material[1].transparent = true;
-							child.material[1].alphaTest = 0.95;
 							child.material.map( mat => {
 								mat = G.lights.applyLightMapFromLambert( mat );
 							});
+							child.material[1].transparent = true;
+							child.material[1].alphaTest = 0.5;
 						}
 						else {
 							child.material = G.lights.applyLightMapFromLambert( child.material )
