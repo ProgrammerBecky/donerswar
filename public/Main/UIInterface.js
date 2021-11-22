@@ -12,8 +12,8 @@ export class UIInterface {
 	
 		this.weapons = [
 			[
-				{"weapon": "Laser", "key": "Q", "maxAmmo": 60, "ammo": 60, "gunId": 1},
-				{"weapon": "Canon", "key": "E", "maxAmmo": 6, "ammo": 6, "gunId": 0},
+				{"weapon": "Laser", "key": "Q", "maxAmmo": 25, "ammo": 25, "gunId": 1},
+				{"weapon": "Canon", "key": "E", "maxAmmo": 12, "ammo": 12, "gunId": 0},
 				{"weapon": "Spotlight", "key": "S", "maxAmmo": 0, "ammo": 0, "hideAmmo": true},
 			],
 			[
@@ -24,8 +24,8 @@ export class UIInterface {
 				{"weapon": "Minigun", "key": "Q", "maxAmmo": 60, "ammo": 60, "gunId": 3},
 				{"weapon": "Rockets", "key": "W", "maxAmmo": 2, "ammo": 2, "gunId": 4},
 				{"weapon": "Flamer", "key": "E", "maxAmmo": 60, "ammo": 60, "gunId": 1},
-				{"weapon": "Machinegun", "key": "R", "maxAmmo": 60, "ammo": 60, "gunId": 2},
-				{"weapon": "Canon", "key": "T", "maxAmmo": 9, "ammo": 9, "gunId": 0},
+				{"weapon": "Rockets", "key": "R", "maxAmmo": 2, "ammo": 2, "gunId": 2},
+				{"weapon": "Canon", "key": "T", "maxAmmo": 24, "ammo": 24, "gunId": 0},
 			],
 			[
 				{"weapon": "Rockets", "key": "Q", "maxAmmo": 10, "ammo": 10, "gunId": 2},

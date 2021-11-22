@@ -87,7 +87,7 @@ export class Mech {
 					"weaponL": "high/mechs/Weapons_minigun_lvl5@Weapons_minigun_lvl5_shoot.glb",
 					"weaponR": "high/mechs/Weapons_cannon_lvl5.glb",
 					"weaponSL": "high/mechs/Weapons_rockets_shoulder_lvl2.glb",
-					"weaponSR": "high/mechs/Weapons_machinegun_lvl5.glb",
+					"weaponSR": "high/mechs/Weapons_rockets_shoulder_lvl2.glb",
 					"weaponT": "high/mechs/Weapons_Flamethrower_lvl5.glb"
 				},
 				"guns": [
@@ -108,13 +108,11 @@ export class Mech {
 						"damage": 1,
 					},		
 					{
-						"type": "machinegun",
+						"type": "rockets",
 						"barrelEnd": "weaponSR",
 						"mount": "Mount_Shoulder_rockets_lvl1_R",
 						"offsetX": 0,
 						"invertArcY": false,
-						"damage": 3,
-						"shots": 1,
 					},				
 					{
 						"type": "machinegun",
@@ -215,6 +213,8 @@ export class Mech {
 			object.z = 42500,
 			object.muzzleFlashes = [];
 			object.barrelEnd = {};
+			object.machineGunFiring = [];
+			object.machineGunShots = [];
 			if( object.lightRef !== false ) {
 				object.lightRef = G.lights.registerLight({
 					x: 0,
@@ -519,7 +519,7 @@ export class Mech {
 	}
 		
 	update( delta ) {
-		this.mechs.map( (mech) => {
+		this.mechs.map( (mech,mechId) => {
 			if( mech.mixer ) {
 				
 				//action
@@ -629,8 +629,19 @@ export class Mech {
 							z: mech.ent.position.z + Math.cos( lightF ) * 5312.5,
 							f: lightF,
 						});
+						G.lights.needsUpdate=true;				
 					}
-					G.lights.needsUpdate=true;				
+					
+					//Machineguns
+					mech.machineGunShots.map( (shot,index) => {
+						if( shot > 0 ) {
+							mech.machineGunFiring[index] += delta;
+							while( mech.machineGunFiring[index] > 0 ) {
+								this.fireWeapon( mechId , index , true );
+							}
+						}
+					});
+								
 					
 				}
 				
@@ -729,7 +740,7 @@ export class Mech {
 			
 	}
 	
-	fireWeapon( mechId , gunId ) {
+	fireWeapon( mechId , gunId , passive=false ) {
 
 		if( gunId === 'FULL_SALVO' ) {
 			const mech = this.mechs[ mechId ];
@@ -787,12 +798,32 @@ export class Mech {
 					
 				}
 				else if( gun.type === 'flamer' ) {
-										
+							
+					if( ! passive ) {
+						mech.machineGunFiring[ gunId ] = -0.05;
+						if( ! mech.machineGunShots[ gunId ] ) mech.machineGunShots[ gunId ] = 0;
+						mech.machineGunShots[ gunId ] += 30;
+					}
+					else {
+						mech.machineGunFiring[ gunId ] -= 0.05;
+						mech.machineGunShots[ gunId ]--;
+					}
+							
 					this.dir.set( Math.sin( rotation ) , Math.sin( arcAngle ) , Math.cos( rotation ) );
 					const hitTarget = this.shootFire({ arc: -0.08 });
 					
 				}
 				else if( gun.type === 'machinegun' ) {
+
+					if( ! passive ) {
+						mech.machineGunFiring[ gunId ] = -0.05;
+						if( ! mech.machineGunShots[ gunId ] ) mech.machineGunShots[ gunId ] = 0;
+						mech.machineGunShots[ gunId ] += 30;
+					}
+					else {
+						mech.machineGunFiring[ gunId ] -= 0.05;
+						mech.machineGunShots[ gunId ]--;
+					}
 
 					this.dir.set( Math.sin( rotation ) , Math.sin( arcAngle ) , Math.cos( rotation ) );
 					const hitTarget = this.shoot({ arc: -0.02 });
