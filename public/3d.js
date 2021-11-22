@@ -300,8 +300,8 @@ onmessage = (e) => {
 			route: e.data.route,
 		});
 	}
-	else if( e.data.type === 'canon-hit' ) {
-		G.mechs.canonHit( e.data.mech );
+	else if( e.data.type === 'fire-weapon' ) {
+		G.mechs.fireWeapon( e.data.mech , e.data.gunId );
 	}
 	else if( e.data.type === 'init-lighting' ) {
 		G.lights.registerCanvas({

@@ -43,7 +43,8 @@ export class Mech {
 						"invertArcY": false,
 						"damage": 5,
 					}
-				]
+				],
+				"lightRef": "Spotlight"
 			},
 			{
 				"assembly":{
@@ -72,7 +73,8 @@ export class Mech {
 						"damage": 3,
 						"shots": 1,
 					}	
-				]
+				],
+				"lightRef": false
 			},
 			{
 				"assembly":{
@@ -130,7 +132,8 @@ export class Mech {
 						"offsetX": 0,
 						"invertArcY": true,
 					}					
-				]
+				],
+				"lightRef": false
 			},
 			{
 				"assembly":{
@@ -182,7 +185,8 @@ export class Mech {
 						"offsetX": 0,
 						"invertArcY": true,
 					}
-				]
+				],
+				"lightRef": false
 			},
 		];
 
@@ -211,13 +215,15 @@ export class Mech {
 			object.z = 42500,
 			object.muzzleFlashes = [];
 			object.barrelEnd = {};
-			object.lightRef = G.lights.registerLight({
-				x: 0,
-				z: 0,
-				f: 0,
-				splat: 4,
-				splatSize: 32,
-			});
+			if( object.lightRef !== false ) {
+				object.lightRef = G.lights.registerLight({
+					x: 0,
+					z: 0,
+					f: 0,
+					splat: 4,
+					splatSize: 32,
+				});
+			}
 			this.loadAssembly({ object });
 		});
 		
@@ -615,13 +621,15 @@ export class Mech {
 					});
 
 					//Spotlight
-					const lightF = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y;
-					G.lights.updateLight({
-						lightId: mech.lightRef,
-						x: mech.ent.position.x + Math.sin( lightF ) * 5312.5,
-						z: mech.ent.position.z + Math.cos( lightF ) * 5312.5,
-						f: lightF,
-					});
+					if( mech.lightRef !== false ) {
+						const lightF = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y;
+						G.lights.updateLight({
+							lightId: mech.lightRef,
+							x: mech.ent.position.x + Math.sin( lightF ) * 5312.5,
+							z: mech.ent.position.z + Math.cos( lightF ) * 5312.5,
+							f: lightF,
+						});
+					}
 					G.lights.needsUpdate=true;				
 					
 				}
@@ -721,11 +729,19 @@ export class Mech {
 			
 	}
 	
-	canonHit( mechId ) {
+	fireWeapon( mechId , gunId ) {
+
+		if( gunId === 'FULL_SALVO' ) {
+			const mech = this.mechs[ mechId ];
+			mech.guns.map( (weapon,index) => {
+				this.fireWeapon( mechId , index );
+			});
+			return;
+		}
 
 		const mech = this.mechs[ mechId ];
-		
-		mech.guns.map( gun => {
+		let gun = mech.guns[ gunId ];
+		if( gun ) {
 	
 			const barrel = mech.barrelEnd[ gun.barrelEnd ];
 			if( barrel ) {
@@ -883,7 +899,7 @@ export class Mech {
 				}
 				
 			}
-		});
+		}
 		
 	}
 	

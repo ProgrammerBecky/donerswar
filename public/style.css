@@ -109,6 +109,9 @@ html, body{
 	width: 100%;
 	border: 1px solid black;
 	box-sizing: border-box;
+	position: absolute;
+	bottom: 0;
+	left: 0;
 }
 .weapon-count {
 	position: absolute;

@@ -12,27 +12,28 @@ export class UIInterface {
 	
 		this.weapons = [
 			[
-				{"weapon": "Laser", "key": "Q", "maxAmmo": 60, "ammo": 60},
-				{"weapon": "Canon", "key": "E", "maxAmmo": 6, "ammo": 6},
+				{"weapon": "Laser", "key": "Q", "maxAmmo": 60, "ammo": 60, "gunId": 1},
+				{"weapon": "Canon", "key": "E", "maxAmmo": 6, "ammo": 6, "gunId": 0},
+				{"weapon": "Spotlight", "key": "S", "maxAmmo": 0, "ammo": 0, "hideAmmo": true},
 			],
 			[
-				{"weapon": "Flamer", "key": "Q", "maxAmmo": 60, "ammo": 60},
-				{"weapon": "Machinegun", "key": "T", "maxAmmo": 60, "ammo": 60},
+				{"weapon": "Flamer", "key": "Q", "maxAmmo": 60, "ammo": 60, "gunId": 0},
+				{"weapon": "Machinegun", "key": "T", "maxAmmo": 60, "ammo": 60, "gunId": 1},
 			],
 			[
-				{"weapon": "Minigun", "key": "Q", "maxAmmo": 60, "ammo": 60},
-				{"weapon": "Rockets", "key": "W", "maxAmmo": 2, "ammo": 2},
-				{"weapon": "Flamer", "key": "E", "maxAmmo": 60, "ammo": 60},
-				{"weapon": "Machinegun", "key": "R", "maxAmmo": 60, "ammo": 60},
-				{"weapon": "Canon", "key": "T", "maxAmmo": 9, "ammo": 9},
+				{"weapon": "Minigun", "key": "Q", "maxAmmo": 60, "ammo": 60, "gunId": 3},
+				{"weapon": "Rockets", "key": "W", "maxAmmo": 2, "ammo": 2, "gunId": 4},
+				{"weapon": "Flamer", "key": "E", "maxAmmo": 60, "ammo": 60, "gunId": 1},
+				{"weapon": "Machinegun", "key": "R", "maxAmmo": 60, "ammo": 60, "gunId": 2},
+				{"weapon": "Canon", "key": "T", "maxAmmo": 9, "ammo": 9, "gunId": 0},
 			],
 			[
-				{"weapon": "Rockets", "key": "Q", "maxAmmo": 10, "ammo": 10},
-				{"weapon": "Rockets", "key": "W", "maxAmmo": 10, "ammo": 10},
-				{"weapon": "Rockets", "key": "E", "maxAmmo": 10, "ammo": 10},
-				{"weapon": "Rockets", "key": "R", "maxAmmo": 10, "ammo": 10},
-				{"weapon": "Rockets", "key": "T", "maxAmmo": 10, "ammo": 10},
-				{"weapon": "Full Salvo", "key": "Y", "maxAmmo": 10, "ammo": 10},
+				{"weapon": "Rockets", "key": "Q", "maxAmmo": 10, "ammo": 10, "gunId": 2},
+				{"weapon": "Rockets", "key": "W", "maxAmmo": 10, "ammo": 10, "gunId": 0},
+				{"weapon": "Rockets", "key": "E", "maxAmmo": 10, "ammo": 10, "gunId": 4},
+				{"weapon": "Rockets", "key": "R", "maxAmmo": 10, "ammo": 10, "gunId": 1},
+				{"weapon": "Rockets", "key": "T", "maxAmmo": 10, "ammo": 10, "gunId": 3},
+				{"weapon": "Full Salvo", "key": "Y", "maxAmmo": 10, "ammo": 10, "gunId": "FULL_SALVO", "hideAmmo": true},
 			],
 		];
 	
@@ -42,6 +43,41 @@ export class UIInterface {
 		
 		
 		this.showInterface();
+	}
+	
+	fire( mech , key ) {
+		
+		this.weapons[ mech ].map( weapon => {
+			if( weapon.key === key ) {
+
+				if( weapon.ammo > 0 ) {
+					if( mech === 3 && weapon.gunId === 'FULL_SALVO' ) {
+						this.weapons[3].map( gun => {
+							gun.ammo--;
+						});
+					}
+					else {
+						weapon.ammo--;
+					}
+					G.threeD.postMessage({
+						type: 'fire-weapon',
+						mech: mech,
+						gunId: weapon.gunId,
+					});
+					this.showInterface();
+				}
+				
+				if( mech === 3 ) {
+					let ammo = 99;
+					this.weapons[3].map( (w,i) => {
+						if( i < 5 ) ammo = Math.min( ammo,w.ammo );
+					});
+					this.weapons[3][5].ammo = ammo;
+				}
+				
+			}
+		});
+		
 	}
 	
 	_setMode( mode ) {
@@ -152,6 +188,7 @@ export class UIInterface {
 			
 			const _ammo = document.createElement( 'div' );
 			_ammo.classList.add( 'weapon-ammo' );
+			if( weapon.hideAmmo ) _ammo.style.visibility = 'hidden';
 
 			const _remaining = document.createElement( 'div' );
 			_remaining.classList.add( 'weapon-remaining' );

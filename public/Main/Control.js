@@ -17,6 +17,16 @@ export class Control {
 			right: false,
 		}
 		
+		this.keypresses = {
+			KeyQ: false,
+			KeyW: false,
+			KeyE: false,
+			KeyR: false,
+			KeyT: false,
+			KeyY: false,
+			KeyS: false,
+		};
+		
 		this.cameraType = 'rts';
 		this.cameraAngle = 0;
 			
@@ -26,6 +36,7 @@ export class Control {
 		this.mouseup = this.mouseup.bind( this );
 		this.mousewheel = this.mousewheel.bind( this );
 		this.keydown = this.keydown.bind( this );
+		this.keyup = this.keyup.bind( this );
 		this.contextMenu = this.contextMenu.bind( this );
 		
 		window.addEventListener( 'resize' , this.resize );
@@ -34,6 +45,7 @@ export class Control {
 		window.addEventListener( 'mouseup' , this.mouseup );
 		window.addEventListener( 'mousewheel' , this.mousewheel );
 		window.addEventListener( 'keydown' , this.keydown );
+		window.addEventListener( 'keyup' , this.keyup );
 		window.addEventListener( 'contextmenu', this.contextMenu );
 		
 		this.resize();
@@ -48,6 +60,7 @@ export class Control {
 		window.removeEventListener( 'mousemove' , this.mousemove );
 		window.removeEventListener( 'mousedown' , this.mousedown );
 		window.removeEventListener( 'mouseup' , this.mouseup );
+		window.removeEventListener( 'keyup' , this.keyup );
 		window.removeEventListener( 'mousewheel' , this.mousewheel );
 		window.removeEventListener( 'contextmenu', this.contextMenu );
 	}
@@ -108,11 +121,23 @@ export class Control {
 	keydown( e ) {
 		const cam = this.detectCam( e );
 		
-		console.log( this.ui.mode , this.hWidth , this.hHeight , 'cam' , cam , e );
-		G.threeD.postMessage({
-			type: 'canon-hit',
-			mech: cam,
-		});
+		if( this.keypresses[ e.code ] === false ) {
+			this.keypresses[ e.code ] = true;
+	
+			if( e.code === 'KeyQ' ) this.ui.fire( cam, 'Q' );
+			else if( e.code === 'KeyW' ) this.ui.fire( cam, 'W' );
+			else if( e.code === 'KeyE' ) this.ui.fire( cam, 'E' );
+			else if( e.code === 'KeyR' ) this.ui.fire( cam, 'R' );
+			else if( e.code === 'KeyT' ) this.ui.fire( cam, 'T' );
+			else if( e.code === 'KeyY' ) this.ui.fire( cam, 'Y' );
+			else if( e.code === 'KeyS' ) this.ui.fire( cam, 'S' );
+		}
+		
+	}
+	keyup( e ) {
+		if( typeof( this.keypresses[ e.code ] ) !== 'undefined' ) {
+			this.keypresses[ e.code ] = false;
+		}
 	}
 	detectCam( e ) {
 		
