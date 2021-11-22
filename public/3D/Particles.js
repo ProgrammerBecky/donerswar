@@ -285,7 +285,7 @@ export class Particles {
 			emitFrequency: 0.025
 		});			
 		
-		G.world.destroy( particle.x , particle.z , 1500 , 5000 , target );
+		G.world.destroy( particle.x , particle.z , 1500 , 5000 , target , false );
 	}
 	
 	updateRocket({ index, particle, delta }) {

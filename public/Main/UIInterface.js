@@ -16,7 +16,7 @@ export class UIInterface {
 				{"weapon": "Canon", "key": "E", "maxAmmo": 6, "ammo": 6},
 			],
 			[
-				{"weapon": "Flamer", "key": "E", "maxAmmo": 60, "ammo": 60},
+				{"weapon": "Flamer", "key": "Q", "maxAmmo": 60, "ammo": 60},
 				{"weapon": "Machinegun", "key": "T", "maxAmmo": 60, "ammo": 60},
 			],
 			[
@@ -32,6 +32,7 @@ export class UIInterface {
 				{"weapon": "Rockets", "key": "E", "maxAmmo": 10, "ammo": 10},
 				{"weapon": "Rockets", "key": "R", "maxAmmo": 10, "ammo": 10},
 				{"weapon": "Rockets", "key": "T", "maxAmmo": 10, "ammo": 10},
+				{"weapon": "Full Salvo", "key": "Y", "maxAmmo": 10, "ammo": 10},
 			],
 		];
 	

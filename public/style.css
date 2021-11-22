@@ -69,11 +69,11 @@ html, body{
 .weapon-box{
 	position: absolute;
 	bottom: 0;
-	right: 0;
+	right: 0.5rem;
 }
 .weapon{
-	margin-top: 0.5rem;
-	padding-top: 0.5rem;
+	margin-top: 0.125rem;
+	padding-top: 0.125rem;
 	border-top: 1px dotted darkgrey;
 
 	display: flex;
@@ -95,8 +95,12 @@ html, body{
 	cursor: pointer;
 }
 
-.weapon > div.weapon-ammo {
+.weapon-key{
 	width: 0.75rem;
+	text-align: center;
+}
+.weapon > div.weapon-ammo {
+	width: 0.9rem;
 	position: relative;
 	padding: 1px;
 }
