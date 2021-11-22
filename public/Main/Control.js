@@ -68,6 +68,8 @@ export class Control {
 			});
 		}
 		
+		
+		
 		this.mouse.x = e.clientX;
 		this.mouse.y = e.clientY;
 	}
@@ -105,6 +107,8 @@ export class Control {
 	}
 	keydown( e ) {
 		const cam = this.detectCam( e );
+		
+		console.log( this.ui.mode , this.hWidth , this.hHeight , 'cam' , cam , e );
 		G.threeD.postMessage({
 			type: 'canon-hit',
 			mech: cam,
@@ -112,13 +116,16 @@ export class Control {
 	}
 	detectCam( e ) {
 		
+		if( e.clientX ) this.mouse.x = e.clientX;
+		if( e.clientY ) this.mouse.y = e.clientY;
+		
 		if( this.ui.mode === 'quad' ) {
-			if( e.clientX > this.hWidth ) {
-				if( e.clientY > this.hHeight ) return 3;
+			if( this.mouse.x > this.hWidth ) {
+				if( this.mouse.y > this.hHeight ) return 3;
 				return 1;
 			}
 			else {
-				if( e.clientY > this.hHeight ) return 2;
+				if( this.mouse.y > this.hHeight ) return 2;
 				return 0;
 			}
 		}

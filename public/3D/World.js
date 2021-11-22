@@ -431,8 +431,6 @@ export class World {
 								let dmg = Math.max( 0 , damage - building.armour );
 								building.hp -= dmg;
 								
-								console.log( building.type , damage , building.hp );
-								
 								if( building.hp > 0 ) destroy = false;
 							}
 												

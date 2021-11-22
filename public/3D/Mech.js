@@ -211,6 +211,13 @@ export class Mech {
 			object.z = 42500,
 			object.muzzleFlashes = [];
 			object.barrelEnd = {};
+			object.lightRef = G.lights.registerLight({
+				x: 0,
+				z: 0,
+				f: 0,
+				splat: 4,
+				splatSize: 32,
+			});
 			this.loadAssembly({ object });
 		});
 		
@@ -606,7 +613,18 @@ export class Mech {
 						pan: G.cameraPan[mech.id],
 						facing: mech.cockpit_bevel.rotation.y,
 					});
-				}				
+
+					//Spotlight
+					const lightF = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y;
+					G.lights.updateLight({
+						lightId: mech.lightRef,
+						x: mech.ent.position.x + Math.sin( lightF ) * 5312.5,
+						z: mech.ent.position.z + Math.cos( lightF ) * 5312.5,
+						f: lightF,
+					});
+					G.lights.needsUpdate=true;				
+					
+				}
 				
 			}
 		});
