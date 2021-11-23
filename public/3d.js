@@ -45,9 +45,10 @@ G.frustum = [
 
 /* Render loop */
 let trackTime = 0;
+let gameSpeed = 0;
 const animate = ( time ) => {
 	
-	const delta = (time-lastTime)/1000;
+	const delta = ( (time-lastTime)/1000 ) * gameSpeed;
 	lastTime = time;
 	
 	if( ! isNaN( delta ) ) {
@@ -243,13 +244,16 @@ onmessage = (e) => {
 		G.ants = new Ants();
 		
 		G.screenPicker = new ScreenPicker();
+		animate();
+		gameSpeed = 0;
 		
 		/* Launch render loop */
-		animate();
-		
 		self.postMessage({
 			type: 'initialised'
 		});
+	}
+	else if( e.data.type === 'beginGame' ) {
+		gameSpeed = 1;
 	}
 	else if( e.data.type === 'resizeCanvas' ) {
 		/* Resize browser window */

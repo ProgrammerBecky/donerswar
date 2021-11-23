@@ -33,6 +33,7 @@ G.lights = new Lights();
 G.threeD.addEventListener( 'message' , e => {
 	if( e.data.type === 'initialised' ) {
 		/* Zombie Spawner */
+		ui.loadingComplete();
 		zombie = new Zombie();
 		animate();
 	}

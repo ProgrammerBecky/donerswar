@@ -249,5 +249,12 @@ export class UIInterface {
 		
 	}
 	
+	loadingComplete() {
+		document.getElementById('Splash').style.display = 'none';
+		G.threeD.postMessage({
+			type: 'beginGame'
+		});
+	}
+	
 	
 }

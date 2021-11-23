@@ -12,12 +12,14 @@ export class Ants {
 
 	constructor() {
 		
-		this.headJumpChance = 1;
+		this.headJumpChance = 0.05;
 	
 		this.colliders = [];
 	
 		this.route = false;
 		this.collectiveDecisionTimer = 5;
+	
+		this.removeIds = [];
 	
 		this.ants = [];
 		for( let i=0 ; i<10 ; i++ ) {
@@ -135,12 +137,14 @@ export class Ants {
 	
 		ant.animAction = ant.mixer.clipAction( clip );
 		
-		ant.animAction.setLoop(
-			( ['Hit1','Hit2','Hit3','Death','Bite','Jump','Sting'].includes( ant.action ) )
-				? THREE.LoopOnce
-				: THREE.LoopRepeat
-		);
-		if( ant.action === 'Death' ) ant.animAction.clampWhenFinished = true;
+		if( ['Hit1','Hit2','Hit3','Death','Bite','Jump','Sting'].includes( ant.action ) ) {
+			ant.animAction.setLoop( THREE.LoopOnce );
+			ant.animAction.clampWhenFinished = true;
+		}
+		else {
+			ant.animAction.setLoop( THREE.LoopRepeat );
+			ant.animAction.clampWhenFinished = false;
+		}
 
 		ant.animAction.play();
 
@@ -166,10 +170,10 @@ export class Ants {
 		});
 		
 		let index = this.ants.findIndex( search => search.id === ant.id );
-		this.ants.splice( index , 1 );
+		this.removeIds.push( index );
+		
 	}
 	discardAnt({ ant }) {
-		/*
 		ant.ent.traverse( child => {
 			if( child.name === 'Collider' ) {
 				const colIndex = this.colliders.findIndex( search => search === child );
@@ -178,10 +182,9 @@ export class Ants {
 				}
 			}
 		});
-		*/
 		
 		let index = this.ants.findIndex( search => search.id === ant.id );
-		this.ants.splice( index , 1 );		
+		this.removeIds.push( index );		
 	}
 	
 	doWalk({ ant , delta }) {
@@ -386,7 +389,9 @@ export class Ants {
 					ant.y = Math.max( ant.y - ant.gravity * delta , 0 );
 					if( ant.y === 0 &&
 					! ant.animAction.isRunning() &&
-					ant.heat === 0 
+					ant.heat === 0 &&
+					ant.animAction._clip.name === 'Death' &&
+					ant.animAction.time > 0
 					) {
 						ant.ent.position.set( ant.x , 375 + ant.y , ant.z );
 						this.discardAnt({ ant });
@@ -417,6 +422,11 @@ export class Ants {
 			}
 			
 		});
+		
+		while( this.removeIds.length > 0 ) {
+			const index = this.removeIds.shift();
+			this.ants.splice( index , 1 );
+		}
 	
 	}
 	
