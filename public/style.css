@@ -35,6 +35,32 @@ html, body{
 	left: 0;
 	width: 100%;
 	height: 2rem;
+	opacity: 1;
+	transition: all 0.2s;
+}
+#Splash #StartGame{
+	position: fixed;
+	top: 70%;
+	left: 50%;
+	transform: translateX(-50%);
+	
+	opacity: 0;
+	font-size: 1.5rem;
+	padding: 1.5rem 4.5rem;
+	background-color: orange;
+	color: black;
+	text-transform: uppercase;
+	letter-spacing: 3.6px;
+	border: 3px solid black;
+	border-radius: 1.5px;
+	transition: all 0.2s;
+	cursor: pointer;
+	outline: 0 solid transparent;	
+}
+#Splash #StartGame:hover{
+	background-color: gold;
+	color: black;
+	border: 3px solid black;
 }
 #Content,#ThreeD{
 	width: 100%;

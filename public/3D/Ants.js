@@ -419,6 +419,7 @@ export class Ants {
 				ant.ent.position.set( ant.x , 375 + ant.y , ant.z );
 				ant.ent.rotation.set( 0 , ant.f , 0 );
 				ant.mixer.update( delta );
+				
 			}
 			
 		});

@@ -252,7 +252,7 @@ export class UIInterface {
 	
 	updateLoadingProgress({ url, itemsLoaded, itemsTotal }) {
 		document.getElementById('SplashUrl').innerHTML = url;
-		document.getElementById('SplashProgress').value = itemsLoaded*100/itemsTotal;
+		document.getElementById('SplashProgress').value = itemsLoaded*100/Math.max( itemsTotal , 755 );
 		this.loaded = ( itemsLoaded === itemsTotal ) ? true : false;
 		this.beginGame();
 	}
@@ -262,9 +262,13 @@ export class UIInterface {
 	}
 	beginGame() {
 		if( this.loaded ) {
-			document.getElementById('Splash').style.display = 'none';
-			G.threeD.postMessage({
-				type: 'beginGame'
+			document.getElementById('StartGame').style.opacity = 1;
+			document.getElementById('SplashProgress').style.opacity = 0;
+			document.getElementById('StartGame').addEventListener( 'click' , () => {
+				document.getElementById('Splash').style.display = 'none';
+				G.threeD.postMessage({
+					type: 'beginGame'
+				});
 			});
 		}
 	}
