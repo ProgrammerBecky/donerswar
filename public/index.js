@@ -32,7 +32,18 @@ G.sfx = new SFX();
 
 /* Setup 3D */
 G.threeD.addEventListener( 'message' , e => {
-	if( e.data.type === 'initialised' ) {
+	if( e.data.type === 'cam' ) {
+		G.sfx.updateCam({
+			x: e.data.x,
+			y: e.data.y,
+			z: e.data.z,
+			f: e.data.f,
+		});
+	}
+	else if( e.data.type === 'sound' ) {
+		G.sfx.playSound( e.data.sfx , false , e.data.x , e.data.y , e.data.z );
+	}
+	else if( e.data.type === 'initialised' ) {
 		/* Zombie Spawner */
 		ui.loadingComplete();
 		zombie = new Zombie();

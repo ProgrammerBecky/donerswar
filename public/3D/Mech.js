@@ -965,7 +965,13 @@ export class Mech {
 						type: 'weapon-discharged',
 						mechId: mechId,
 						gunId: gunId,
-						weapon: 'canon',
+					});
+					self.postMessage({
+						type: 'sound',
+						sfx: 'canon',
+						x: mech.x,
+						y: mech.y,
+						z: mech.z,
 					});
 									
 					mech.muzzleFlashes.push({

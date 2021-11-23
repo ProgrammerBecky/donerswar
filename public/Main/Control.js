@@ -153,10 +153,6 @@ export class Control {
 	}
 	weaponDischarged({ mechId , gunId, weapon }) {
 		this.ui.discharge({ mechId, gunId });
-		
-		if( weapon ) {
-			G.sfx.playSound( weapon , 1 );
-		}
 	}
 	startGame() {
 		window.addEventListener( 'resize' , this.resize );

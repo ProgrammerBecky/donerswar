@@ -99,6 +99,13 @@ const animate = ( time ) => {
 
 	}
 	
+	self.postMessage({
+		type: 'cam',
+		x: G.camera[0].position.x,
+		y: G.camera[0].position.y,
+		z: G.camera[0].position.z,
+		f: G.camera[0].rotation.y,
+	});
 	requestAnimationFrame( animate );
 }
 
