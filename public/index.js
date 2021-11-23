@@ -75,6 +75,13 @@ G.threeD.addEventListener( 'message' , e => {
 			gunId: e.data.gunId
 		});
 	}
+	else if( e.data.type === 'mech-damage' ) {
+		ui.updateDamage({
+			mechId: e.data.mechId,
+			hp: e.data.hp,
+			maxHp: e.data.maxHp,
+		});
+	}
 });
 G.threeD.postMessage({
 	type: 'init',

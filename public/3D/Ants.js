@@ -21,6 +21,10 @@ export class Ants {
 		for( let i=0 ; i<10 ; i++ ) {
 			this.spawnAnt();
 		}
+		
+		this.source = new THREE.Vector3();
+		this.dir = new THREE.Vector3();
+		this.raycaster = new THREE.Raycaster();
 	
 		//const metRough = G.texture.load( '/high/ant/antMetRough.png' );
 		this.antMat = G.lights.applyLightMap(
@@ -73,6 +77,8 @@ export class Ants {
 			self.animations = result.animations;
 		
 		});
+		
+		this.antAttackCheckIndex = 0;
 	
 	}
 	
@@ -88,6 +94,7 @@ export class Ants {
 			hp: 50,
 			heat: 0,
 			hasOwnMat: false,
+			attackTarget: false,
 		});
 	}
 	
@@ -124,7 +131,7 @@ export class Ants {
 		ant.animAction = ant.mixer.clipAction( clip );
 		
 		ant.animAction.setLoop(
-			( ['Hit1','Hit2','Hit3','Death'].includes( ant.action ) )
+			( ['Hit1','Hit2','Hit3','Death','Bite'].includes( ant.action ) )
 				? THREE.LoopOnce
 				: THREE.LoopRepeat
 		);
@@ -179,6 +186,10 @@ export class Ants {
 		const dz = targetZ - ant.z;
 		const df = Math.atan2( dx , dz );
 		
+		this.doMove({ ant , delta , targetX , targetZ , df });
+		
+	}
+	doMove({ ant , delta , targetX , targetZ , df , attack=false }) {
 		let throttle = 2;
 		
 		let right = df - ant.f;
@@ -207,7 +218,7 @@ export class Ants {
 			}
 		}
 		
-		if( throttle > 0 ) {
+		if( throttle > 0 && delta > 0 ) {
 
 			const moveSpeed = ( throttle === 2 )
 				? delta * 900
@@ -218,10 +229,13 @@ export class Ants {
 			if( Math.abs( this.dx - ant.x ) + Math.abs( this.dz - ant.z ) < moveSpeed ) {
 				ant.action = 'Idle';
 				this.setAnimation({ ant });
-				return;					
+				return false;					
 			}
 			
 		}
+		
+		if( ant.f === df ) return true;
+		return false;
 
 	}
 	
@@ -280,13 +294,19 @@ export class Ants {
 		}
 		if( this.ants.length < ANT_COUNT ) this.spawnAnt();
 	
-		this.ants.map( ant => {
+		this.ants.map( (ant,index) => {
 		
 			if( ! ant.ent ) {
 				this.getAntMesh({ ant });
 			}
 			else {
 
+				if( index === this.antAttackCheckIndex ) {
+					this.considerAttacking({ ant });
+					this.antAttackCheckIndex++;
+					if( this.antAttackCheckIndex >= this.ants.length ) this.antAttackCheckIndex = 0;
+				}
+			
 				if( ant.hp <=0 && ant.action !== 'Death' ) {
 					ant.action = 'Death';
 					this.setAnimation({ ant });
@@ -303,7 +323,13 @@ export class Ants {
 						this.makeDecision({ ant });
 					}
 					
-					if( ant.action === 'Walk' ) this.doWalk({ ant , delta });
+					//Ant Logic Tree
+					if( ant.attackTarget ) {
+						this.doAttack({ ant , delta });
+					}
+					else if( ant.action === 'Walk' ) {
+						this.doWalk({ ant , delta });
+					}
 				}
 				if( ant.heat > 0 ) {
 					if( ! ant.hasOwnMat ) {
@@ -332,6 +358,69 @@ export class Ants {
 	
 	}
 	
+	doAttack({ ant , delta }) {
+		
+		if( ant.action === 'Bite' && ant.animAction.isRunning() ) return;
+
+		const mech = ant.attackTarget;
+		let targetX = mech.x - ant.x;
+		let targetZ = mech.z - ant.z;
+		let dr = Math.sqrt( targetX*targetX + targetZ*targetZ );
+		let df = Math.atan2( targetX,targetZ );
+		
+		if( dr > 800 ) {
+			if( ant.action !== 'Walk' ) {
+				ant.action = 'Walk';
+				this.setAnimation({ ant });					
+			}
+			this.doMove({ ant , delta , targetX , targetZ , df });
+			
+		}
+		else {
+			if(
+				this.doMove({ ant , delta , targetX , targetZ , df , attack: true })
+			) {
+				G.mechs.takeDamage({ mech , damage: 1 });
+				ant.action = 'Bite';
+				this.setAnimation({ ant });
+			}
+			
+		}
+		
+	}
+	
+	considerAttacking({ ant }) {
+		let rng = 5000;
+		let tMech = false;
+		
+		G.mechs.mechs.map( mech => {
+			
+			let dx = mech.x - ant.x;
+			let dz = mech.z - ant.z;
+			let dr = Math.sqrt( dx*dx + dz*dz );
+			if( mech.spotlight ) dr *= 0.5;
+			if( dr < rng ) {
+				rng = dr;
+				tMech = mech;
+			}
+		});
+		
+		if( tMech ) {
+			let dx = tMech.x - ant.x;
+			let dz = tMech.z - ant.z;
+
+			this.source.set( ant.x , 800 , ant.z );
+			this.dir.set( dx , 0 , dz );
+			this.dir.normalize();
+			this.raycaster.far = rng;
+			
+			const intersects = this.raycaster.intersectObject( G.world.map , true );
+			if( intersects.length === 0 ) {
+				ant.attackTarget = tMech;;
+			}
+		}
+	}
+	
 	destroy( x,z,area,damage,generateHeat ) {
 		this.ants.map( ant => {
 			if( ant.hp > 0 ) {
@@ -346,6 +435,7 @@ export class Ants {
 						if( ant.hp > 0 && ant.action.substr(0,3) !== 'Hit' ) {
 							const seq = Math.floor( Math.random() * 3 ) + 1;
 							ant.action = 'Hit' + seq;
+							ant.decisionTimer = 1 + Math.random() * 2;
 							this.setAnimation({ ant });
 						}
 					}

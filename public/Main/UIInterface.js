@@ -10,6 +10,7 @@ export class UIInterface {
 			'Claret',
 		];
 	
+		this.damage = [100,100,100,100];
 		this.weapons = [
 			[
 				{"weapon": "Laser", "key": "Q", "maxAmmo": 16, "ammo": 16, "gunId": 1, "active": false},
@@ -90,6 +91,11 @@ export class UIInterface {
 			}
 		});
 		
+	}
+	
+	updateDamage({ mechId , hp , maxHp }) {
+		this.damage[ mechId ] = hp * 100 / maxHp;
+		this.showInterface();
 	}
 	
 	discharge({ mechId, gunId }) {
@@ -195,6 +201,12 @@ export class UIInterface {
 		
 		const container = document.createElement( 'div' );
 		container.classList.add( 'weapon-box' );
+		
+		const _hp = document.createElement( 'progress' );
+		_hp.value = this.damage[ pilot ];
+		_hp.min = 0;
+		_hp.max = 100;
+		container.appendChild( _hp );
 		
 		this.weapons[ pilot ].map( weapon => {
 			

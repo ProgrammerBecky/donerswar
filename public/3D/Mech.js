@@ -46,6 +46,8 @@ export class Mech {
 				],
 				"lightRef": "Spotlight",
 				"spotlight": false,
+				"hp": 100,
+				"maxHp": 100
 			},
 			{
 				"assembly":{
@@ -74,7 +76,9 @@ export class Mech {
 						"damage": 3,
 					}	
 				],
-				"lightRef": false
+				"lightRef": false,
+				"hp": 100,
+				"maxHp": 100
 			},
 			{
 				"assembly":{
@@ -130,7 +134,9 @@ export class Mech {
 						"invertArcY": true,
 					}					
 				],
-				"lightRef": false
+				"lightRef": false,
+				"hp": 150,
+				"maxHp": 150
 			},
 			{
 				"assembly":{
@@ -183,7 +189,9 @@ export class Mech {
 						"invertArcY": true,
 					}
 				],
-				"lightRef": false
+				"lightRef": false,
+				"hp": 150,
+				"maxHp": 150
 			},
 		];
 
@@ -219,6 +227,16 @@ export class Mech {
 			this.loadAssembly({ object });
 		});
 		
+	}
+	
+	takeDamage({ mech , damage }) {
+		mech.hp -= damage;
+		self.postMessage({
+			type: 'mech-damage',
+			mechId: mech.id,
+			hp: mech.hp,
+			maxHp: mech.maxHp,
+		});
 	}
 	
 	loadAssembly({ object }){
