@@ -5,6 +5,7 @@ import { Zombie } from './Main/Zombie.js';
 import { UIInterface } from './Main/UIInterface.js';
 import { Mech } from './Main/Mech.js';
 import { Lights } from './Main/Lights.js';
+import { SFX } from './Main/SFX.js';
 
 let zombie;
 
@@ -27,7 +28,7 @@ G.route = new Worker(
 	},
 );		
 G.lights = new Lights();
-
+G.sfx = new SFX();
 
 /* Setup 3D */
 G.threeD.addEventListener( 'message' , e => {
@@ -73,7 +74,8 @@ G.threeD.addEventListener( 'message' , e => {
 	else if( e.data.type === 'weapon-discharged' ) {
 		G.control.weaponDischarged({
 			mechId: e.data.mechId,
-			gunId: e.data.gunId
+			gunId: e.data.gunId,
+			weapon: e.data.weapon,
 		});
 	}
 	else if( e.data.type === 'mech-damage' ) {

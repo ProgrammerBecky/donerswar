@@ -965,6 +965,7 @@ export class Mech {
 						type: 'weapon-discharged',
 						mechId: mechId,
 						gunId: gunId,
+						weapon: 'canon',
 					});
 									
 					mech.muzzleFlashes.push({
