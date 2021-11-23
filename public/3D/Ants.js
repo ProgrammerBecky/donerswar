@@ -6,11 +6,13 @@ const WORLD_SIZE = 85000;
 const NAV_MAP_SIZE = 512;
 const NAV_TO_WORLD_SCALE = WORLD_SIZE / NAV_MAP_SIZE;
 
-let ANT_COUNT = 30;
+let ANT_COUNT = 10;
 
 export class Ants {
 
 	constructor() {
+		
+		this.headJumpChance = 1;
 	
 		this.colliders = [];
 	
@@ -87,7 +89,7 @@ export class Ants {
 		this.ants.push({
 			id: this.ants.length,
 			x: Math.random() * 85000,
-			y: 375,
+			y: 0,
 			z: Math.random() * 85000,
 			f: Math.random() * Math.PI * 2,
 			action: 'Idle',
@@ -96,6 +98,8 @@ export class Ants {
 			heat: 0,
 			hasOwnMat: false,
 			attackTarget: false,
+			headJump: false,
+			gravity: 0,
 		});
 	}
 	
@@ -132,7 +136,7 @@ export class Ants {
 		ant.animAction = ant.mixer.clipAction( clip );
 		
 		ant.animAction.setLoop(
-			( ['Hit1','Hit2','Hit3','Death','Bite'].includes( ant.action ) )
+			( ['Hit1','Hit2','Hit3','Death','Bite','Jump','Sting'].includes( ant.action ) )
 				? THREE.LoopOnce
 				: THREE.LoopRepeat
 		);
@@ -151,7 +155,6 @@ export class Ants {
 	}
 	
 	despawnAnt({ ant }) {
-		
 		G.scene.remove( ant.ent );
 		ant.ent.traverse( child => {
 			if( child.name === 'Collider' ) {
@@ -164,6 +167,21 @@ export class Ants {
 		
 		let index = this.ants.findIndex( search => search.id === ant.id );
 		this.ants.splice( index , 1 );
+	}
+	discardAnt({ ant }) {
+		/*
+		ant.ent.traverse( child => {
+			if( child.name === 'Collider' ) {
+				const colIndex = this.colliders.findIndex( search => search === child );
+				if( colIndex > -1 ) {
+					this.colliders.splice( colIndex , 1 );
+				}
+			}
+		});
+		*/
+		
+		let index = this.ants.findIndex( search => search.id === ant.id );
+		this.ants.splice( index , 1 );		
 	}
 	
 	doWalk({ ant , delta }) {
@@ -304,7 +322,6 @@ export class Ants {
 			}
 		}
 
-	
 		this.ants.map( (ant,index) => {
 		
 			if( ! ant.ent ) {
@@ -319,11 +336,10 @@ export class Ants {
 				if( ant.hp <=0 && ant.action !== 'Death' ) {
 					ant.action = 'Death';
 					this.setAnimation({ ant });
-					ANT_COUNT++;
 				}
 
 				if( ant.action !== 'Death' ) {
-					if( ant.animAction && ! ant.animAction.isRunning() ) {
+					if( ant.animAction && ! ant.animAction.isRunning() && ! ['Jump','Sting'].includes( ant.action ) ) {
 						ant.action = 'Idle';
 						this.setAnimation({ ant });
 					}
@@ -333,11 +349,48 @@ export class Ants {
 					}
 					
 					//Ant Logic Tree
-					if( ant.attackTarget ) {
-						this.doAttack({ ant , delta });
+					if( ant.action === 'Jump' ) {
+						this.updateJump({ ant, delta });
 					}
-					else if( ant.action === 'Walk' ) {
-						this.doWalk({ ant , delta });
+					else if( ant.action === 'Sting' ) {
+						if( ! ant.animAction.isRunning() ) {
+							this.doJumpAway({ ant });
+						}
+					}
+					else {
+						if( ant.y > 0 ) {
+							if( ant.x < ant.attackTarget.x - 200
+							||	ant.x > ant.attackTarget.x + 200
+							||	ant.z < ant.attackTarget.z - 200
+							||	ant.z > ant.attackTarget.z + 200
+							) {
+								ant.gravity += delta * 500;
+								ant.y = Math.max( ant.y - ant.gravity * delta , 0 );
+							}
+							else {
+								ant.gravity = 0;
+							}
+						}
+						else {
+							if( ant.attackTarget ) {
+								this.doAttack({ ant , delta });
+							}
+							else if( ant.action === 'Walk' ) {
+								this.doWalk({ ant , delta });
+							}
+						}
+					}
+				}
+				if( ant.action === 'Death' ) {
+					ant.gravity += delta * 500;
+					ant.y = Math.max( ant.y - ant.gravity * delta , 0 );
+					if( ant.y === 0 &&
+					! ant.animAction.isRunning() &&
+					ant.heat === 0 
+					) {
+						ant.ent.position.set( ant.x , 375 + ant.y , ant.z );
+						this.discardAnt({ ant });
+						return;
 					}
 				}
 				if( ant.heat > 0 ) {
@@ -358,7 +411,7 @@ export class Ants {
 					});
 				}
 				
-				ant.ent.position.set( ant.x , ant.y , ant.z );
+				ant.ent.position.set( ant.x , 375 + ant.y , ant.z );
 				ant.ent.rotation.set( 0 , ant.f , 0 );
 				ant.mixer.update( delta );
 			}
@@ -377,7 +430,9 @@ export class Ants {
 		let dr = Math.sqrt( targetX*targetX + targetZ*targetZ );
 		let df = Math.atan2( targetX,targetZ );
 		
-		if( dr > 500 ) {
+		let attackRange = ( ant.headJump ) ? 3500 : 500;
+		
+		if( dr > attackRange ) {
 			if( ant.action !== 'Walk' ) {
 				ant.action = 'Walk';
 				this.setAnimation({ ant });					
@@ -389,12 +444,108 @@ export class Ants {
 			if(
 				this.doMove({ ant , delta , targetX , targetZ , df , attack: true })
 			) {
-				G.mechs.takeDamage({ mech , damage: 1 });
-				ant.action = 'Bite';
-				this.setAnimation({ ant });
+				if( ant.headJump ) {
+					this.doJump({ ant , mech, delta });
+				}
+				else {
+					G.mechs.takeDamage({ mech , damage: 1 });
+					ant.action = 'Bite';
+					this.setAnimation({ ant });
+				}
 			}
 			
 		}
+		
+	}
+	
+	doJumpAway({ ant }) {
+		
+		if( ant.y > 0 ) {
+			ant.action = 'Jump';
+			ant.sx = ant.x;
+			ant.sy = ant.y;
+			ant.sz = ant.z;
+			
+			let valid = true;
+			do {
+				ant.dx = ant.x + Math.random() * 3000 - 1500;
+				ant.dy = 0;
+				ant.dz = ant.z + Math.random() * 3000 - 1500;
+				
+				valid = true;
+				this.source.set( ant.dx , 15000 , ant.dz );
+				this.dir.set( 0 , -1 , 0 );
+				this.raycaster.set( this.source , this.dir );
+				this.raycaster.far = 15500;
+				
+				const intersects = this.raycaster.intersectObject( G.world.map , true );
+				if( intersects[0] ) {
+					if( intersects[0].point.y > 1 ) {
+						valid = false;
+					}
+				}
+			} while( ! valid );
+						
+			this.setAnimation({ ant });
+		}
+		else {
+			ant.decisionTimer = 2 + Math.random() * 5;
+			ant.action = 'Idle_Aggitated';
+			this.setAnimation({ ant });
+		}
+	}
+	
+	updateJump({ ant, delta }) {
+		
+		let progress = ant.animAction.time / ant.animAction._clip.duration;
+		let oProgress = 1 - progress;
+		
+		ant.x = ant.sx * oProgress + ant.dx * progress;
+		ant.y = ant.sy * oProgress + ant.dy * progress;
+		ant.z = ant.sz * oProgress + ant.dz * progress;
+		
+		if( ! ant.animAction.isRunning() ) {
+			ant.action = 'Sting';
+			this.setAnimation({ ant });
+		
+			if( ant.x > ant.attackTarget.x - 200
+			&&	ant.x < ant.attackTarget.x + 200
+			&&	ant.z > ant.attackTarget.z - 200
+			&&	ant.z < ant.attackTarget.z + 200
+			) {
+				G.mechs.takeDamage({
+					mech: ant.attackTarget,
+					damage: 10
+				});
+			}
+		
+		}
+		
+	}
+	
+	doJump({ ant , mech , delta }) {
+
+		ant.dx = mech.x;
+		ant.dz = mech.z;
+		ant.sx = ant.x;
+		ant.sy = 0;
+		ant.sz = ant.z;
+		ant.gravity = 0;
+		
+		if( mech.id === 0 ) {
+			ant.dy = 900;
+		} else if( mech.id === 1 ) {
+			ant.dy = 1000;
+		}
+		else if( mech.id === 2 ) {
+			ant.dy = 1200;
+		}
+		else if( mech.id === 3 ) {
+			ant.dy = 1200;
+		}
+		
+		ant.action = 'Jump';
+		this.setAnimation({ ant });
 		
 	}
 	
@@ -417,6 +568,11 @@ export class Ants {
 		});
 		
 		if( tMech ) {
+			
+			if( rawRng > 1000 && Math.random() < this.headJumpChance ) {
+				ant.headJump = true;
+			}
+			
 			let dx = tMech.x - ant.x;
 			let dz = tMech.z - ant.z;
 
