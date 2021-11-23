@@ -315,7 +315,9 @@ onmessage = (e) => {
 			imageData: e.data.imageData,
 		});
 	}
-	
+	else if( e.data.type === 'spotlight' ) {
+		G.mechs.spotlight( e.data.on );
+	}
 }
 
 console.log( 'ThreeD Worker Started' );

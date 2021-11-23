@@ -208,7 +208,6 @@ console.log( shader.fragmentShader );
 	getSpriteColour({ x,z }) {
 		
 		if( ! this.hasPixelData ) {
-			console.log( 'get pixel data' );
 			this.hasPixelData = this.context.getImageData( 0,0, LIGHT_MAP_SIZE,LIGHT_MAP_SIZE );
 		}
 		

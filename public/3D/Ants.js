@@ -63,10 +63,10 @@ export class Ants {
 				color: 0xff0000,
 				visible: false,
 			});
-			const geo = new THREE.CubeGeometry( 250,100,850 );
+			const geo = new THREE.CubeGeometry( 250,125,850 );
 			const collider = new THREE.Mesh( geo , mat );
 			collider.name = 'Collider';
-			collider.position.set( 0,100,-150 );
+			collider.position.set( 0,75,-150 );
 			par.add( collider );
 
 			self.masterMesh = par;

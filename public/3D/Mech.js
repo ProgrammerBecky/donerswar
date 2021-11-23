@@ -44,7 +44,8 @@ export class Mech {
 						"damage": 5,
 					}
 				],
-				"lightRef": "Spotlight"
+				"lightRef": "Spotlight",
+				"spotlight": false,
 			},
 			{
 				"assembly":{
@@ -71,7 +72,6 @@ export class Mech {
 						"offsetX": 0,
 						"invertArcY": false,
 						"damage": 3,
-						"shots": 1,
 					}	
 				],
 				"lightRef": false
@@ -120,8 +120,7 @@ export class Mech {
 						"mount": "Mount_Weapon_HL",
 						"offsetX": 0,
 						"invertArcY": true,
-						"damage": 3,
-						"shots": 5,
+						"damage": 12,
 					},	
 					{
 						"type": "rockets",
@@ -215,15 +214,6 @@ export class Mech {
 			object.barrelEnd = {};
 			object.machineGunFiring = [];
 			object.machineGunShots = [];
-			if( object.lightRef !== false ) {
-				object.lightRef = G.lights.registerLight({
-					x: 0,
-					z: 0,
-					f: 0,
-					splat: 4,
-					splatSize: 32,
-				});
-			}
 			this.loadAssembly({ object });
 		});
 		
@@ -349,6 +339,24 @@ export class Mech {
 		G.scene.add( object.ent );
 		
 		return object;
+	}
+		
+	spotlight( on ) {
+		
+		this.mechs[0].spotlight = on;
+		if( on ) {
+			this.mechs[0].lightRef = G.lights.registerLight({
+				x: 0,
+				z: 0,
+				f: 0,
+				splat: 4,
+				splatSize: 32,
+			});
+		}
+		else {
+			G.lights.removeLight( this.mechs[0].lightRef );
+			this.mechs[0].lightRef = false;
+		}
 	}
 		
 	loadMechPart({ object , filename , loadingBone=false , mount=false, barrel=false }) {
@@ -543,6 +551,13 @@ export class Mech {
 							G.lights.removeLight( flash.lightId );
 							mech.muzzleFlashes.splice( index , 1 );
 							G.lights.needsUpdate = true;
+							if( flash.isLaser ) {
+								self.postMessage({
+									type: 'weapon-discharged',
+									mechId: mechId,
+									gunId: flash.gunId,
+								});
+							}
 						}
 						else {
 							if( flash.barrelEnd ) {
@@ -621,7 +636,7 @@ export class Mech {
 					});
 
 					//Spotlight
-					if( mech.lightRef !== false ) {
+					if( mech.lightRef !== false && mech.spotlight ) {
 						const lightF = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y;
 						G.lights.updateLight({
 							lightId: mech.lightRef,
@@ -638,6 +653,13 @@ export class Mech {
 							mech.machineGunFiring[index] += delta;
 							while( mech.machineGunFiring[index] > 0 ) {
 								this.fireWeapon( mechId , index , true );
+								if( mech.machineGunShots[index] <= 0 ) {
+									self.postMessage({
+										type: 'weapon-discharged',
+										mechId: mechId,
+										gunId: index,
+									});
+								}
 							}
 						}
 					});
@@ -794,6 +816,7 @@ export class Mech {
 						isLaser: true,
 						laserTimer: 0,
 						cam: mechId,
+						gunId: gunId,
 					});					
 					
 				}
@@ -816,17 +839,22 @@ export class Mech {
 				else if( gun.type === 'machinegun' ) {
 
 					if( ! passive ) {
-						mech.machineGunFiring[ gunId ] = -0.05;
+						mech.machineGunFiring[ gunId ] = -0.1;
 						if( ! mech.machineGunShots[ gunId ] ) mech.machineGunShots[ gunId ] = 0;
 						mech.machineGunShots[ gunId ] += 30;
 					}
 					else {
-						mech.machineGunFiring[ gunId ] -= 0.05;
+						mech.machineGunFiring[ gunId ] -= 0.1;
 						mech.machineGunShots[ gunId ]--;
 					}
 
 					this.dir.set( Math.sin( rotation ) , Math.sin( arcAngle ) , Math.cos( rotation ) );
-					const hitTarget = this.shoot({ arc: -0.02 });
+
+
+					this.dir.x += Math.random() * 0.15 - 0.075;
+					this.dir.y += Math.random() * 0.15 - 0.075;
+					this.dir.z += Math.random() * 0.15 - 0.075;
+					const hitTarget = this.shoot({ arc: -0.02, maxRange: 12000 });
 
 					mech.muzzleFlashes.push({
 						duration: 0.1,
@@ -844,27 +872,26 @@ export class Mech {
 						
 					if( hitTarget ) {
 
-						for( let i=0 ; i<gun.shots ; i++ ) {
-
-							G.particles.spawnSand({
-								x: hitTarget.point.x,
-								y: hitTarget.point.y,
-								z: hitTarget.point.z,
-								size: 30 * gun.shots,
-								maxLife: 3,
-							});
+						G.particles.spawnSand({
+							x: hitTarget.point.x,
+							y: hitTarget.point.y,
+							z: hitTarget.point.z,
+							size: 30 * gun.damage,
+							maxLife: 3,
+						});
 							
-							G.world.destroy( hitTarget.point.x , hitTarget.point.z , 500 , gun.damage , hitTarget.object );
+						G.world.destroy( hitTarget.point.x , hitTarget.point.z , 500 , gun.damage , hitTarget.object );
 							
-							hitTarget.point.x += Math.random()* 150 - 125;
-							hitTarget.point.y += Math.random()* 150 - 125;
-							hitTarget.point.z += Math.random()* 150 - 125;
-							
-						}
 					}
 						
 				}
 				else if( gun.type === 'rockets' ) {
+
+					self.postMessage({
+						type: 'weapon-discharged',
+						mechId: mechId,
+						gunId: gunId,
+					});
 
 					this.dir.set( Math.sin( rotation ) , Math.sin( arcAngle ) , Math.cos( rotation ) );
 					
@@ -880,6 +907,12 @@ export class Mech {
 					
 				}
 				else if( gun.type === 'canon' ) {
+									
+					self.postMessage({
+						type: 'weapon-discharged',
+						mechId: mechId,
+						gunId: gunId,
+					});
 									
 					mech.muzzleFlashes.push({
 						duration: 0.1,
@@ -907,9 +940,9 @@ export class Mech {
 							drift: 300,
 							speed: 550,
 							ringDensity: 12,
-							duration: 2.5,
+							duration: 1,
 							size: 250,
-							emitFrequency: 0.025
+							emitFrequency: 0.005
 						});
 						
 						mech.muzzleFlashes.push({
@@ -935,7 +968,7 @@ export class Mech {
 	}
 	
 
-	shoot({ arc }) {
+	shoot({ arc, maxRange=40000 }) {
 
 /*
 let mat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
@@ -943,7 +976,6 @@ let geo = new THREE.CubeGeometry( 100,100,100 );
 //*/
 
 		this.raycaster.far = 500;
-		let maxRange = 40000;
 		
 		while( maxRange > 0 ) {
 

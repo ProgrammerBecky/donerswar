@@ -69,6 +69,12 @@ G.threeD.addEventListener( 'message' , e => {
 			route: e.data.route,
 		});
 	}
+	else if( e.data.type === 'weapon-discharged' ) {
+		control.weaponDischarged({
+			mechId: e.data.mechId,
+			gunId: e.data.gunId
+		});
+	}
 });
 G.threeD.postMessage({
 	type: 'init',
@@ -80,9 +86,9 @@ G.threeD.postMessage({
 
 
 /* Setup Main Thread */
+G.mech = new Mech();
 const ui = new UIInterface();
 const control = new Control({ ui });
-G.mech = new Mech();
 
 /* Browser Resizing */
 const windowResize = () => {

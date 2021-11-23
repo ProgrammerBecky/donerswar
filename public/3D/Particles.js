@@ -163,7 +163,6 @@ export class Particles {
 			particle.emitTimer += delta;
 			while( particle.emitTimer > 0 ) {
 				particle.emitTimer -= particle.emitFrequency;
-				particle.emitFrequency *= 1.1;
 				particle.y += delta * particle.drift;
 				this.spawnSmoke({ emitter: particle });
 			}

@@ -12,27 +12,27 @@ export class UIInterface {
 	
 		this.weapons = [
 			[
-				{"weapon": "Laser", "key": "Q", "maxAmmo": 25, "ammo": 25, "gunId": 1},
-				{"weapon": "Canon", "key": "E", "maxAmmo": 12, "ammo": 12, "gunId": 0},
-				{"weapon": "Spotlight", "key": "S", "maxAmmo": 0, "ammo": 0, "hideAmmo": true},
+				{"weapon": "Laser", "key": "Q", "maxAmmo": 16, "ammo": 16, "gunId": 1, "active": false},
+				{"weapon": "Canon", "key": "E", "maxAmmo": 16, "ammo": 16, "gunId": 0, "active": false},
+				{"weapon": "Spotlight", "key": "S", "maxAmmo": 0, "ammo": 0, "hideAmmo": true, "active": false},
 			],
 			[
-				{"weapon": "Flamer", "key": "Q", "maxAmmo": 60, "ammo": 60, "gunId": 0},
-				{"weapon": "Machinegun", "key": "T", "maxAmmo": 60, "ammo": 60, "gunId": 1},
+				{"weapon": "Flamer", "key": "Q", "maxAmmo": 60, "ammo": 60, "gunId": 0, "active": false},
+				{"weapon": "Machinegun", "key": "T", "maxAmmo": 60, "ammo": 60, "gunId": 1, "active": false},
 			],
 			[
-				{"weapon": "Minigun", "key": "Q", "maxAmmo": 60, "ammo": 60, "gunId": 3},
-				{"weapon": "Rockets", "key": "W", "maxAmmo": 2, "ammo": 2, "gunId": 4},
-				{"weapon": "Flamer", "key": "E", "maxAmmo": 60, "ammo": 60, "gunId": 1},
-				{"weapon": "Rockets", "key": "R", "maxAmmo": 2, "ammo": 2, "gunId": 2},
-				{"weapon": "Canon", "key": "T", "maxAmmo": 24, "ammo": 24, "gunId": 0},
+				{"weapon": "Minigun", "key": "Q", "maxAmmo": 60, "ammo": 60, "gunId": 3, "active": false},
+				{"weapon": "Rockets", "key": "W", "maxAmmo": 2, "ammo": 2, "gunId": 4, "active": false},
+				{"weapon": "Flamer", "key": "E", "maxAmmo": 60, "ammo": 60, "gunId": 1, "active": false},
+				{"weapon": "Rockets", "key": "R", "maxAmmo": 2, "ammo": 2, "gunId": 2, "active": false},
+				{"weapon": "Canon", "key": "T", "maxAmmo": 32, "ammo": 32, "gunId": 0, "active": false},
 			],
 			[
-				{"weapon": "Rockets", "key": "Q", "maxAmmo": 10, "ammo": 10, "gunId": 2},
-				{"weapon": "Rockets", "key": "W", "maxAmmo": 10, "ammo": 10, "gunId": 0},
-				{"weapon": "Rockets", "key": "E", "maxAmmo": 10, "ammo": 10, "gunId": 4},
-				{"weapon": "Rockets", "key": "R", "maxAmmo": 10, "ammo": 10, "gunId": 1},
-				{"weapon": "Rockets", "key": "T", "maxAmmo": 10, "ammo": 10, "gunId": 3},
+				{"weapon": "Rockets", "key": "Q", "maxAmmo": 10, "ammo": 10, "gunId": 2, "active": false},
+				{"weapon": "Rockets", "key": "W", "maxAmmo": 10, "ammo": 10, "gunId": 0, "active": false},
+				{"weapon": "Rockets", "key": "E", "maxAmmo": 10, "ammo": 10, "gunId": 4, "active": false},
+				{"weapon": "Rockets", "key": "R", "maxAmmo": 10, "ammo": 10, "gunId": 1, "active": false},
+				{"weapon": "Rockets", "key": "T", "maxAmmo": 10, "ammo": 10, "gunId": 3, "active": false},
 				{"weapon": "Full Salvo", "key": "Y", "maxAmmo": 10, "ammo": 10, "gunId": "FULL_SALVO", "hideAmmo": true},
 			],
 		];
@@ -40,7 +40,6 @@ export class UIInterface {
 		this.mode = 'single';
 		
 		this._setPilot( 0 );
-		
 		
 		this.showInterface();
 	}
@@ -50,13 +49,26 @@ export class UIInterface {
 		this.weapons[ mech ].map( weapon => {
 			if( weapon.key === key ) {
 
-				if( weapon.ammo > 0 ) {
+				if( mech===0 && weapon.key === 'S' ) {
+					weapon.active = ! weapon.active;
+					G.threeD.postMessage({
+						type: 'spotlight',
+						on: weapon.active,
+					});
+					this.showInterface();
+				}
+
+				if( weapon.ammo > 0 && ! weapon.active ) {
 					if( mech === 3 && weapon.gunId === 'FULL_SALVO' ) {
 						this.weapons[3].map( gun => {
-							gun.ammo--;
+							if( gun.gunId !== 'FULL_SALVO' ) {
+								gun.ammo--;
+								gun.active = true;
+							}
 						});
 					}
 					else {
+						weapon.active = true;
 						weapon.ammo--;
 					}
 					G.threeD.postMessage({
@@ -78,6 +90,13 @@ export class UIInterface {
 			}
 		});
 		
+	}
+	
+	discharge({ mechId, gunId }) {
+		this.weapons[ mechId ].map( gun => {
+			if( gun.gunId === gunId ) gun.active = false;
+		});
+		this.showInterface();
 	}
 	
 	_setMode( mode ) {
@@ -181,6 +200,7 @@ export class UIInterface {
 			
 			const _row = document.createElement( 'div' );
 			_row.classList.add( 'weapon' );
+			if( weapon.active ) _row.classList.add( 'active' );
 			
 			let _key = document.createElement( 'div' );
 			_key.classList.add( 'weapon-key' );

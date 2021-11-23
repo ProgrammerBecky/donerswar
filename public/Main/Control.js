@@ -158,5 +158,8 @@ export class Control {
 			return this.ui.showPilot;
 		}
 	}
+	weaponDischarged({ mechId , gunId }) {
+		this.ui.discharge({ mechId, gunId });
+	}
 	
 }
