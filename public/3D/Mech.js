@@ -214,6 +214,8 @@ export class Mech {
 			object.barrelEnd = {};
 			object.machineGunFiring = [];
 			object.machineGunShots = [];
+			object.routeCheck = 0;
+			object.directRoute = false;
 			this.loadAssembly({ object });
 		});
 		
@@ -524,6 +526,9 @@ export class Mech {
 		this.mechs[ unit ].dx = dx;
 		this.mechs[ unit ].dz = dz;
 		this.mechs[ unit ].route = route;
+		
+		this.mechs[ unit ].routeCheck = 0;
+		this.mechs[ unit ].directRoute = false;
 	}
 		
 	update( delta ) {
@@ -672,17 +677,48 @@ export class Mech {
 	}
 	followRoute({ mech, delta }) {
 		
-		let x = Math.floor( mech.x / NAV_TO_WORLD_SCALE );
-		let z = Math.floor( mech.z / NAV_TO_WORLD_SCALE );
+		mech.routeCheck += delta;
+		if( mech.routeCheck > 0 ) {
+			mech.routeCheck = -1;
+			this.vector.set( mech.x , 500 , mech.z );
 
-		if( ! mech.route[z] || ! mech.route[z][x] || mech.route[z][x] === 'DESTINATION' ) {
-			mech.action = 'Idle';
-			this.setAnimation({ mech });
-			mech.route = false;
-			return;
+			let dx = mech.dx - mech.x;
+			let dz = mech.dz - mech.z;
+			let dr = Math.sqrt( dx*dx + dz*dz );
+			this.raycaster.far = dr;
+			
+			this.dir.set( dx , 0 , dz );
+			this.dir.normalize();
+			this.raycaster.set( this.vector , this.dir );
+			const intersects = this.raycaster.intersectObject( G.world.map , true );
+
+			if( intersects.length === 0 ) {
+				mech.directRoute = true;
+			}
+			else {
+				mech.directRoute = false;
+			}
 		}
-		let targetX = mech.route[z][x].x * NAV_TO_WORLD_SCALE;
-		let targetZ = mech.route[z][x].z * NAV_TO_WORLD_SCALE;
+		
+		let targetX,targetZ;
+		if( ! mech.directRoute ) {
+			let x = Math.floor( mech.x / NAV_TO_WORLD_SCALE );
+			let z = Math.floor( mech.z / NAV_TO_WORLD_SCALE );
+
+			if( ! mech.route[z] || ! mech.route[z][x] || mech.route[z][x] === 'DESTINATION' ) {
+				mech.action = 'Idle';
+				this.setAnimation({ mech });
+				mech.route = false;
+				return;
+			}
+			targetX = mech.route[z][x].x * NAV_TO_WORLD_SCALE;
+			targetZ = mech.route[z][x].z * NAV_TO_WORLD_SCALE;
+		}
+		else {
+			targetX = mech.dx;
+			targetZ = mech.dz;
+		}
+		console.log( '... ' , targetX, targetZ );
 
 		const dx = targetX - mech.x;
 		const dz = targetZ - mech.z;

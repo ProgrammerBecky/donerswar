@@ -22,18 +22,18 @@ export class UIInterface {
 			],
 			[
 				{"weapon": "Minigun", "key": "Q", "maxAmmo": 60, "ammo": 60, "gunId": 3, "active": false},
-				{"weapon": "Rockets", "key": "W", "maxAmmo": 2, "ammo": 2, "gunId": 4, "active": false},
+				{"weapon": "Rockets", "key": "W", "maxAmmo": 8, "ammo": 8, "gunId": 4, "active": false},
 				{"weapon": "Flamer", "key": "E", "maxAmmo": 60, "ammo": 60, "gunId": 1, "active": false},
-				{"weapon": "Rockets", "key": "R", "maxAmmo": 2, "ammo": 2, "gunId": 2, "active": false},
+				{"weapon": "Rockets", "key": "R", "maxAmmo": 8, "ammo": 8, "gunId": 2, "active": false},
 				{"weapon": "Canon", "key": "T", "maxAmmo": 32, "ammo": 32, "gunId": 0, "active": false},
 			],
 			[
-				{"weapon": "Rockets", "key": "Q", "maxAmmo": 10, "ammo": 10, "gunId": 2, "active": false},
-				{"weapon": "Rockets", "key": "W", "maxAmmo": 10, "ammo": 10, "gunId": 0, "active": false},
-				{"weapon": "Rockets", "key": "E", "maxAmmo": 10, "ammo": 10, "gunId": 4, "active": false},
-				{"weapon": "Rockets", "key": "R", "maxAmmo": 10, "ammo": 10, "gunId": 1, "active": false},
-				{"weapon": "Rockets", "key": "T", "maxAmmo": 10, "ammo": 10, "gunId": 3, "active": false},
-				{"weapon": "Full Salvo", "key": "Y", "maxAmmo": 10, "ammo": 10, "gunId": "FULL_SALVO", "hideAmmo": true},
+				{"weapon": "Rockets", "key": "Q", "maxAmmo": 40, "ammo": 40, "gunId": 2, "active": false},
+				{"weapon": "Rockets", "key": "W", "maxAmmo": 40, "ammo": 40, "gunId": 0, "active": false},
+				{"weapon": "Rockets", "key": "E", "maxAmmo": 40, "ammo": 40, "gunId": 4, "active": false},
+				{"weapon": "Rockets", "key": "R", "maxAmmo": 40, "ammo": 40, "gunId": 1, "active": false},
+				{"weapon": "Rockets", "key": "T", "maxAmmo": 40, "ammo": 40, "gunId": 3, "active": false},
+				{"weapon": "Full Salvo", "key": "Y", "maxAmmo": 40, "ammo": 40, "gunId": "FULL_SALVO", "hideAmmo": true},
 			],
 		];
 	
