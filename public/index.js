@@ -83,6 +83,13 @@ G.threeD.addEventListener( 'message' , e => {
 			maxHp: e.data.maxHp,
 		});
 	}
+	else if( e.data.type === 'loading' ) {
+		ui.updateLoadingProgress({
+			url: e.data.url,
+			itemsLoaded: e.data.itemsLoaded,
+			itemsTotal: e.data.itemsTotal,
+		});
+	}
 });
 G.threeD.postMessage({
 	type: 'init',

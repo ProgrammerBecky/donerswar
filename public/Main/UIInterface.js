@@ -10,6 +10,7 @@ export class UIInterface {
 			'Claret',
 		];
 	
+		this.loaded = false;
 		this.damage = [100,100,100,100];
 		this.weapons = [
 			[
@@ -249,11 +250,23 @@ export class UIInterface {
 		
 	}
 	
+	updateLoadingProgress({ url, itemsLoaded, itemsTotal }) {
+		document.getElementById('SplashUrl').innerHTML = url;
+		document.getElementById('SplashProgress').value = itemsLoaded*100/itemsTotal;
+		this.loaded = ( itemsLoaded === itemsTotal ) ? true : false;
+		this.beginGame();
+	}
+	
 	loadingComplete() {
-		document.getElementById('Splash').style.display = 'none';
-		G.threeD.postMessage({
-			type: 'beginGame'
-		});
+		this.beginGame();
+	}
+	beginGame() {
+		if( this.loaded ) {
+			document.getElementById('Splash').style.display = 'none';
+			G.threeD.postMessage({
+				type: 'beginGame'
+			});
+		}
 	}
 	
 	

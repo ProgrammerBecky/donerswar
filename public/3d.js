@@ -10,6 +10,16 @@ import { Particles } from './3D/Particles.js';
 import { Ants } from './3D/Ants.js';
 import { Lights } from './3D/Lights.js';
 
+const manager = new THREE.LoadingManager();
+manager.onProgress = ( url , itemsLoaded , itemsTotal ) => {
+	self.postMessage({
+		type: 'loading',
+		url: url,
+		itemsLoaded: itemsLoaded,
+		itemsTotal: itemsTotal,
+	});
+}
+
 //* ThreeJS Worker Polyfill */
 THREE.ImageLoader.prototype.load = function ( url, onLoad, onProgress, onError ) {
 
@@ -233,9 +243,9 @@ onmessage = (e) => {
 		G.scene.background = G.environmentMap;
 		
 		G.MinMagFilter = THREE.NearestFilter;		
-		G.fbx = new FBXLoader();
-		G.gltf = new GLTFLoader();
-		G.texture = new THREE.TextureLoader();
+		G.fbx = new FBXLoader( manager );
+		G.gltf = new GLTFLoader( manager );
+		G.texture = new THREE.TextureLoader( manager );
 		
 		G.world.load();
 		G.zombies = new Zombies();
