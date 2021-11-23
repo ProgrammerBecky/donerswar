@@ -78,6 +78,7 @@ export class Ants {
 		
 		});
 		
+		this.antAttackCheckResetTimer = 0;
 		this.antAttackCheckIndex = 0;
 	
 	}
@@ -293,6 +294,16 @@ export class Ants {
 			this.makeCollectiveDecision();
 		}
 		if( this.ants.length < ANT_COUNT ) this.spawnAnt();
+
+		this.antAttackCheckIndex++;
+		this.antAttackCheckResetTimer += delta;
+		if( this.antAttackCheckResetTimer > 10 ) {
+			if( this.antAttackCheckIndex >= this.ants.length ) {
+				this.antAttackCheckIndex = 0;
+				this.antAttackCheckResetTimer = 0;
+			}
+		}
+
 	
 		this.ants.map( (ant,index) => {
 		
@@ -303,8 +314,6 @@ export class Ants {
 
 				if( index === this.antAttackCheckIndex ) {
 					this.considerAttacking({ ant });
-					this.antAttackCheckIndex++;
-					if( this.antAttackCheckIndex >= this.ants.length ) this.antAttackCheckIndex = 0;
 				}
 			
 				if( ant.hp <=0 && ant.action !== 'Death' ) {
@@ -368,7 +377,7 @@ export class Ants {
 		let dr = Math.sqrt( targetX*targetX + targetZ*targetZ );
 		let df = Math.atan2( targetX,targetZ );
 		
-		if( dr > 800 ) {
+		if( dr > 500 ) {
 			if( ant.action !== 'Walk' ) {
 				ant.action = 'Walk';
 				this.setAnimation({ ant });					
@@ -392,6 +401,7 @@ export class Ants {
 	considerAttacking({ ant }) {
 		let rng = 5000;
 		let tMech = false;
+		let rawRng = 5000;
 		
 		G.mechs.mechs.map( mech => {
 			
@@ -402,6 +412,7 @@ export class Ants {
 			if( dr < rng ) {
 				rng = dr;
 				tMech = mech;
+				rawRng = ( mech.spotlight ) ? dr * 2 : dr;
 			}
 		});
 		
@@ -412,7 +423,8 @@ export class Ants {
 			this.source.set( ant.x , 800 , ant.z );
 			this.dir.set( dx , 0 , dz );
 			this.dir.normalize();
-			this.raycaster.far = rng;
+			this.raycaster.set( this.source , this.dir );
+			this.raycaster.far = rawRng;
 			
 			const intersects = this.raycaster.intersectObject( G.world.map , true );
 			if( intersects.length === 0 ) {
