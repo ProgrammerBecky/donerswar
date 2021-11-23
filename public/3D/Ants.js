@@ -124,7 +124,7 @@ export class Ants {
 		ant.animAction = ant.mixer.clipAction( clip );
 		
 		ant.animAction.setLoop(
-			( ant.action === 'Death' )
+			( ['Hit1','Hit2','Hit3','Death'].includes( ant.action ) )
 				? THREE.LoopOnce
 				: THREE.LoopRepeat
 		);
@@ -294,6 +294,10 @@ export class Ants {
 				}
 
 				if( ant.action !== 'Death' ) {
+					if( ant.animAction && ! ant.animAction.isRunning() ) {
+						ant.action = 'Idle';
+						this.setAnimation({ ant });
+					}
 					ant.decisionTimer -= delta;
 					if( ant.decisionTimer < 0 ) {
 						this.makeDecision({ ant });
@@ -338,6 +342,11 @@ export class Ants {
 						ant.hp -= damage;
 						if( generateHeat ) {
 							ant.heat += damage*2;
+						}
+						if( ant.hp > 0 && ant.action.substr(0,3) !== 'Hit' ) {
+							const seq = Math.floor( Math.random() * 3 ) + 1;
+							ant.action = 'Hit' + seq;
+							this.setAnimation({ ant });
 						}
 					}
 					
