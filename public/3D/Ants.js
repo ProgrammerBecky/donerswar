@@ -20,6 +20,10 @@ export class Ants {
 		this.collectiveDecisionTimer = 5;
 	
 		this.removeIds = [];
+		this.antCount = 0;	
+
+		this.antAttackCheckResetTimer = 0;
+		this.antAttackCheckIndex = 0;
 	
 		this.ants = [];
 		for( let i=0 ; i<10 ; i++ ) {
@@ -81,15 +85,13 @@ export class Ants {
 			self.animations = result.animations;
 		
 		});
-		
-		this.antAttackCheckResetTimer = 0;
-		this.antAttackCheckIndex = 0;
 	
 	}
 	
 	spawnAnt() {
+		this.antCount++;
 		this.ants.push({
-			id: this.ants.length,
+			id: this.antCount,
 			x: Math.random() * 85000,
 			y: 0,
 			z: Math.random() * 85000,
@@ -169,9 +171,7 @@ export class Ants {
 			}
 		});
 		
-		let index = this.ants.findIndex( search => search.id === ant.id );
-		this.removeIds.push( index );
-		
+		this.removeIds.push( ant.id );
 	}
 	discardAnt({ ant }) {
 		ant.ent.traverse( child => {
@@ -183,8 +183,8 @@ export class Ants {
 			}
 		});
 		
-		let index = this.ants.findIndex( search => search.id === ant.id );
-		this.removeIds.push( index );		
+		this.removeIds.push( ant.id );
+		
 	}
 	
 	doWalk({ ant , delta }) {
@@ -336,12 +336,45 @@ export class Ants {
 					this.considerAttacking({ ant });
 				}
 			
-				if( ant.hp <=0 && ant.action !== 'Death' ) {
-					ant.action = 'Death';
-					this.setAnimation({ ant });
-				}
+				if( ant.heat > 0 ) {
+					if( ! ant.hasOwnMat ) {
+						ant.ent.traverse( child => {
+							if( child.isMesh ) {
+								child.material = child.material.clone();
+							}
+						});
+						ant.hasOwnMat = true;
+					}
+					ant.heat = Math.max( 0 , ant.heat - delta*10 );
+					let heat = Math.min( ant.heat , 255 );
+					ant.ent.traverse( child => {
+						if( child.isMesh ) {
+							child.material.color = new THREE.Color( 1+heat , 1+heat/2 , 1 );
+						}
+					});
+				}			
+			
+				if( ant.hp <=0 ) {
+					if( ant.action !== 'Death' ) {
+						ant.action = 'Death';
+						this.setAnimation({ ant });
+					}
 
-				if( ant.action !== 'Death' ) {
+					ant.gravity += delta * 500;
+					ant.y = Math.max( ant.y - ant.gravity * delta , 0 );
+					
+					if( ant.y === 0 &&
+						! ant.animAction.isRunning() &&
+						ant.heat === 0 &&
+						ant.animAction.time > 0 &&
+						ant.animAction._clip.name === 'Death'
+					) {
+						ant.ent.position.set( ant.x , 375 + ant.y , ant.z );
+						this.discardAnt({ ant });
+					}
+				}
+				else {
+
 					if( ant.animAction && ! ant.animAction.isRunning() && ! ['Jump','Sting'].includes( ant.action ) ) {
 						ant.action = 'Idle';
 						this.setAnimation({ ant });
@@ -384,37 +417,7 @@ export class Ants {
 						}
 					}
 				}
-				if( ant.action === 'Death' ) {
-					ant.gravity += delta * 500;
-					ant.y = Math.max( ant.y - ant.gravity * delta , 0 );
-					if( ant.y === 0 &&
-					! ant.animAction.isRunning() &&
-					ant.heat === 0 &&
-					ant.animAction._clip.name === 'Death' &&
-					ant.animAction.time > 0
-					) {
-						ant.ent.position.set( ant.x , 375 + ant.y , ant.z );
-						this.discardAnt({ ant });
-						return;
-					}
-				}
-				if( ant.heat > 0 ) {
-					if( ! ant.hasOwnMat ) {
-						ant.ent.traverse( child => {
-							if( child.isMesh ) {
-								child.material = child.material.clone();
-							}
-						});
-						ant.hasOwnMat = true;
-					}
-					ant.heat = Math.max( 0 , ant.heat - delta*10 );
-					let heat = Math.min( ant.heat , 255 );
-					ant.ent.traverse( child => {
-						if( child.isMesh ) {
-							child.material.color = new THREE.Color( 1+heat , 1+heat/2 , 1 );
-						}
-					});
-				}
+
 				
 				ant.ent.position.set( ant.x , 375 + ant.y , ant.z );
 				ant.ent.rotation.set( 0 , ant.f , 0 );
@@ -425,7 +428,9 @@ export class Ants {
 		});
 		
 		while( this.removeIds.length > 0 ) {
-			const index = this.removeIds.shift();
+			const antId = this.removeIds.shift();
+			const index = this.ants.findIndex( search => search.id === antId );
+			console.log( 'removing' , antId , index );
 			this.ants.splice( index , 1 );
 		}
 	

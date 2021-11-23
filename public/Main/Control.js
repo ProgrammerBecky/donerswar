@@ -38,14 +38,7 @@ export class Control {
 		this.keydown = this.keydown.bind( this );
 		this.keyup = this.keyup.bind( this );
 		this.contextMenu = this.contextMenu.bind( this );
-		
-		window.addEventListener( 'resize' , this.resize );
-		window.addEventListener( 'mousemove' , this.mousemove );
-		window.addEventListener( 'mousedown' , this.mousedown );
-		window.addEventListener( 'mouseup' , this.mouseup );
-		window.addEventListener( 'mousewheel' , this.mousewheel );
-		window.addEventListener( 'keydown' , this.keydown );
-		window.addEventListener( 'keyup' , this.keyup );
+
 		window.addEventListener( 'contextmenu', this.contextMenu );
 		
 		this.resize();
@@ -160,6 +153,15 @@ export class Control {
 	}
 	weaponDischarged({ mechId , gunId }) {
 		this.ui.discharge({ mechId, gunId });
+	}
+	startGame() {
+		window.addEventListener( 'resize' , this.resize );
+		window.addEventListener( 'mousemove' , this.mousemove );
+		window.addEventListener( 'mousedown' , this.mousedown );
+		window.addEventListener( 'mouseup' , this.mouseup );
+		window.addEventListener( 'mousewheel' , this.mousewheel );
+		window.addEventListener( 'keydown' , this.keydown );
+		window.addEventListener( 'keyup' , this.keyup );		
 	}
 	
 }

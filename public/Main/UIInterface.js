@@ -264,7 +264,8 @@ export class UIInterface {
 		if( this.loaded ) {
 			document.getElementById('StartGame').style.opacity = 1;
 			document.getElementById('SplashProgress').style.opacity = 0;
-			document.getElementById('StartGame').addEventListener( 'click' , () => {
+			document.getElementById('StartGame').addEventListener( 'click' , (e) => {
+				G.control.startGame();
 				document.getElementById('Splash').style.display = 'none';
 				G.threeD.postMessage({
 					type: 'beginGame'

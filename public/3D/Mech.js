@@ -1009,7 +1009,7 @@ export class Mech {
 							})
 						});		
 
-						G.world.destroy( hitTarget.point.x , hitTarget.point.z , 1000 , gun.damage , hitTarget.object );
+						G.world.destroy( hitTarget.point.x , hitTarget.point.z , 1500 , gun.damage , hitTarget.object );
 						
 					}
 					
