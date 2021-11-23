@@ -718,7 +718,6 @@ export class Mech {
 			targetX = mech.dx;
 			targetZ = mech.dz;
 		}
-		console.log( '... ' , targetX, targetZ );
 
 		const dx = targetX - mech.x;
 		const dz = targetZ - mech.z;
