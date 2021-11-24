@@ -1,5 +1,5 @@
 import * as THREE from './../build/three.module.js';
-import { SkeletonUtils } from './../jsm/utils/SkeletonUtils.js';
+import { SkeletonUtils } from './../examples/jsm/utils/SkeletonUtils.js';
 import { G } from './G.js';
 
 const ZOMBIE_MESHES = 10;

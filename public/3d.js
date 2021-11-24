@@ -1,7 +1,7 @@
 import * as THREE from './build/three.module.js';
 import { G } from './3D/G.js';
-import { FBXLoader } from './jsm/loaders/FBXLoader.js';
-import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
+import { FBXLoader } from './examples/jsm/loaders/FBXLoader.js';
+import { GLTFLoader } from './examples/jsm/loaders/GLTFLoader.js';
 import { World } from './3D/World.js';
 import { Zombies } from './3D/Zombies.js';
 import { Mech } from './3D/Mech.js';
@@ -9,6 +9,8 @@ import { ScreenPicker } from './3D/ScreenPicker.js';
 import { Particles } from './3D/Particles.js';
 import { Ants } from './3D/Ants.js';
 import { Lights } from './3D/Lights.js';
+
+G.path = '//beckyrose.com/giantrobotmechs/high/';
 
 const manager = new THREE.LoadingManager();
 manager.onProgress = ( url , itemsLoaded , itemsTotal ) => {
@@ -240,12 +242,12 @@ onmessage = (e) => {
 
 		G.cubeTexLoader = new THREE.CubeTextureLoader();
 		G.environmentMap = G.cubeTexLoader.load([
-			'/high/skybox/posz.jpg',
-			'/high/skybox/negz.jpg',
-			'/high/skybox/posy.jpg',
-			'/high/skybox/negy.jpg',
-			'/high/skybox/negx.jpg',
-			'/high/skybox/posx.jpg'
+			G.path + 'skybox/posz.jpg',
+			G.path + 'skybox/negz.jpg',
+			G.path + 'skybox/posy.jpg',
+			G.path + 'skybox/negy.jpg',
+			G.path + 'skybox/negx.jpg',
+			G.path + 'skybox/posx.jpg'
 		]);
 		G.scene.background = G.environmentMap;
 		

@@ -33,7 +33,7 @@ export class NavBuilder {
 			});
 			
 		};
-		map.src = '/map.png';
+		map.src = 'map.png';
 
 	}
 	buildNewNavMapFromGeo() {

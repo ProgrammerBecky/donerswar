@@ -13,14 +13,14 @@ export class Particles {
 		for( let s=1 ; s<=16 ; s++ ) {
 			this.sandTex.push(
 				new THREE.SpriteMaterial({
-					map: G.texture.load( `/high/sand/sand${s}.png` ),
+					map: G.texture.load( `${G.path}sand/sand${s}.png` ),
 					transparent: true,
 					name: 'SANDTEX'+s,
 				})
 			);
 			this.smokeTex.push(
 				new THREE.SpriteMaterial({
-					map: G.texture.load( `/high/smoke/smoke${s}.png` ),
+					map: G.texture.load( `${G.path}smoke/smoke${s}.png` ),
 					transparent: true,
 					name: 'SMOKETEX'+s,
 				})			
@@ -29,7 +29,7 @@ export class Particles {
 		for( let s=1 ; s<=20 ; s++ ) {
 			this.fireTex.push(
 				new THREE.SpriteMaterial({
-					map: G.texture.load( `/high/flame/flame${s}.png` ),
+					map: G.texture.load( `${G.path}flame/flame${s}.png` ),
 					transparent: true,
 					name: 'SMOKETEX'+s,
 				})			

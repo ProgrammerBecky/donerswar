@@ -20,11 +20,11 @@ export class Mech {
 		this.mechs = [
 			{
 				"assembly":{
-					"legs": "high/mechs/Legs_Lt.glb",
-					"cockpit": "high/mechs/Cockpit2.glb",
-					"shoulderR": "high/mechs/RHalfShoulder_lt_frame.glb",
-					"weaponL": "high/mechs/Weapons_Laser_lvl1.glb",
-					"weaponT": "high/mechs/Weapons_cannon_lvl1.glb"
+					"legs": G.path+"mechs/Legs_Lt.glb",
+					"cockpit": G.path+"mechs/Cockpit2.glb",
+					"shoulderR": G.path+"mechs/RHalfShoulder_lt_frame.glb",
+					"weaponL": G.path+"mechs/Weapons_Laser_lvl1.glb",
+					"weaponT": G.path+"mechs/Weapons_cannon_lvl1.glb"
 				},
 				"guns": [
 					{
@@ -51,12 +51,12 @@ export class Mech {
 			},
 			{
 				"assembly":{
-					"legs": "high/mechs/Legs_Lt.glb",
-					"cockpit": "high/mechs/Cockpit1.glb",
-					"shoulderL": "high/mechs/HalfShoulder_Wall.glb",
-					"shoulderR": "high/mechs/RHalfShoulder_Wall.glb",
-					"weaponL": "high/mechs/Weapons_Flamethrower_lvl3.glb",
-					"weaponR": "high/mechs/Weapons_machinegun_lvl3.glb"
+					"legs": G.path+"mechs/Legs_Lt.glb",
+					"cockpit": G.path+"mechs/Cockpit1.glb",
+					"shoulderL": G.path+"mechs/HalfShoulder_Wall.glb",
+					"shoulderR": G.path+"mechs/RHalfShoulder_Wall.glb",
+					"weaponL": G.path+"mechs/Weapons_Flamethrower_lvl3.glb",
+					"weaponR": G.path+"mechs/Weapons_machinegun_lvl3.glb"
 				},
 				"guns": [
 					{
@@ -82,17 +82,17 @@ export class Mech {
 			},
 			{
 				"assembly":{
-					"legs": "high/mechs/Legs_LtMd.glb",
-					"hips": "high/mechs/Hips3.glb",
-					"cockpit": "high/mechs/Cockpit4.glb",
-					"backpack": "high/mechs/Backpack_container.glb",
-					"shoulderL": "high/mechs/HalfShoulder_Med_Frame.glb",
-					"shoulderR": "high/mechs/RHalfShoulder_Med_Frame.glb",
-					"weaponL": "high/mechs/Weapons_minigun_lvl5@Weapons_minigun_lvl5_shoot.glb",
-					"weaponR": "high/mechs/Weapons_cannon_lvl5.glb",
-					"weaponSL": "high/mechs/Weapons_rockets_shoulder_lvl2.glb",
-					"weaponSR": "high/mechs/Weapons_rockets_shoulder_lvl2.glb",
-					"weaponT": "high/mechs/Weapons_Flamethrower_lvl5.glb"
+					"legs": G.path+"mechs/Legs_LtMd.glb",
+					"hips": G.path+"mechs/Hips3.glb",
+					"cockpit": G.path+"mechs/Cockpit4.glb",
+					"backpack": G.path+"mechs/Backpack_container.glb",
+					"shoulderL": G.path+"mechs/HalfShoulder_Med_Frame.glb",
+					"shoulderR": G.path+"mechs/RHalfShoulder_Med_Frame.glb",
+					"weaponL": G.path+"mechs/Weapons_minigun_lvl5@Weapons_minigun_lvl5_shoot.glb",
+					"weaponR": G.path+"mechs/Weapons_cannon_lvl5.glb",
+					"weaponSL": G.path+"mechs/Weapons_rockets_shoulder_lvl2.glb",
+					"weaponSR": G.path+"mechs/Weapons_rockets_shoulder_lvl2.glb",
+					"weaponT": G.path+"mechs/Weapons_Flamethrower_lvl5.glb"
 				},
 				"guns": [
 					{
@@ -140,17 +140,17 @@ export class Mech {
 			},
 			{
 				"assembly":{
-					"legs": "high/mechs/Legs_Md.glb",
-					"hips": "high/mechs/Hips0.glb",
-					"cockpit": "high/mechs/Cockpit3.glb",
-					"backpack": "high/mechs/Backpack_Ballons.glb",
-					"shoulderL": "high/mechs/HalfShoulder_Shield.glb",
-					"shoulderR": "high/mechs/RHalfShoulder_Shield.glb",
-					"weaponL": "high/mechs/Weapons_rockets_2x_lvl5.glb",
-					"weaponR": "high/mechs/Weapons_rockets_2x_lvl5.glb",
-					"weaponSL": "high/mechs/TopWeapons_rockets_1x_lvl5.glb",
-					"weaponSR": "high/mechs/TopWeapons_rockets_1x_lvl5.glb",
-					"weaponT": "high/mechs/TopWeapons_rockets_2x_lvl5.glb"
+					"legs": G.path+"mechs/Legs_Md.glb",
+					"hips": G.path+"mechs/Hips0.glb",
+					"cockpit": G.path+"mechs/Cockpit3.glb",
+					"backpack": G.path+"mechs/Backpack_Ballons.glb",
+					"shoulderL": G.path+"mechs/HalfShoulder_Shield.glb",
+					"shoulderR": G.path+"mechs/RHalfShoulder_Shield.glb",
+					"weaponL": G.path+"mechs/Weapons_rockets_2x_lvl5.glb",
+					"weaponR": G.path+"mechs/Weapons_rockets_2x_lvl5.glb",
+					"weaponSL": G.path+"mechs/TopWeapons_rockets_1x_lvl5.glb",
+					"weaponSR": G.path+"mechs/TopWeapons_rockets_1x_lvl5.glb",
+					"weaponT": G.path+"mechs/TopWeapons_rockets_2x_lvl5.glb"
 				},
 				"guns": [
 					{
@@ -195,12 +195,11 @@ export class Mech {
 			},
 		];
 
-		//const spec = G.texture.load( 'high/mechs/Mechs_LtMed_Unity_Specular.png' );
 		this.material = G.lights.applyLightMap(
 			new THREE.MeshStandardMaterial({
 				name: 'BROWN-MECH',
-				map: G.texture.load( 'high/mechs/Mechs_diffuse_atlas_beige.png' ),
-				normalMap: G.texture.load( 'high/mechs/Mechs_LtMed_Normals.png' ),
+				map: G.texture.load( G.path+'mechs/Mechs_diffuse_atlas_beige.png' ),
+				normalMap: G.texture.load( G.path+'mechs/Mechs_LtMed_Normals.png' ),
 				roughness: 1,
 				metalness: 0,
 				skinning: true,
@@ -997,12 +996,12 @@ export class Mech {
 							x: hitTarget.point.x,
 							y: hitTarget.point.y,
 							z: hitTarget.point.z,
-							drift: 300,
+							drift: 400,
 							speed: 550,
 							ringDensity: 12,
-							duration: 1,
+							duration: 0.3,
 							size: 250,
-							emitFrequency: 0.005
+							emitFrequency: 0.0025
 						});
 						
 						mech.muzzleFlashes.push({

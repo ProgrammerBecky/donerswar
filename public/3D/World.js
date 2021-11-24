@@ -42,7 +42,7 @@ export class World {
 		this.floorPlane.position.set( 0 , -20 , 0 );
 		G.scene.add( this.floorPlane );
 		
-		G.fbx.load( '/high/city/Foliage.fbx' , model => {
+		G.fbx.load( G.path + 'city/Foliage.fbx' , model => {
 			
 			model.traverse( (child) => {
 				if( child.isMesh ) {
@@ -77,7 +77,7 @@ export class World {
 		
 		self.buildings = [];
 		
-		G.fbx.load( '/high/city/CityCentre.fbx' , model => {
+		G.fbx.load( G.path + 'city/CityCentre.fbx' , model => {
 			
 			let removeList = [];
 			
@@ -93,6 +93,7 @@ export class World {
 						
 						if( child.material ) {
 							child.material = G.lights.applyLightMapFromLambert( child.material );
+							child.material.normalScale = new THREE.Vector2(5,5);
 						}
 					}
 					

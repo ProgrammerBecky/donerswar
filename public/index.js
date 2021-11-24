@@ -1,6 +1,6 @@
 import { G } from './Main/G.js';
-import { Control } from '/Main/control.js';
-import { NavBuilder } from '/Main/NavBuilder.js';
+import { Control } from './Main/Control.js';
+import { NavBuilder } from './Main/NavBuilder.js';
 import { Zombie } from './Main/Zombie.js';
 import { UIInterface } from './Main/UIInterface.js';
 import { Mech } from './Main/Mech.js';

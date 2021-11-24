@@ -60,7 +60,7 @@ export class Lights {
 					imageData: context.getImageData(0,0,img.width,img.height),
 				}, [ offscreen ]);
 			}
-			img.src = '/high/lights/' + i + '.png';
+			img.src = 'lights/' + i + '.png';
 		}
 		
 	}
