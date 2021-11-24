@@ -10,7 +10,8 @@ import { Particles } from './3D/Particles.js';
 import { Ants } from './3D/Ants.js';
 import { Lights } from './3D/Lights.js';
 
-//G.path = '//beckyrose.com/giantrobotmechs/high/';
+G.url = '//beckyrose.com/giantrobotmechs/';
+//G.url = '/';
 G.path = '/low/';
 
 const manager = new THREE.LoadingManager();
@@ -87,7 +88,7 @@ const animate = ( time ) => {
 				if( G.glViewports[camIndex] ) {
 					G.camera[camIndex].updateMatrix();
 					G.camera[camIndex].updateMatrixWorld();
-					G.frustum[camIndex].setFromMatrix(
+					G.frustum[camIndex].setFromProjectionMatrix(
 						new THREE.Matrix4().multiplyMatrices(
 							G.camera[camIndex].projectionMatrix,
 							G.camera[camIndex].matrixWorldInverse
@@ -202,7 +203,7 @@ onmessage = (e) => {
 	}
 	else if( e.data.type === 'init' ) {
 		
-		G.path = `/${e.data.gfxSetting}/`;
+		G.path = G.url + `${e.data.gfxSetting}/`;
 		
 		let canvas = e.data.canvas;
 		

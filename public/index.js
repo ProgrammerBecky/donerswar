@@ -7,6 +7,9 @@ import { Mech } from './Main/Mech.js';
 import { Lights } from './Main/Lights.js';
 import { SFX } from './Main/SFX.js';
 
+//G.url = '//beckyrose.com/giantrobotmechs/';
+G.url = '/';
+
 let zombie;
 
 /* Initialise 3D Canvas */

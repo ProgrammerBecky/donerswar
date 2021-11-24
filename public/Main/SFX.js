@@ -28,14 +28,14 @@ export class SFX {
 	}
 	
 	loadSound(sfx) {
-		this.loader.load( `sfx/${sfx}.ogg` , buffer => {
+		this.loader.load( G.url + `sfx/${sfx}.ogg` , buffer => {
 			this.library[ sfx ] = buffer;
 		});
 	}
 
 	playMainTheme() {
 		this.themeMusic = new THREE.Audio( this.listener );
-		this.loader.load( `sfx/theme.mp3` , buffer => {
+		this.loader.load( G.url + `sfx/theme.mp3` , buffer => {
 			this.themeMusic.setBuffer( buffer );
 			this.themeMusic.setLoop( false );
 			this.themeMusic.setVolume( 0.5 );
