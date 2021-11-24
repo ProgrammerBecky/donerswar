@@ -1126,7 +1126,7 @@ G.scene.add( obj );
 				this.vector.x,
 				this.vector.z,
 				500,
-				dam,
+				(dam/3),
 				false,
 				true
 			);
