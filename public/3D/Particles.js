@@ -99,6 +99,14 @@ export class Particles {
 	
 	spawnSmokeEmitter({ x,y,z, duration, size, ringDensity, speed, drift, emitFrequency }) {
 	
+		self.postMessage({
+			type: 'sound',
+			sfx: 'explosion',
+			x: x,
+			y: y,
+			z: z,
+		});		
+	
 		const spin = Math.PI * Math.random() * 2;
 	
 		for( let i=0 ; i<ringDensity ; i ++ ) {
@@ -283,6 +291,14 @@ export class Particles {
 			size: 500,
 			emitFrequency: 0.025
 		});			
+		
+		self.postMessage({
+			type: 'sound',
+			sfx: 'explosion',
+			x: particle.x,
+			y: particle.y,
+			z: particle.z,
+		});		
 		
 		G.world.destroy( particle.x , particle.z , 1500 , 5000 , target , false );
 	}

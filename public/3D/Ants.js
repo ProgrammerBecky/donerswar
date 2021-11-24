@@ -290,16 +290,37 @@ export class Ants {
 				ant.decisionTimer = 2 + Math.random() * 5;
 				ant.action = 'Idle_Aggitated';
 				this.setAnimation({ ant });
+				self.postMessage({
+					type: 'sound',
+					sfx: 'ant1',
+					x: ant.x,
+					y: ant.y,
+					z: ant.z,
+				});				
 			}
 			else if( ant.action === 'Idle_Aggitated' ) {
 				ant.decisionTimer = 10 + Math.random() * 20;
 				ant.action = 'Walk';
 				this.setAnimation({ ant });
+				self.postMessage({
+					type: 'sound',
+					sfx: 'ant2',
+					x: ant.x,
+					y: ant.y,
+					z: ant.z,
+				});
 			}
 			else if( ant.action === 'Walk' ) {
 				ant.decisionTimer = 5 + Math.random() * 15;
 				ant.action = 'Idle';
 				this.setAnimation({ ant });
+				self.postMessage({
+					type: 'sound',
+					sfx: 'ant1',
+					x: ant.x,
+					y: ant.y,
+					z: ant.z,
+				});				
 			}
 
 		}
@@ -462,8 +483,22 @@ export class Ants {
 			) {
 				if( ant.headJump ) {
 					this.doJump({ ant , mech, delta });
+					self.postMessage({
+						type: 'sound',
+						sfx: 'ant4',
+						x: ant.x,
+						y: ant.y,
+						z: ant.z,
+					});					
 				}
 				else {
+					self.postMessage({
+						type: 'sound',
+						sfx: 'ant3',
+						x: ant.x,
+						y: ant.y,
+						z: ant.z,
+					});					
 					G.mechs.takeDamage({ mech , damage: 1 });
 					ant.action = 'Bite';
 					this.setAnimation({ ant });
@@ -503,11 +538,25 @@ export class Ants {
 			} while( ! valid );
 						
 			this.setAnimation({ ant });
+			self.postMessage({
+				type: 'sound',
+				sfx: 'ant4',
+				x: ant.x,
+				y: ant.y,
+				z: ant.z,
+			});			
 		}
 		else {
 			ant.decisionTimer = 2 + Math.random() * 5;
 			ant.action = 'Idle_Aggitated';
 			this.setAnimation({ ant });
+			self.postMessage({
+				type: 'sound',
+				sfx: 'ant2',
+				x: ant.x,
+				y: ant.y,
+				z: ant.z,
+			});			
 		}
 	}
 	

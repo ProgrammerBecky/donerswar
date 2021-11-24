@@ -10,7 +10,8 @@ import { Particles } from './3D/Particles.js';
 import { Ants } from './3D/Ants.js';
 import { Lights } from './3D/Lights.js';
 
-G.path = '//beckyrose.com/giantrobotmechs/high/';
+//G.path = '//beckyrose.com/giantrobotmechs/high/';
+G.path = '/high/';
 
 const manager = new THREE.LoadingManager();
 manager.onProgress = ( url , itemsLoaded , itemsTotal ) => {

@@ -4,18 +4,26 @@ import { G } from './G.js';
 export class SFX {
 
 	constructor() {
-		this.camera = new THREE.Camera();
+		this.camera = { x: 0 , y: 0 , z: 0 };
 		this.listener = new THREE.AudioListener();
-		this.camera.add( this.listener );
-		this.scene = new THREE.Scene();
-		this.scene.add( this.camera );
 		this.loader = new THREE.AudioLoader();
 		this.library = [];
 	
 		this.ents = [];
 	
 		[
-			'canon'
+			'canon',
+			'rocket',
+			'collapse',
+			'laser',
+			'minigun',
+			'machinegun',
+			'flamethrower',
+			'explosion',
+			'ant1',
+			'ant2',
+			'ant3',
+			'ant4',
 		].map( sound => this.loadSound(sound) );
 	}
 	
@@ -24,30 +32,46 @@ export class SFX {
 			this.library[ sfx ] = buffer;
 		});
 	}
+
+	playMainTheme() {
+		this.themeMusic = new THREE.Audio( this.listener );
+		this.loader.load( `sfx/theme.mp3` , buffer => {
+			this.themeMusic.setBuffer( buffer );
+			this.themeMusic.setLoop( false );
+			this.themeMusic.setVolume( 0.5 );
+			this.themeMusic.play();
+		});
+	}
 	
 	playSound( sfx, volume , x=false , y=false, z=false ) {
 
 		if( ! volume ) {
-			const sound = new THREE.PositionalAudio( this.listener );
-			sound.setBuffer( this.library[ sfx ] );
-			sound.setLoop( false );
-			sound.setRefDistance( 2000 );
 
-			let ent = new THREE.Group();
-			ent.position.set( x,y,z );
-			ent.add( sound );
-			this.scene.add( ent );
-			this.ents.push( ent );
-			sound.play();
+			const dx = x - this.camera.x;
+			const dy = y - this.camera.y;
+			const dz = z - this.camera.z;
+			const dr = Math.sqrt( dx*dx + dy*dy + dz*dz );
+			const volume = 1/15000;
+			if( volume > 0 ) {
+
+				const sound = new THREE.PositionalAudio( this.listener );
+				sound.setVolume( 1 - dr/15000 );
+				sound.setBuffer( this.library[ sfx ] );
+				sound.setLoop( false );
+				sound.play();
+			}
 		}
 		else {
 			console.log( 'TODO:: static sound' );
 		}
 	}
 	
-	updateCam(x,y,z,f) {
-		this.camera.position.set( x , y , z );
-		this.camera.rotation.set( 0 , f , 0 );
+	updateCam({x,y,z}) {
+		this.camera = {
+			x: x,
+			y: y,
+			z: z,
+		};
 	}
 	
 }

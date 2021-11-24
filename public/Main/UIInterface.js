@@ -44,6 +44,9 @@ export class UIInterface {
 		this._setPilot( 0 );
 		
 		this.showInterface();
+		
+		this.launchTrigger = this.launchTrigger.bind( this );
+		this.launchGame();
 	}
 	
 	fire( mech , key ) {
@@ -120,17 +123,18 @@ export class UIInterface {
 		}
 	}
 	_setPilot( pilot ) {
-		console.log( 'SET PILOT' , pilot );
 		this.mode = 'single';
 		this.showPilot = pilot;
 		this.showInterface();
 		
-		G.threeD.postMessage({
-			type: 'cameras-on-off',
-			cameras: [this.showPilot],	
-			width: window.innerWidth,
-			height: window.innerHeight,
-		});
+		if( G.threeD ) {
+			G.threeD.postMessage({
+				type: 'cameras-on-off',
+				cameras: [this.showPilot],	
+				width: window.innerWidth,
+				height: window.innerHeight,
+			});
+		}
 	}
 	
 	showInterface() {
@@ -250,6 +254,17 @@ export class UIInterface {
 		
 	}
 	
+	
+	launchGame() {
+		document.getElementById('GFXLow').addEventListener( 'click' , () => {this.launchTrigger( 'low' )} );
+		document.getElementById('GFXMedium').addEventListener( 'click' , () => {this.launchTrigger( 'medium' )} );
+		document.getElementById('GFXHigh').addEventListener( 'click' , () => {this.launchTrigger( 'high' )} );
+	}
+	launchTrigger( gfxSetting ) {
+		document.getElementById( 'GFXSelect' ).style.display = 'none';
+		G.sfx.playMainTheme();
+		G.initThreeD( gfxSetting );
+	}
 	updateLoadingProgress({ url, itemsLoaded, itemsTotal }) {
 		document.getElementById('SplashUrl').innerHTML = url;
 		document.getElementById('SplashProgress').value = itemsLoaded*100/Math.max( itemsTotal , 755 );
@@ -262,6 +277,7 @@ export class UIInterface {
 	}
 	beginGame() {
 		if( this.loaded ) {
+			this._setPilot(0);
 			document.getElementById('StartGame').style.opacity = 1;
 			document.getElementById('SplashProgress').style.opacity = 0;
 			document.getElementById('StartGame').addEventListener( 'click' , (e) => {

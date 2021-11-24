@@ -852,9 +852,17 @@ export class Mech {
 				if( gun.invertArcY ) arcAngle = -arcAngle;			
 	
 				if( gun.type === 'laser' ) {
+						
+					self.postMessage({
+						type: 'sound',
+						sfx: 'laser',
+						x: mech.x,
+						y: mech.y,
+						z: mech.z,
+					});							
 							
 					mech.muzzleFlashes.push({
-						duration: 10,
+						duration: 7.8,
 						barrelEnd: barrel,
 						mount: gunLimb,
 						offsetX: gun.offsetX,
@@ -873,11 +881,19 @@ export class Mech {
 					
 				}
 				else if( gun.type === 'flamer' ) {
-							
+					
 					if( ! passive ) {
 						mech.machineGunFiring[ gunId ] = -0.05;
 						if( ! mech.machineGunShots[ gunId ] ) mech.machineGunShots[ gunId ] = 0;
 						mech.machineGunShots[ gunId ] += 30;
+
+						self.postMessage({
+							type: 'sound',
+							sfx: 'flamethrower',
+							x: mech.x,
+							y: mech.y,
+							z: mech.z,
+						});
 					}
 					else {
 						mech.machineGunFiring[ gunId ] -= 0.05;
@@ -889,6 +905,7 @@ export class Mech {
 					
 				}
 				else if( gun.type === 'machinegun' ) {
+
 
 					if( ! passive ) {
 						mech.machineGunFiring[ gunId ] = -0.1;
@@ -922,6 +939,14 @@ export class Mech {
 						})
 					});
 						
+					self.postMessage({
+						type: 'sound',
+						sfx: ( gun.damage > 10 ) ? 'minigun' : 'machinegun',
+						x: mech.x,
+						y: mech.y,
+						z: mech.z,
+					});
+					
 					if( hitTarget ) {
 
 						G.particles.spawnSand({
@@ -955,6 +980,14 @@ export class Mech {
 						speed: 8000,
 						duration: 4,
 						arc: -0.15,
+					});
+					
+					self.postMessage({
+						type: 'sound',
+						sfx: 'rocket',
+						x: mech.x,
+						y: mech.y,
+						z: mech.z,
 					});
 					
 				}

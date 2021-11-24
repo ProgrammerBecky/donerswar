@@ -436,6 +436,15 @@ export class World {
 							}
 												
 							if( destroy ) {
+								if( building.type === 'Building' ) {
+									self.postMessage({
+										type: 'sound',
+										sfx: 'collapse',
+										x: building.ent.position.x,
+										y: building.ent.position.y,
+										z: building.ent.position.z,
+									});									
+								}
 								building.hp = 0;
 								building.dustSpawns = 25;
 								building.destroyOrigin = {
