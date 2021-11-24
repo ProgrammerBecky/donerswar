@@ -54,15 +54,15 @@ export class SFX {
 			const volume = 1 - dr/15000;
 
 			const sound = new THREE.PositionalAudio( this.listener );
-			sound.setVolume( 1 - dr/15000 );
+			sound.setVolume( volume );
 			sound.setBuffer( this.library[ sfx ] );
 			sound.setLoop( false );
 			sound.play();
 			
 			this.ents.push({
-				dx: dx,
-				dy: dy,
-				dz: dz,
+				x: x,
+				y: y,
+				z: z,
 				sound: sound
 			});
 			
@@ -88,6 +88,7 @@ export class SFX {
 				const dz = ent.z - z;
 				const dr = Math.sqrt( dx*dx + dy*dy + dz*dz );
 				const volume = 1 - dr/15000;
+
 				if( volume > 0 && volume < 1 ) {
 					ent.sound.setVolume( volume );
 				}

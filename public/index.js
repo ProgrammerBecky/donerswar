@@ -109,6 +109,7 @@ G.initThreeD = ( gfxSetting ) => {
 		width: canvas.clientWidth,
 		height: canvas.clientHeight,
 		pixelRatio: window.devicePixelRatio,
+		gfxSetting: gfxSetting,
 	} , [ offscreen ]);
 
 

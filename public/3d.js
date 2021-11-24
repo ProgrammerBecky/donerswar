@@ -11,7 +11,7 @@ import { Ants } from './3D/Ants.js';
 import { Lights } from './3D/Lights.js';
 
 //G.path = '//beckyrose.com/giantrobotmechs/high/';
-G.path = '/high/';
+G.path = '/low/';
 
 const manager = new THREE.LoadingManager();
 manager.onProgress = ( url , itemsLoaded , itemsTotal ) => {
@@ -201,6 +201,8 @@ onmessage = (e) => {
 		setViewports( e.data.width , e.data.height );
 	}
 	else if( e.data.type === 'init' ) {
+		
+		G.path = `/${e.data.gfxSetting}/`;
 		
 		let canvas = e.data.canvas;
 		
