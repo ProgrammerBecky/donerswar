@@ -47,7 +47,8 @@ export class Mech {
 				"lightRef": "Spotlight",
 				"spotlight": false,
 				"hp": 100,
-				"maxHp": 100
+				"maxHp": 100,
+				"cockpitHeight": 200
 			},
 			{
 				"assembly":{
@@ -78,7 +79,8 @@ export class Mech {
 				],
 				"lightRef": false,
 				"hp": 100,
-				"maxHp": 100
+				"maxHp": 100,
+				"cockpitHeight": 200
 			},
 			{
 				"assembly":{
@@ -136,7 +138,8 @@ export class Mech {
 				],
 				"lightRef": false,
 				"hp": 150,
-				"maxHp": 150
+				"maxHp": 150,
+				"cockpitHeight": 200
 			},
 			{
 				"assembly":{
@@ -191,7 +194,8 @@ export class Mech {
 				],
 				"lightRef": false,
 				"hp": 150,
-				"maxHp": 150
+				"maxHp": 150,
+				"cockpitHeight": 200
 			},
 		];
 
@@ -562,6 +566,7 @@ export class Mech {
 				}
 
 				mech.mixer.update( delta );
+				mech.ent.updateMatrixWorld(true);
 				
 				//Update Lights
 				if( mech.muzzleFlashes.length > 0 ) {

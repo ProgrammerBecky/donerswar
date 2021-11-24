@@ -125,11 +125,13 @@ G.control = new Control({ ui });
 
 /* Browser Resizing */
 const windowResize = () => {
-	G.threeD.postMessage({
-		type: 'resizeCanvas',
-		width: canvas.clientWidth,
-		height: canvas.clientHeight
-	});
+	if( G.threeD ) {
+		G.threeD.postMessage({
+			type: 'resizeCanvas',
+			width: canvas.clientWidth,
+			height: canvas.clientHeight
+		});
+	}
 }
 window.addEventListener( 'resize' , windowResize );
 

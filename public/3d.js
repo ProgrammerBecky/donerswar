@@ -61,6 +61,7 @@ G.frustum = [
 let trackTime = 0;
 let gameSpeed = 0;
 let audioCam = 0;
+let camVector = new THREE.Vector3();
 
 let lastCamX=0,lastCamY=0,lastCamZ=0;
 const animate = ( time ) => {
@@ -86,6 +87,22 @@ const animate = ( time ) => {
 		for( let camIndex=0 ; camIndex<4 ; camIndex++ ) {
 			if( G.cameraViews.includes( camIndex ) ) {
 				if( G.glViewports[camIndex] ) {
+					if( G.cameraZoom[ camIndex ] === 1500 && G.mechs.mechs[camIndex].cockpit_bevel ) {
+						const rider = G.mechs.mechs[camIndex].cockpit_bevel;
+						rider.updateMatrixWorld(true);
+						rider.getWorldPosition( camVector );
+						G.camera[camIndex].position.set( camVector.x , camVector.y + G.mechs.mechs[camIndex].cockpitHeight , camVector.z );
+						if( G.camera[ camIndex ].fov !== 120 ) {
+							G.camera[camIndex].fov = 70;
+							G.camera[camIndex].updateProjectionMatrix();
+						}
+					}
+					else {
+						if( G.camera[camIndex].fov !== G.camera[camIndex]._fov ) {
+							G.camera[camIndex].fov = G.camera[camIndex]._fov;
+							G.camera[camIndex].updateProjectionMatrix();
+						}
+					}
 					G.camera[camIndex].updateMatrix();
 					G.camera[camIndex].updateMatrixWorld();
 					G.frustum[camIndex].setFromProjectionMatrix(
@@ -97,6 +114,18 @@ const animate = ( time ) => {
 			
 					G.world.updateForCam( camIndex );
 					G.zombies.updateForCam( camIndex );
+					if( G.cockpit && G.mechs.mechs[ camIndex ].cockpit_bevel ) {
+						if( G.cameraZoom[ camIndex ] === 1500 ) {
+							G.cockpit.visible = true;
+							G.cockpit.position.set( G.camera[camIndex].position.x , G.camera[camIndex].position.y , G.camera[camIndex].position.z );
+							let rotation = G.mechs.mechs[ camIndex ].ent.rotation.y + G.mechs.mechs[ camIndex ].cockpit_bevel.rotation.y
+							G.cockpit.rotation.set( G.cameraPan[camIndex].x , Math.PI + rotation , 0 );
+							
+						}
+						else {
+							G.cockpit.visible = false;
+						}
+					}
 					G.renderer.setViewport( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
 					G.renderer.setScissor( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
 					G.renderer.render( G.scene , G.camera[camIndex] );
@@ -138,6 +167,7 @@ const setViewports = ( width , height ) => {
 				G.camera[camIndex].aspect = width/height;
 				G.camera[camIndex].far = 20000;
 				G.camera[camIndex].fov = 65;
+				G.camera[camIndex]._fov = 65;
 				G.camera[camIndex].updateProjectionMatrix();
 			}
 		}
@@ -166,6 +196,7 @@ const setViewports = ( width , height ) => {
 		G.camera[port].aspect = width/height;
 		G.camera[port].far = 100000;
 		G.camera[port].fov = 45;
+		G.camera[camIndex]._fov = 45;
 		G.camera[port].updateProjectionMatrix();
 		
 		G.glViewports = [
@@ -277,6 +308,50 @@ onmessage = (e) => {
 		G.mechs = new Mech();
 		G.particles = new Particles();
 		G.ants = new Ants();
+		G.gltf.load( G.path + 'cockpit/cockpit.glb' , result => {
+			
+			let cockpitMat = new THREE.MeshStandardMaterial({
+				normalMap: G.texture.load( G.path + 'cockpit/Textures/Body/Weathered/VA_LightFighterCockpit_Weathered_Normal.png' ),
+				metalness: 1,
+				roughness: 1,
+				metalnessMap: G.texture.load( G.path + 'cockpit/Textures/Body/Weathered/VA_LightFighterCockpit_Weathered_Metallic.png' ),
+				roughnessMap: G.texture.load( G.path + 'cockpit/Textures/Body/Weathered/VA_LightFighterCockpit_Weathered_Roughness.png' ),
+				envMap: G.environmentMap,
+			});
+			let glassMat = new THREE.MeshStandardMaterial({
+				transparent: true,
+				metalness: 1,
+				roughness: 1,
+				metalnessMap: G.texture.load( G.path + 'cockpit/Textures/Glass/DirtyScratched/VA_LightFighterCockpit_GlassDirtScratch_Metallic.png' ),
+				roughnessMap: G.texture.load( G.path + 'cockpit/Textures/Glass/DirtyScratched/VA_LightFighterCockpit_GlassDirtScratch_Roughness.png' ),
+				envMap: G.environmentMap,
+				depthWrite: false,
+			});
+			let loadedCockpitMat = false;
+			
+			result.scene.traverse( child => {
+				if( child.isMesh ) {
+					if( child.material.name.indexOf( 'Cockpit' ) === 0 ) {
+						if( ! loadedCockpitMat ) {
+							cockpitMat.map = child.material.map;
+							cockpitMat = G.lights.applyLightMap( cockpitMat );
+							loadedCockpitMat = true;
+						}
+						child.material = cockpitMat;
+					}
+					else if( child.material.name.indexOf( 'Glass' ) === 0 ) {
+						glassMat.map = child.material.map;
+						glassMat = G.lights.applyLightMap( glassMat );
+						child.material = glassMat;
+					}
+				}
+			});
+			
+			G.cockpit = result.scene;
+			G.cockpit.renderOrder = 1;
+			G.cockpit.rotation._order='ZYX';
+			G.scene.add( G.cockpit );
+		});
 		
 		G.screenPicker = new ScreenPicker();
 		animate();
