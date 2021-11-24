@@ -17,6 +17,7 @@ export class Control {
 			right: false,
 		}
 		
+		this.mouseOverCam = 0;
 		this.keypresses = {
 			KeyQ: false,
 			KeyW: false,
@@ -78,6 +79,15 @@ export class Control {
 		
 		this.mouse.x = e.clientX;
 		this.mouse.y = e.clientY;
+		
+		const cam = this.detectCam(e);
+		if( cam !== this.mouseOverCam ) {
+			this.mouseOverCam = cam;
+			G.threeD.postMessage({
+				type: 'audioCam',
+				view: cam,
+			});
+		}
 	}
 	mousewheel( e ) {
 		this.mouse.z = -e.wheelDeltaY;

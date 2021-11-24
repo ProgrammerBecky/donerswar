@@ -59,6 +59,9 @@ G.frustum = [
 /* Render loop */
 let trackTime = 0;
 let gameSpeed = 0;
+let audioCam = 0;
+
+let lastCamX=0,lastCamY=0,lastCamZ=0;
 const animate = ( time ) => {
 	
 	const delta = ( (time-lastTime)/1000 ) * gameSpeed;
@@ -102,13 +105,21 @@ const animate = ( time ) => {
 
 	}
 	
-	self.postMessage({
-		type: 'cam',
-		x: G.camera[0].position.x,
-		y: G.camera[0].position.y,
-		z: G.camera[0].position.z,
-		f: G.camera[0].rotation.y,
-	});
+	const dx = lastCamX - G.camera[audioCam].position.x;
+	const dy = lastCamY - G.camera[audioCam].position.y;
+	const dz = lastCamZ - G.camera[audioCam].position.z;
+	const dr = Math.sqrt( dx*dx + dy*dy + dz*dz );
+	if( dr > 100 ) {
+		lastCamX = G.camera[audioCam].position.x;
+		lastCamY = G.camera[audioCam].position.y;
+		lastCamZ = G.camera[audioCam].position.z;
+		self.postMessage({
+			type: 'cam',
+			x: G.camera[audioCam].position.x,
+			y: G.camera[audioCam].position.y,
+			z: G.camera[audioCam].position.z,
+		});
+	}
 	requestAnimationFrame( animate );
 }
 
@@ -148,6 +159,7 @@ const setViewports = ( width , height ) => {
 	else {
 		
 		let port = G.cameraViews[0];
+		audioCam = port;
 		
 		G.renderer.setSize( width , height );
 		G.camera[port].aspect = width/height;
@@ -184,11 +196,11 @@ onmessage = (e) => {
 			height: e.data.height,
 		});
 	}
-	if( e.data.type === 'cameras-on-off' ) {
+	else if( e.data.type === 'cameras-on-off' ) {
 		G.cameraViews = e.data.cameras;
 		setViewports( e.data.width , e.data.height );
 	}
-	if( e.data.type === 'init' ) {
+	else if( e.data.type === 'init' ) {
 		
 		let canvas = e.data.canvas;
 		
@@ -341,6 +353,9 @@ onmessage = (e) => {
 	}
 	else if( e.data.type === 'spotlight' ) {
 		G.mechs.spotlight( e.data.on );
+	}
+	else if( e.data.type === 'audioCam' ) {
+		audioCam = e.data.view;
 	}
 }
 

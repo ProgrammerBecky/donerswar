@@ -37,7 +37,6 @@ G.initThreeD = ( gfxSetting ) => {
 				x: e.data.x,
 				y: e.data.y,
 				z: e.data.z,
-				f: e.data.f,
 			});
 		}
 		else if( e.data.type === 'sound' ) {

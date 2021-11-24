@@ -51,15 +51,21 @@ export class SFX {
 			const dy = y - this.camera.y;
 			const dz = z - this.camera.z;
 			const dr = Math.sqrt( dx*dx + dy*dy + dz*dz );
-			const volume = 1/15000;
-			if( volume > 0 ) {
+			const volume = 1 - dr/15000;
 
-				const sound = new THREE.PositionalAudio( this.listener );
-				sound.setVolume( 1 - dr/15000 );
-				sound.setBuffer( this.library[ sfx ] );
-				sound.setLoop( false );
-				sound.play();
-			}
+			const sound = new THREE.PositionalAudio( this.listener );
+			sound.setVolume( 1 - dr/15000 );
+			sound.setBuffer( this.library[ sfx ] );
+			sound.setLoop( false );
+			sound.play();
+			
+			this.ents.push({
+				dx: dx,
+				dy: dy,
+				dz: dz,
+				sound: sound
+			});
+			
 		}
 		else {
 			console.log( 'TODO:: static sound' );
@@ -72,6 +78,32 @@ export class SFX {
 			y: y,
 			z: z,
 		};
+		
+		let removeIndex = [];
+		this.ents.map( (ent,index) => {
+			if( ent.sound.isPlaying ) {
+
+				const dx = ent.x - x;
+				const dy = ent.y - y;
+				const dz = ent.z - z;
+				const dr = Math.sqrt( dx*dx + dy*dy + dz*dz );
+				const volume = 1 - dr/15000;
+				if( volume > 0 && volume < 1 ) {
+					ent.sound.setVolume( volume );
+				}
+				else {
+					ent.sound.setVolume( 0 );
+				}
+				
+			}
+			else {
+				removeIndex.push( index );
+			}
+		});
+		
+		while( removeIndex.length > 0 ) {
+			this.ents.splice( removeIndex.shift() , 1 );
+		}
 	}
 	
 }
