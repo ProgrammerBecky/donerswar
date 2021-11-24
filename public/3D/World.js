@@ -309,6 +309,7 @@ export class World {
 		this.loadingComplete();
 	}
 	loadingComplete() {
+		
 		this.loaded++;
 		if( this.loaded < 2 ) return;
 		G.scene.add( this.map );
