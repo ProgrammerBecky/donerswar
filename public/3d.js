@@ -10,8 +10,8 @@ import { Particles } from './3D/Particles.js';
 import { Ants } from './3D/Ants.js';
 import { Lights } from './3D/Lights.js';
 
-G.url = '//beckyrose.com/giantrobotmechs/';
-//G.url = '/';
+//G.url = '//beckyrose.com/giantrobotmechs/';
+G.url = '/';
 G.path = '/low/';
 
 const manager = new THREE.LoadingManager();
