@@ -267,8 +267,12 @@ export class Ants {
 
 			console.log( 'making collective decision' );
 
+			const active = G.mechs.mechs.find( search => search.active );
+			if( active.length === 0 ) return;
+			
+			let targetMech;
 			do {
-				const targetMech = Math.floor( G.mechs.mechs.length * Math.random() );
+				targetMech = Math.floor( G.mechs.mechs.length * Math.random() );
 			}
 			while( ! G.mechs.mechs[ targetMech ].active );
 			self.postMessage({

@@ -9,6 +9,7 @@ export class UIInterface {
 			'Boston',
 			'Claret',
 		];
+		this.active = [true,true,true,true];
 	
 		this.loaded = false;
 		this.damage = [100,100,100,100];
@@ -47,6 +48,11 @@ export class UIInterface {
 		
 		this.launchTrigger = this.launchTrigger.bind( this );
 		this.launchGame();
+	}
+	
+	destroyedMech( mechId , status ) {
+		this.active[ mechId ] = status;
+		this.showInterface();
 	}
 	
 	fire( mech , key ) {
@@ -154,17 +160,18 @@ export class UIInterface {
 		for( let i=0 ; i<4 ; i++ ) {
 			let quad = document.createElement( 'div' );
 			quad.classList.add( 'quad-element' );
-		
-			let _btn = document.createElement( 'button' );
-			_btn.innerHTML = this.pilots[ i ];
-			_btn.onclick=() => {this._setPilot(i);}
-			_btn.classList.add( 'pilot' );
-			quad.appendChild( _btn );
 
-			this.showWeapons( i , quad );
+			if( this.active[i] ) {
+				let _btn = document.createElement( 'button' );
+				_btn.innerHTML = this.pilots[ i ];
+				_btn.onclick=() => {this._setPilot(i);}
+				_btn.classList.add( 'pilot' );
+				quad.appendChild( _btn );
+
+				this.showWeapons( i , quad );
+			}
 
 			document.getElementById('UILayer').appendChild( quad );
-			
 		}
 		
 	}
@@ -179,26 +186,29 @@ export class UIInterface {
 		
 		for( let i=0 ; i<this.pilots.length ; i++ ) {
 
-			let _btn = document.createElement( 'button' );
-			_btn.innerHTML = this.pilots[ i ];
-			if( i === this.showPilot ) {
-				_btn.onclick=() => {this._setMode( 'quad' ); }
-				_btn.classList.add( 'active' );
+			if( this.active[i] ) {
+				let _btn = document.createElement( 'button' );
+				_btn.innerHTML = this.pilots[ i ];
+				if( i === this.showPilot ) {
+					_btn.onclick=() => {this._setMode( 'quad' ); }
+					_btn.classList.add( 'active' );
+				}
+				else {
+					_btn.onclick = () => { this._setPilot( i ); }
+				}
+				_btn.classList.add( 'pilot' );
+			
+				container.appendChild( _btn );
 			}
-			else {
-				_btn.onclick = () => { this._setPilot( i ); }
-			}
-			_btn.classList.add( 'pilot' );
-		
-			container.appendChild( _btn );
-
 		}
 		document.getElementById('UILayer').appendChild( container );
 		
-		const weaponC = document.createElement( 'div' );
-		weaponC.classList.add( 'weapon-single-container' );
-		this.showWeapons( this.showPilot , weaponC );
-		document.getElementById('UILayer').appendChild( weaponC );
+		if( this.active[ this.showPilot ] ) {
+			const weaponC = document.createElement( 'div' );
+			weaponC.classList.add( 'weapon-single-container' );
+			this.showWeapons( this.showPilot , weaponC );
+			document.getElementById('UILayer').appendChild( weaponC );
+		}
 
 	}
 	

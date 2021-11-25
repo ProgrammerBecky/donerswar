@@ -369,19 +369,21 @@ export class Mech {
 		
 	spotlight( on ) {
 		
-		this.mechs[0].spotlight = on;
-		if( on ) {
-			this.mechs[0].lightRef = G.lights.registerLight({
-				x: 0,
-				z: 0,
-				f: 0,
-				splat: 4,
-				splatSize: 32,
-			});
-		}
-		else {
-			G.lights.removeLight( this.mechs[0].lightRef );
-			this.mechs[0].lightRef = false;
+		if( this.mechs[0].active ) {
+			this.mechs[0].spotlight = on;
+			if( on ) {
+				this.mechs[0].lightRef = G.lights.registerLight({
+					x: 0,
+					z: 0,
+					f: 0,
+					splat: 4,
+					splatSize: 32,
+				});
+			}
+			else {
+				G.lights.removeLight( this.mechs[0].lightRef );
+				this.mechs[0].lightRef = false;
+			}
 		}
 	}
 		
@@ -573,6 +575,17 @@ export class Mech {
 				
 				if( mech.hp < 0 ) {
 					mech.active = false;
+					
+					self.postMessage({
+						type: 'mech-status',
+						mechId: mechId,
+						status: false,
+					});						
+					
+					if( mech.lightRef ) {
+						G.lights.removeLight( mech.lightRef );
+						mech.lightRef = null;						
+					}
 					
 					G.particles.spawnSmokeEmitter({
 						x: mech.x,
