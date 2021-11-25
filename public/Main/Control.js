@@ -26,6 +26,10 @@ export class Control {
 			KeyT: false,
 			KeyY: false,
 			KeyS: false,
+			KeyF: false,
+			Digit1: false,
+			Digit2: false,
+			Digit3: false,
 		};
 		
 		this.cameraType = 'rts';
@@ -123,10 +127,10 @@ export class Control {
 	}
 	keydown( e ) {
 		const cam = this.detectCam( e );
-		
+		console.log( e );
 		if( this.keypresses[ e.code ] === false ) {
 			this.keypresses[ e.code ] = true;
-	
+
 			if( e.code === 'KeyQ' ) this.ui.fire( cam, 'Q' );
 			else if( e.code === 'KeyW' ) this.ui.fire( cam, 'W' );
 			else if( e.code === 'KeyE' ) this.ui.fire( cam, 'E' );
@@ -134,6 +138,10 @@ export class Control {
 			else if( e.code === 'KeyT' ) this.ui.fire( cam, 'T' );
 			else if( e.code === 'KeyY' ) this.ui.fire( cam, 'Y' );
 			else if( e.code === 'KeyS' ) this.ui.fire( cam, 'S' );
+			else if( e.code === 'KeyF' ) this.ui.fire( cam, 'F' );
+			else if( e.code === 'Digit1' ) this.ui.fire( cam, '1' );
+			else if( e.code === 'Digit2' ) this.ui.fire( cam, '2' );
+			else if( e.code === 'Digit3' ) this.ui.fire( cam, '3' );
 		}
 		
 	}
