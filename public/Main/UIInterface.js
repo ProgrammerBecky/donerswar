@@ -268,7 +268,7 @@ export class UIInterface {
 	}
 	updateLoadingProgress({ url, itemsLoaded, itemsTotal }) {
 		document.getElementById('SplashUrl').innerHTML = url;
-		document.getElementById('SplashProgress').value = itemsLoaded*100/Math.max( itemsTotal , 755 );
+		document.getElementById('SplashProgress').value = itemsLoaded*100/Math.max( itemsTotal , 770 );
 		this.loaded = ( itemsLoaded === itemsTotal ) ? true : false;
 		this.beginGame();
 	}
