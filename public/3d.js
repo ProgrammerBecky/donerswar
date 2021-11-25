@@ -119,7 +119,7 @@ const animate = ( time ) => {
 							G.cockpit.visible = true;
 							G.cockpit.position.set( G.camera[camIndex].position.x , G.camera[camIndex].position.y , G.camera[camIndex].position.z );
 							let rotation = G.mechs.mechs[ camIndex ].ent.rotation.y + G.mechs.mechs[ camIndex ].cockpit_bevel.rotation.y
-							G.cockpit.rotation.set( G.cameraPan[camIndex].x , Math.PI + rotation , 0 );
+							G.cockpit.rotation.set( G.cameraPan[camIndex].x * 0.8 , Math.PI + rotation , 0 );
 							
 						}
 						else {
@@ -314,17 +314,32 @@ onmessage = (e) => {
 				normalMap: G.texture.load( G.path + 'cockpit/Textures/Body/Weathered/VA_LightFighterCockpit_Weathered_Normal.png' ),
 				metalness: 1,
 				roughness: 1,
+				color: new THREE.Color( 10,10,10 ),
 				metalnessMap: G.texture.load( G.path + 'cockpit/Textures/Body/Weathered/VA_LightFighterCockpit_Weathered_Metallic.png' ),
 				roughnessMap: G.texture.load( G.path + 'cockpit/Textures/Body/Weathered/VA_LightFighterCockpit_Weathered_Roughness.png' ),
+				AOMap: G.texture.load( G.path + 'cockpit/Textures/Body/VA_LightFighterCockpit_AmbientOcclusion.png' ),
+				emissive: new THREE.Color(0.5,0.5,0.5),
+				emissiveMap: G.texture.load( G.path + 'cockpit/Textures/Body/VA_LightFighterCockpit_Emissive.png' ),
 				envMap: G.environmentMap,
+				depthFunc: THREE.AlwaysDepth,
 			});
 			let glassMat = new THREE.MeshStandardMaterial({
 				transparent: true,
 				metalness: 1,
 				roughness: 1,
+				color: new THREE.Color( 10,10,10 ),
 				metalnessMap: G.texture.load( G.path + 'cockpit/Textures/Glass/DirtyScratched/VA_LightFighterCockpit_GlassDirtScratch_Metallic.png' ),
 				roughnessMap: G.texture.load( G.path + 'cockpit/Textures/Glass/DirtyScratched/VA_LightFighterCockpit_GlassDirtScratch_Roughness.png' ),
 				envMap: G.environmentMap,
+				depthTest: false,
+				depthWrite: false,
+			});
+			let screenMat = new THREE.MeshStandardMaterial({
+				envMap: G.environmentMap,
+				color: new THREE.Color( 10,10,10 ),
+				metalness: 0.6,
+				roughness: 0,
+				depthTest: false,
 				depthWrite: false,
 			});
 			let loadedCockpitMat = false;
@@ -343,6 +358,10 @@ onmessage = (e) => {
 						glassMat.map = child.material.map;
 						glassMat = G.lights.applyLightMap( glassMat );
 						child.material = glassMat;
+					}
+					else if( child.material.name.indexOf( 'MainScreen' ) === 0 ) {
+						screenMat.map = screenMat.emissiveMap;
+						child.material = screenMat;
 					}
 				}
 			});

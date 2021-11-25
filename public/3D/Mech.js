@@ -48,7 +48,7 @@ export class Mech {
 				"spotlight": false,
 				"hp": 100,
 				"maxHp": 100,
-				"cockpitHeight": 200
+				"cockpitHeight": 250
 			},
 			{
 				"assembly":{
@@ -80,7 +80,7 @@ export class Mech {
 				"lightRef": false,
 				"hp": 100,
 				"maxHp": 100,
-				"cockpitHeight": 200
+				"cockpitHeight": 250
 			},
 			{
 				"assembly":{
@@ -139,7 +139,7 @@ export class Mech {
 				"lightRef": false,
 				"hp": 150,
 				"maxHp": 150,
-				"cockpitHeight": 200
+				"cockpitHeight": 250
 			},
 			{
 				"assembly":{
@@ -195,7 +195,7 @@ export class Mech {
 				"lightRef": false,
 				"hp": 150,
 				"maxHp": 150,
-				"cockpitHeight": 200
+				"cockpitHeight": 250
 			},
 		];
 
