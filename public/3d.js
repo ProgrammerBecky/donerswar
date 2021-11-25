@@ -120,10 +120,11 @@ const animate = ( time ) => {
 							G.cockpit.position.set( G.camera[camIndex].position.x , G.camera[camIndex].position.y , G.camera[camIndex].position.z );
 							let rotation = G.mechs.mechs[ camIndex ].ent.rotation.y + G.mechs.mechs[ camIndex ].cockpit_bevel.rotation.y
 							G.cockpit.rotation.set( G.cameraPan[camIndex].x * 0.8 , Math.PI + rotation , 0 );
-							
+							G.mechs.mechs[camIndex].cockpit_bevel.visible = false;
 						}
 						else {
 							G.cockpit.visible = false;
+							G.mechs.mechs[camIndex].cockpit_bevel.visible = true;
 						}
 					}
 					G.renderer.setViewport( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );

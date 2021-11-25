@@ -139,7 +139,7 @@ export class Mech {
 				"lightRef": false,
 				"hp": 150,
 				"maxHp": 150,
-				"cockpitHeight": 250
+				"cockpitHeight": 300
 			},
 			{
 				"assembly":{
@@ -147,8 +147,8 @@ export class Mech {
 					"hips": G.path+"mechs/Hips0.glb",
 					"cockpit": G.path+"mechs/Cockpit3.glb",
 					"backpack": G.path+"mechs/Backpack_Ballons.glb",
-					"shoulderL": G.path+"mechs/HalfShoulder_Shield.glb",
-					"shoulderR": G.path+"mechs/RHalfShoulder_Shield.glb",
+					"shoulderL": G.path+"mechs/HalfShoulder_Elf.glb",
+					"shoulderR": G.path+"mechs/RHalfShoulder_Elf.glb",
 					"weaponL": G.path+"mechs/Weapons_rockets_2x_lvl5.glb",
 					"weaponR": G.path+"mechs/Weapons_rockets_2x_lvl5.glb",
 					"weaponSL": G.path+"mechs/TopWeapons_rockets_1x_lvl5.glb",
@@ -195,7 +195,7 @@ export class Mech {
 				"lightRef": false,
 				"hp": 150,
 				"maxHp": 150,
-				"cockpitHeight": 250
+				"cockpitHeight": 300
 			},
 		];
 
