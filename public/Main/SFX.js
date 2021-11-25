@@ -7,10 +7,10 @@ export class SFX {
 		
 		this.vumeterCreate = this.vumeterCreate.bind( this );
 		this.vuMin = new Image();
-		this.vuMin.src = '/intro/vuMin.png';
+		this.vuMin.src = 'intro/vuMin.png';
 		
 		this.vuMax = new Image();
-		this.vuMax.src = '/intro/vuMax.png';
+		this.vuMax.src = 'intro/vuMax.png';
 
 		this.canvas = document.getElementById( 'vumeter' );
 		this.canvas.width = 1920;
@@ -38,6 +38,7 @@ export class SFX {
 			'ant2',
 			'ant3',
 			'ant4',
+			'step',
 		].map( sound => this.loadSound(sound) );
 	}
 	
@@ -47,15 +48,18 @@ export class SFX {
 		});
 	}
 
-	playMainTheme() {
-		this.themeMusic = new THREE.Audio( this.listener );
-		this.loader.load( G.url + `sfx/theme.mp3` , buffer => {
+	playTheme( theme , volume = 0.1 ) {
+		
+		if( this.themeMusic ) this.themeMusic.stop();
+		
+		this.loader.load( G.url + `sfx/${theme}.mp3` , buffer => {
+			this.themeMusic = new THREE.Audio( this.listener );
 			this.themeMusic.setBuffer( buffer );
-			this.themeMusic.setLoop( false );
-			this.themeMusic.setVolume( 0.5 );
+			this.themeMusic.setLoop( true );
+			this.themeMusic.setVolume( volume );
 			this.themeMusic.play();
 			
-			this.vumeterCreate();
+			if( theme === 'theme' ) this.vumeterCreate();
 		});
 	}
 
@@ -105,7 +109,7 @@ export class SFX {
 		this.analyser.getByteTimeDomainData( this.fft );
 	}
 	
-	playSound( sfx, volume , x=false , y=false, z=false ) {
+	playSound( sfx, volume=false , x=false , y=false, z=false ) {
 
 		if( ! volume ) {
 
@@ -113,7 +117,7 @@ export class SFX {
 			const dy = y - this.camera.y;
 			const dz = z - this.camera.z;
 			const dr = Math.sqrt( dx*dx + dy*dy + dz*dz );
-			const volume = 1 - dr/15000;
+			const volume = Math.min( 1 , Math.max( 0 , 1 - dr/15000 ) );
 
 			const sound = new THREE.PositionalAudio( this.listener );
 			sound.setVolume( volume );

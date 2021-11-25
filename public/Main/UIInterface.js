@@ -263,7 +263,7 @@ export class UIInterface {
 	}
 	launchTrigger( gfxSetting ) {
 		document.getElementById( 'GFXSelect' ).style.display = 'none';
-		G.sfx.playMainTheme();
+		G.sfx.playTheme( 'theme' , 0.5 );
 		G.initThreeD( gfxSetting );
 	}
 	updateLoadingProgress({ url, itemsLoaded, itemsTotal }) {
@@ -282,6 +282,7 @@ export class UIInterface {
 			document.getElementById('StartGame').style.opacity = 1;
 			document.getElementById('SplashProgress').style.opacity = 0;
 			document.getElementById('StartGame').addEventListener( 'click' , (e) => {
+				G.sfx.playTheme( 'gameloop1' );
 				G.control.startGame();
 				document.getElementById('Splash').style.display = 'none';
 				G.threeD.postMessage({

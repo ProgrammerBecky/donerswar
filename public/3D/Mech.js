@@ -227,6 +227,7 @@ export class Mech {
 			object.machineGunShots = [];
 			object.routeCheck = 0;
 			object.directRoute = false;
+			object.stepSound = 0;
 			this.loadAssembly({ object });
 		});
 		
@@ -525,6 +526,8 @@ export class Mech {
 		
 	setAnimation({ mech }) {
 
+		if( mech.action !== 'Walk' ) mech.stepSound = 0;
+
 		if( mech.animAction ) {
 			mech.animAction.stop();
 		}
@@ -705,8 +708,36 @@ export class Mech {
 							}
 						}
 					});
-								
 					
+					//Sound
+					if( mech.action === 'Walk' ) {
+						let step = false;
+						if( mech.stepSound === 0 ) {
+							if( mech.animAction.time > 0.1 ) {
+								mech.stepSound = 1;
+								step = true;
+							}
+						}
+						else if( mech.stepSound === 1 ) {
+							if( mech.animAction.time > 0.6 ) {
+								mech.stepSound = 2;
+								step = true;
+							}
+						}
+						else if( mech.stepSound === 2 ) {
+							if( mech.animAction.time < 0.2 ) {
+								mech.stepSound = 0;
+							}
+						}
+						if( step ) {
+							self.postMessage({
+								type: 'sound',
+								sfx: 'step',
+								x: mech.x, y: mech.y, z: mech.z
+							});
+						}
+					}
+						
 				}
 				
 			}
