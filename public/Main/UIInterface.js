@@ -217,6 +217,7 @@ export class UIInterface {
 			
 			const _row = document.createElement( 'div' );
 			_row.classList.add( 'weapon' );
+			_row.setAttribute( 'data-key' , weapon.key );
 			if( weapon.active ) _row.classList.add( 'active' );
 			
 			let _key = document.createElement( 'div' );

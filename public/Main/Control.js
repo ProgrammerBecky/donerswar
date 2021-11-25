@@ -105,6 +105,18 @@ export class Control {
 	}
 	mousedown( e ) {
 		if( ! e.target instanceof HTMLCanvasElement ) return;
+		if( e.target.classList.contains('pilot') ) return;
+
+		let node = e.target;
+		while( node.classList ) {
+			if( node.classList.contains( 'weapon' ) ) {
+				const key = node.getAttribute( 'data-key' );
+				return this.ui.fire( this.detectCam( e ), key );
+			}
+			else {
+				node = node.parentNode;
+			}
+		}
 		if( e.button === 0 ) this.button.left = true;
 		if( e.button === 1 ) this.button.middle = true;
 		if( e.button === 2 ) this.button.right = true;

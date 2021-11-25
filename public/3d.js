@@ -58,6 +58,7 @@ G.frustum = [
 ]
 
 /* Render loop */
+let screenMap;
 let trackTime = 0;
 let gameSpeed = 0;
 let audioCam = 0;
@@ -120,6 +121,8 @@ const animate = ( time ) => {
 							G.cockpit.position.set( G.camera[camIndex].position.x , G.camera[camIndex].position.y , G.camera[camIndex].position.z );
 							let rotation = G.mechs.mechs[ camIndex ].ent.rotation.y + G.mechs.mechs[ camIndex ].cockpit_bevel.rotation.y
 							G.cockpit.rotation.set( G.cameraPan[camIndex].x * 0.8 , Math.PI + rotation , 0 );
+							G.mechs.mechs[camIndex].cockpit_bevel.visible = false;
+							screenMap.rotation =  G.mechs.mechs[ camIndex ].cockpit_bevel.rotation.y;
 						}
 						else {
 							G.cockpit.visible = false;
@@ -128,6 +131,9 @@ const animate = ( time ) => {
 					G.renderer.setViewport( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
 					G.renderer.setScissor( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
 					G.renderer.render( G.scene , G.camera[camIndex] );
+					if( G.mechs.mechs[ camIndex ].cockpit_bevel ) {
+						G.mechs.mechs[camIndex].cockpit_bevel.visible = true;
+					}
 				}
 			}
 		}
@@ -333,13 +339,19 @@ onmessage = (e) => {
 				depthTest: false,
 				depthWrite: false,
 			});
+			screenMap = G.texture.load( G.path + 'dashboard.png' );
+			screenMap.wrapS = screenMap.wrapT = THREE.RepeatMapping;
+			screenMap.center = new THREE.Vector2( 1.5 , 0.5 );
+			screenMap.flipY = true;
 			let screenMat = new THREE.MeshStandardMaterial({
+				map: screenMap,
+				color: new THREE.Color( 1,1,1 ),
+				emissiveMap: screenMap,
+				emissive: new THREE.Color( 0.5 , 0.5 , 0.5 ),
 				envMap: G.environmentMap,
-				color: new THREE.Color( 10,10,10 ),
-				metalness: 0.6,
+				metalness: 0.3,
 				roughness: 0,
-				depthTest: false,
-				depthWrite: false,
+				depthFunc: THREE.AlwaysDepth,
 			});
 			let loadedCockpitMat = false;
 			
@@ -359,7 +371,6 @@ onmessage = (e) => {
 						child.material = glassMat;
 					}
 					else if( child.material.name.indexOf( 'MainScreen' ) === 0 ) {
-						screenMat.map = screenMat.emissiveMap;
 						child.material = screenMat;
 					}
 				}
