@@ -620,15 +620,18 @@ export class Ants {
 		let rawRng = 5000;
 		
 		G.mechs.mechs.map( mech => {
-			
-			let dx = mech.x - ant.x;
-			let dz = mech.z - ant.z;
-			let dr = Math.sqrt( dx*dx + dz*dz );
-			if( mech.spotlight ) dr *= 0.5;
-			if( dr < rng ) {
-				rng = dr;
-				tMech = mech;
-				rawRng = ( mech.spotlight ) ? dr * 2 : dr;
+			if( mech.active ) {
+				
+				let dx = mech.x - ant.x;
+				let dz = mech.z - ant.z;
+				let dr = Math.sqrt( dx*dx + dz*dz );
+				if( mech.spotlight ) dr *= 0.5;
+				if( dr < rng ) {
+					rng = dr;
+					tMech = mech;
+					rawRng = ( mech.spotlight ) ? dr * 2 : dr;
+				}
+				
 			}
 		});
 		

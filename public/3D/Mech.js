@@ -46,8 +46,8 @@ export class Mech {
 				],
 				"lightRef": "Spotlight",
 				"spotlight": false,
-				"hp": 100,
-				"maxHp": 100,
+				"hp": 10,
+				"maxHp": 10,
 				"cockpitHeight": 250
 			},
 			{
@@ -78,8 +78,8 @@ export class Mech {
 					}	
 				],
 				"lightRef": false,
-				"hp": 100,
-				"maxHp": 100,
+				"hp": 20,
+				"maxHp": 20,
 				"cockpitHeight": 250
 			},
 			{
@@ -137,8 +137,8 @@ export class Mech {
 					}					
 				],
 				"lightRef": false,
-				"hp": 150,
-				"maxHp": 150,
+				"hp": 40,
+				"maxHp": 40,
 				"cockpitHeight": 300
 			},
 			{
@@ -193,8 +193,8 @@ export class Mech {
 					}
 				],
 				"lightRef": false,
-				"hp": 150,
-				"maxHp": 150,
+				"hp": 40,
+				"maxHp": 40,
 				"cockpitHeight": 300
 			},
 		];
@@ -228,6 +228,8 @@ export class Mech {
 			object.routeCheck = 0;
 			object.directRoute = false;
 			object.stepSound = 0;
+			object.active = true;
+			object.explodeStage = 0;
 			this.loadAssembly({ object });
 		});
 		
@@ -558,188 +560,259 @@ export class Mech {
 		
 	update( delta ) {
 		this.mechs.map( (mech,mechId) => {
-			if( mech.mixer ) {
-		
-				//Manual Control
-				if( G.controls.mech === mechId ) {
-					let action = ( mech.route ) ? 'Walk' : 'Idle';
-					if( G.controls.W || G.controls.A || G.controls.D ) {
-						mech.route = false;
-						action = 'Walk';
-						this.applyControls({ mech , delta });
-					}
-					if( mech.action !== action ) {
-						mech.action = action;
-						this.setAnimation({ mech });
-					}
+			if( mech.hp <= 0 && mech.explodeStage !== 0 ) {
+				mech.explodeTimer += delta;
+				if( mech.explodeStage === 1 && mech.explodeTimer > 0.5 && mech.explodeRef.length > 0 ) {
+					mech.explodeTimer -= 0.5;
+					const lightRef = mech.explodeRef.shift();
+					G.lights.removeLight( lightRef );
+					if( mech.explodeRef.length === 0 ) mech.explodeStage = 0;
 				}
+			}
+			if( mech.active ) {
 				
-				//action
-				if( mech.route ) {
-					this.followRoute({ mech, delta });
-				}
-				else if( ! mech.action ) {
-					mech.action = 'Idle';
-					this.setAnimation({ mech });
-				}
-
-				mech.mixer.update( delta );
-				mech.ent.updateMatrixWorld(true);
-				
-				//Update Lights
-				if( mech.muzzleFlashes.length > 0 ) {
-					mech.muzzleFlashes.map( (flash,index) => {
-						if( flash.duration < 0 ) {
-							if( flash.laserEnt ) {
-								G.scene.remove( flash.laserEnt );
-							}
-							G.lights.removeLight( flash.lightId );
-							mech.muzzleFlashes.splice( index , 1 );
-							G.lights.needsUpdate = true;
-							if( flash.isLaser ) {
-								self.postMessage({
-									type: 'weapon-discharged',
-									mechId: mechId,
-									gunId: flash.gunId,
-								});
-							}
-						}
-						else {
-							if( flash.barrelEnd ) {
-								let rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y + flash.mount.rotation.y;
-
-								flash.barrelEnd.updateWorldMatrix();
-								this.vector.set(
-									flash.barrelEnd.position.x,
-									flash.barrelEnd.position.y,
-									flash.barrelEnd.position.z
-								);
-								this.vector.applyMatrix4( flash.barrelEnd.matrixWorld );
-
-								if( flash.isLaser ) {
-									flash.laserTimer += delta;
-									
-									const rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y + flash.mount.rotation.y;
-									this.dir.set( Math.sin( rotation ) , Math.sin( -flash.mount.rotation.x ) , Math.cos( rotation ) );										
-
-									const hitTarget = this.shootLaser({ laser: flash });
-									
-									if( flash.laserTimer > 0 ) {
-										while( flash.laserTimer > 0 ) {
-											flash.laserTimer -= 0.1;
-											if( hitTarget ) {
-												G.world.destroy( hitTarget.point.x , hitTarget.point.z , 500 , 4 , hitTarget.object , true );
-											}
-										}
-									}
-								}
-
-								G.lights.updateLight({
-									lightId: flash.lightId,
-									x: this.vector.x + Math.cos( rotation ) * flash.offsetX,
-									z: this.vector.z - Math.sin( rotation ) * flash.offsetX,
-									f: rotation
-								});
-								G.lights.needsUpdate = true;
-							}
-						}
-						flash.duration -= delta;
+				if( mech.hp < 0 ) {
+					mech.active = false;
+					
+					G.particles.spawnSmokeEmitter({
+						x: mech.x,
+						y: 0,
+						z: mech.z,
+						duration: 5,
+						size: 50,
+						ringDensity: 16,
+						speed: 100,
+						drift: 200,
+						emitFrequency: 0.05
 					});
-				}
-				
-				//FPS Camera
-				G.camera[mech.id].position.set( mech.ent.position.x , mech.ent.position.y + 1800 , mech.ent.position.z );
-				G.camera[mech.id].rotation.set( G.cameraPan[mech.id].x , Math.PI + G.cameraPan[mech.id].y + mech.ent.rotation.y , 0 );
-				G.camera[mech.id].translateZ( G.cameraZoom[mech.id] );
-				
-				//Rotate Body
-				if( mech.cockpit_bevel ) {
-					const right = G.cameraPan[mech.id].y - mech.cockpit_bevel.rotation.y;
-					const left = mech.cockpit_bevel.rotation.y - G.cameraPan[mech.id].y;
-					const rotSpeed = delta * 1.5;
-					if( right > left ) {
-						if( right > rotSpeed ) {
-							mech.cockpit_bevel.rotation.y += rotSpeed;
-						}
-						else {
-							mech.cockpit_bevel.rotation.y = G.cameraPan[mech.id].y;
-						}
-					}
-					else if( left > right ) {
-						if( left > rotSpeed ) {
-							mech.cockpit_bevel.rotation.y -= rotSpeed;
-						}
-						else {
-							mech.cockpit_bevel.rotation.y = G.cameraPan[mech.id].y;
-						}
-					}
-
-					this.aim({
-						object: mech,
-						pan: G.cameraPan[mech.id],
-						facing: mech.cockpit_bevel.rotation.y,
-					});
-
-					//Spotlight
-					if( mech.lightRef !== false && mech.spotlight ) {
-						const lightF = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y;
-						G.lights.updateLight({
-							lightId: mech.lightRef,
-							x: mech.ent.position.x + Math.sin( lightF ) * 5312.5,
-							z: mech.ent.position.z + Math.cos( lightF ) * 5312.5,
-							f: lightF,
-						});
-						G.lights.needsUpdate=true;				
+					
+					let f=0;
+					while( f < Math.PI*2 ) {
+					
+						G.particles.spawnRocket({
+							x: mech.x,
+							y: 1200 + Math.random() * 500,
+							z: mech.z,
+							dir: new THREE.Vector3( (Math.PI/2) * ( 0.8 + Math.random() * 0.1 ) , f , 0 ),
+							speed: 150 + Math.random() * 200,
+							duration: 0.5 + Math.random(),
+							arc: 0.002
+						});		
+					
+						f += Math.random() * 0.5;
 					}
 					
-					//Machineguns
-					mech.machineGunShots.map( (shot,index) => {
-						if( shot > 0 ) {
-							mech.machineGunFiring[index] += delta;
-							while( mech.machineGunFiring[index] > 0 ) {
-								this.fireWeapon( mechId , index , true );
-								if( mech.machineGunShots[index] <= 0 ) {
+					mech.explodeTimer = 0;
+					mech.explodeStage = 1;
+					mech.explodeRef = [
+						G.lights.registerLight({
+							x: mech.x,
+							z: mech.z,
+							f: 0,
+							splat: 2,
+							splatSize: 32,
+						}),
+						G.lights.registerLight({
+							x: mech.x,
+							z: mech.z,
+							f: 0,
+							splat: 2,
+							splatSize: 32,
+						}),
+						G.lights.registerLight({
+							x: mech.x,
+							z: mech.z,
+							f: 0,
+							splat: 2,
+							splatSize: 32,
+						}),
+					];
+					
+					
+				}
+				if( mech.mixer ) {
+			
+					//Manual Control
+					if( G.controls.mech === mechId ) {
+						let action = ( mech.route ) ? 'Walk' : 'Idle';
+						if( G.controls.W || G.controls.A || G.controls.D ) {
+							mech.route = false;
+							action = 'Walk';
+							this.applyControls({ mech , delta });
+						}
+						if( mech.action !== action ) {
+							mech.action = action;
+							this.setAnimation({ mech });
+						}
+					}
+					
+					//action
+					if( mech.route ) {
+						this.followRoute({ mech, delta });
+					}
+					else if( ! mech.action ) {
+						mech.action = 'Idle';
+						this.setAnimation({ mech });
+					}
+
+					mech.mixer.update( delta );
+					mech.ent.updateMatrixWorld(true);
+					
+					//Update Lights
+					if( mech.muzzleFlashes.length > 0 ) {
+						mech.muzzleFlashes.map( (flash,index) => {
+							if( flash.duration < 0 ) {
+								if( flash.laserEnt ) {
+									G.scene.remove( flash.laserEnt );
+								}
+								G.lights.removeLight( flash.lightId );
+								mech.muzzleFlashes.splice( index , 1 );
+								G.lights.needsUpdate = true;
+								if( flash.isLaser ) {
 									self.postMessage({
 										type: 'weapon-discharged',
 										mechId: mechId,
-										gunId: index,
+										gunId: flash.gunId,
 									});
 								}
 							}
-						}
-					});
-					
-					//Sound
-					if( mech.action === 'Walk' ) {
-						let step = false;
-						if( mech.stepSound === 0 ) {
-							if( mech.animAction.time > 0.1 ) {
-								mech.stepSound = 1;
-								step = true;
+							else {
+								if( flash.barrelEnd ) {
+									let rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y + flash.mount.rotation.y;
+
+									flash.barrelEnd.updateWorldMatrix();
+									this.vector.set(
+										flash.barrelEnd.position.x,
+										flash.barrelEnd.position.y,
+										flash.barrelEnd.position.z
+									);
+									this.vector.applyMatrix4( flash.barrelEnd.matrixWorld );
+
+									if( flash.isLaser ) {
+										flash.laserTimer += delta;
+										
+										const rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y + flash.mount.rotation.y;
+										this.dir.set( Math.sin( rotation ) , Math.sin( -flash.mount.rotation.x ) , Math.cos( rotation ) );										
+
+										const hitTarget = this.shootLaser({ laser: flash });
+										
+										if( flash.laserTimer > 0 ) {
+											while( flash.laserTimer > 0 ) {
+												flash.laserTimer -= 0.1;
+												if( hitTarget ) {
+													G.world.destroy( hitTarget.point.x , hitTarget.point.z , 500 , 4 , hitTarget.object , true );
+												}
+											}
+										}
+									}
+
+									G.lights.updateLight({
+										lightId: flash.lightId,
+										x: this.vector.x + Math.cos( rotation ) * flash.offsetX,
+										z: this.vector.z - Math.sin( rotation ) * flash.offsetX,
+										f: rotation
+									});
+									G.lights.needsUpdate = true;
+								}
 							}
-						}
-						else if( mech.stepSound === 1 ) {
-							if( mech.animAction.time > 0.6 ) {
-								mech.stepSound = 2;
-								step = true;
-							}
-						}
-						else if( mech.stepSound === 2 ) {
-							if( mech.animAction.time < 0.2 ) {
-								mech.stepSound = 0;
-							}
-						}
-						if( step ) {
-							self.postMessage({
-								type: 'sound',
-								sfx: 'step',
-								x: mech.x, y: mech.y, z: mech.z
-							});
-						}
+							flash.duration -= delta;
+						});
 					}
+					
+					//FPS Camera
+					G.camera[mech.id].position.set( mech.ent.position.x , mech.ent.position.y + 1800 , mech.ent.position.z );
+					G.camera[mech.id].rotation.set( G.cameraPan[mech.id].x , Math.PI + G.cameraPan[mech.id].y + mech.ent.rotation.y , 0 );
+					G.camera[mech.id].translateZ( G.cameraZoom[mech.id] );
+					
+					//Rotate Body
+					if( mech.cockpit_bevel ) {
+						const right = G.cameraPan[mech.id].y - mech.cockpit_bevel.rotation.y;
+						const left = mech.cockpit_bevel.rotation.y - G.cameraPan[mech.id].y;
+						const rotSpeed = delta * 1.5;
+						if( right > left ) {
+							if( right > rotSpeed ) {
+								mech.cockpit_bevel.rotation.y += rotSpeed;
+							}
+							else {
+								mech.cockpit_bevel.rotation.y = G.cameraPan[mech.id].y;
+							}
+						}
+						else if( left > right ) {
+							if( left > rotSpeed ) {
+								mech.cockpit_bevel.rotation.y -= rotSpeed;
+							}
+							else {
+								mech.cockpit_bevel.rotation.y = G.cameraPan[mech.id].y;
+							}
+						}
+
+						this.aim({
+							object: mech,
+							pan: G.cameraPan[mech.id],
+							facing: mech.cockpit_bevel.rotation.y,
+						});
+
+						//Spotlight
+						if( mech.lightRef !== false && mech.spotlight ) {
+							const lightF = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y;
+							G.lights.updateLight({
+								lightId: mech.lightRef,
+								x: mech.ent.position.x + Math.sin( lightF ) * 5312.5,
+								z: mech.ent.position.z + Math.cos( lightF ) * 5312.5,
+								f: lightF,
+							});
+							G.lights.needsUpdate=true;				
+						}
 						
+						//Machineguns
+						mech.machineGunShots.map( (shot,index) => {
+							if( shot > 0 ) {
+								mech.machineGunFiring[index] += delta;
+								while( mech.machineGunFiring[index] > 0 ) {
+									this.fireWeapon( mechId , index , true );
+									if( mech.machineGunShots[index] <= 0 ) {
+										self.postMessage({
+											type: 'weapon-discharged',
+											mechId: mechId,
+											gunId: index,
+										});
+									}
+								}
+							}
+						});
+						
+						//Sound
+						if( mech.action === 'Walk' ) {
+							let step = false;
+							if( mech.stepSound === 0 ) {
+								if( mech.animAction.time > 0.1 ) {
+									mech.stepSound = 1;
+									step = true;
+								}
+							}
+							else if( mech.stepSound === 1 ) {
+								if( mech.animAction.time > 0.6 ) {
+									mech.stepSound = 2;
+									step = true;
+								}
+							}
+							else if( mech.stepSound === 2 ) {
+								if( mech.animAction.time < 0.2 ) {
+									mech.stepSound = 0;
+								}
+							}
+							if( step ) {
+								self.postMessage({
+									type: 'sound',
+									sfx: 'step',
+									x: mech.x, y: mech.y, z: mech.z
+								});
+							}
+						}
+							
+					}
+					
 				}
-				
 			}
 		});
 	}
