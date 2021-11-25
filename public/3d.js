@@ -14,6 +14,13 @@ import { Lights } from './3D/Lights.js';
 G.url = '/';
 G.path = '/low/';
 
+G.controls = {
+	mech: 0,
+	W: false,
+	A: false,
+	D: false,
+}
+
 const manager = new THREE.LoadingManager();
 manager.onProgress = ( url , itemsLoaded , itemsTotal ) => {
 	self.postMessage({
@@ -115,13 +122,13 @@ const animate = ( time ) => {
 			
 					G.world.updateForCam( camIndex );
 					G.zombies.updateForCam( camIndex );
-					if( G.cockpit && G.mechs.mechs[ camIndex ].cockpit_bevel ) {
+					if( G.cockpit && G.mechs.mechs[ camIndex ].cockpit_bevel && G.mechs.mechs[camIndex].cockpit_object ) {
 						if( G.cameraZoom[ camIndex ] === 1500 ) {
 							G.cockpit.visible = true;
 							G.cockpit.position.set( G.camera[camIndex].position.x , G.camera[camIndex].position.y , G.camera[camIndex].position.z );
 							let rotation = G.mechs.mechs[ camIndex ].ent.rotation.y + G.mechs.mechs[ camIndex ].cockpit_bevel.rotation.y
 							G.cockpit.rotation.set( G.cameraPan[camIndex].x * 0.8 , Math.PI + rotation , 0 );
-							G.mechs.mechs[camIndex].cockpit_bevel.visible = false;
+							G.mechs.mechs[camIndex].cockpit_object.children[1].visible = false;
 							screenMap.rotation =  G.mechs.mechs[ camIndex ].cockpit_bevel.rotation.y;
 						}
 						else {
@@ -131,8 +138,8 @@ const animate = ( time ) => {
 					G.renderer.setViewport( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
 					G.renderer.setScissor( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
 					G.renderer.render( G.scene , G.camera[camIndex] );
-					if( G.mechs.mechs[ camIndex ].cockpit_bevel ) {
-						G.mechs.mechs[camIndex].cockpit_bevel.visible = true;
+					if( G.mechs.mechs[camIndex].cockpit_object ) {
+						G.mechs.mechs[camIndex].cockpit_object.children[1].visible = true;
 					}
 				}
 			}
@@ -232,6 +239,14 @@ onmessage = (e) => {
 			width: e.data.width,
 			height: e.data.height,
 		});
+	}
+	else if( e.data.type === 'mech-control' ) {
+		G.controls = {
+			mech: e.data.mech,
+			W: e.data.W,
+			A: e.data.A,
+			D: e.data.D,
+		};
 	}
 	else if( e.data.type === 'cameras-on-off' ) {
 		G.cameraViews = e.data.cameras;

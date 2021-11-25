@@ -179,5 +179,7 @@ const animate = ( time ) => {
 		if( zombie ) zombie.update( delta );
 	}
 	
+	if( G.sfx.analyser ) G.sfx.vumeterPlayback();
+	
 	requestAnimationFrame( animate );
 }			

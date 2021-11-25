@@ -4,6 +4,20 @@ import { G } from './G.js';
 export class SFX {
 
 	constructor() {
+		
+		this.vumeterCreate = this.vumeterCreate.bind( this );
+		this.vuMin = new Image();
+		this.vuMin.src = '/intro/vuMin.png';
+		
+		this.vuMax = new Image();
+		this.vuMax.src = '/intro/vuMax.png';
+
+		this.canvas = document.getElementById( 'vumeter' );
+		this.canvas.width = 1920;
+		this.canvas.height = 1080;
+		this.context = this.canvas.getContext( '2d' );
+		
+		
 		this.camera = { x: 0 , y: 0 , z: 0 };
 		this.listener = new THREE.AudioListener();
 		this.loader = new THREE.AudioLoader();
@@ -40,7 +54,55 @@ export class SFX {
 			this.themeMusic.setLoop( false );
 			this.themeMusic.setVolume( 0.5 );
 			this.themeMusic.play();
+			
+			this.vumeterCreate();
 		});
+	}
+
+	
+	vuMeterEnd() {
+		this.analyser = false;
+	}
+	vumeterPlayback() {
+		if( this.vuMin && this.vuMax ) {
+			
+			this.analyser.getByteFrequencyData( this.fft );
+			
+			const canvasWidth = this.canvas.width;
+			const vuWidth = 58;
+			
+			this.fft.map( (fft,index) => {
+				
+				const x=1920*index/28;
+				if( x < 1920 ) {
+					const y=565 - ( fft*565/256 );
+					const w=28/1920;
+					const oy = 565 - y;
+
+					this.context.drawImage(
+						this.vuMin, 0, 0, 58, y,
+							x, 0, 58, y);
+
+					this.context.drawImage(
+						this.vuMax, 0, y, 58, oy,
+							x, y, 58, oy);
+				}
+			});
+		}
+	}
+
+	vumeterCreate() {
+		const context = this.themeMusic.context;
+		const source = this.themeMusic.source;
+		this.analyser = context.createAnalyser();
+		
+		source.connect( this.analyser );
+		this.analyser.fftSize = 64;
+		
+		const bufferLength = this.analyser.frequencyBinCount;
+		this.fft = new Uint8Array( bufferLength );
+		
+		this.analyser.getByteTimeDomainData( this.fft );
 	}
 	
 	playSound( sfx, volume , x=false , y=false, z=false ) {

@@ -433,6 +433,7 @@ export class Mech {
 				self.animationSetup({object});
 			}
 					
+			if( mount ) object.cockpit_object = result.scene;					
 			self.loadAssembly({ object });
 			
 		});
@@ -555,6 +556,20 @@ export class Mech {
 	update( delta ) {
 		this.mechs.map( (mech,mechId) => {
 			if( mech.mixer ) {
+		
+				//Manual Control
+				if( G.controls.mech === mechId ) {
+					let action = ( mech.route ) ? 'Walk' : 'Idle';
+					if( G.controls.W || G.controls.A || G.controls.D ) {
+						mech.route = false;
+						action = 'Walk';
+						this.applyControls({ mech , delta });
+					}
+					if( mech.action !== action ) {
+						mech.action = action;
+						this.setAnimation({ mech });
+					}
+				}
 				
 				//action
 				if( mech.route ) {
@@ -697,6 +712,36 @@ export class Mech {
 			}
 		});
 	}
+	applyControls({ mech, delta }) {
+
+		let throttle = 2;
+		const rotSpeed = delta * 2.5;
+		
+		if( G.controls.D ) {
+			throttle = 1;
+			mech.ent.rotation.y -= rotSpeed;
+			G.cameraPan[mech.id].y += rotSpeed;
+		}
+		if( G.controls.A ) {
+			throttle = 1;
+			mech.ent.rotation.y += rotSpeed;
+			G.cameraPan[mech.id].y -= rotSpeed;
+		}
+		
+		if( ! G.controls.W ) throttle = 0;
+		if( throttle > 0 ) {
+			const moveSpeed = ( throttle === 2 )
+				? delta * 400
+				: delta * 80;
+
+			mech.x += Math.sin( mech.ent.rotation.y ) * moveSpeed;
+			mech.z += Math.cos( mech.ent.rotation.y ) * moveSpeed;	
+		}
+
+		mech.ent.position.set( mech.x , mech.ent.position.y , mech.z );
+		G.world.destroy( mech.ent.position.x , mech.ent.position.z , 250 , 'walk' );
+		
+	}
 	followRoute({ mech, delta }) {
 		
 		mech.routeCheck += delta;
@@ -805,18 +850,7 @@ export class Mech {
 
 		mech.ent.position.set( mech.x , mech.ent.position.y , mech.z );
 		G.world.destroy( mech.ent.position.x , mech.ent.position.z , 250 , 'walk' );
-		
-		/*
-		self.postMessage({
-			type: 'mech-pos',
-			mech: {
-				id: mech.id,
-				x: mech.x,
-				z: mech.z,
-			}
-		});
-		*/
-			
+					
 	}
 	
 	fireWeapon( mechId , gunId , passive=false ) {

@@ -54,7 +54,7 @@ export class UIInterface {
 		this.weapons[ mech ].map( weapon => {
 			if( weapon.key === key ) {
 
-				if( mech===0 && weapon.key === 'S' ) {
+				if( mech===0 && weapon.key === 'L' ) {
 					weapon.active = ! weapon.active;
 					G.threeD.postMessage({
 						type: 'spotlight',
