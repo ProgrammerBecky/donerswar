@@ -383,7 +383,6 @@ export class World {
 		let wx = Math.floor( x/1000 );
 		let wz = Math.floor( z/1000 );
 
-		G.zombies.destroy( x,z,area, damage );
 		G.ants.destroy( x,z,area,damage,generateHeat );
 
 		for( let mx=wx-6 ; mx<wx+6 ; mx++ ) {

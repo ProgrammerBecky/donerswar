@@ -3,7 +3,6 @@ import { G } from './3D/G.js';
 import { FBXLoader } from './examples/jsm/loaders/FBXLoader.js';
 import { GLTFLoader } from './examples/jsm/loaders/GLTFLoader.js';
 import { World } from './3D/World.js';
-import { Zombies } from './3D/Zombies.js';
 import { Mech } from './3D/Mech.js';
 import { ScreenPicker } from './3D/ScreenPicker.js';
 import { Particles } from './3D/Particles.js';
@@ -87,7 +86,6 @@ const animate = ( time ) => {
 		}
 		
 		G.mechs.update( delta );
-		G.zombies.update( delta );
 		G.world.update( delta );
 		G.particles.update( delta );
 		G.ants.update( delta );
@@ -123,7 +121,6 @@ const animate = ( time ) => {
 					);
 			
 					G.world.updateForCam( camIndex );
-					G.zombies.updateForCam( camIndex );
 					if( G.cockpit && G.mechs.mechs[ camIndex ].cockpit_bevel && G.mechs.mechs[camIndex].cockpit_object ) {
 						if( G.cameraZoom[ camIndex ] === 1500 ) {
 							G.cockpit.visible = true;
@@ -281,9 +278,9 @@ onmessage = (e) => {
 		G.scene.add( G.ambient );
 
 		G.directional = new THREE.DirectionalLight(0x585858);
-		G.directional.position.set(85000,5000,42250);
+		G.directional.position.set(62250,5000,85000);
 		G.directionalTarget = new THREE.Object3D();
-		G.directionalTarget.position.set( 0,0,60000 );
+		G.directionalTarget.position.set( 21250,0,0 );
 		G.scene.add( G.directionalTarget );
 		G.directional.target = G.directionalTarget;
 		G.scene.add( G.directional );
@@ -324,7 +321,6 @@ onmessage = (e) => {
 		G.texture = new THREE.TextureLoader( manager );
 		
 		G.world.load();
-		G.zombies = new Zombies();
 		G.mechs = new Mech();
 		G.particles = new Particles();
 		G.ants = new Ants();
@@ -427,12 +423,6 @@ onmessage = (e) => {
 	}
 	else if( e.data.type === 'buildRoutes' ) {
 		world.setBuildCanvas({ canvas: e.data.canvas });
-	}
-	else if( e.data.type === 'spawn-zombie' ) {
-		G.zombies.spawn({ zombie: e.data });
-	}
-	else if( e.data.type === 'update-zombie' ) {
-		G.zombies.updateZombie({ updated: e.data });
 	}
 	else if( e.data.type === 'mech-navigate' ) {
 		G.mechs.newAction( e.data.unit , 'Idle' );

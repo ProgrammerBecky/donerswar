@@ -117,6 +117,17 @@ html, body{
 	top: calc( 50% - 6rem );
 	opacity: 1;
 }
+#BrowserSupport{
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: black;
+	color: white;
+	z-index: 1;
+}
 #Help {
 	display: none;
 	position: absolute;

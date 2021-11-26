@@ -49,11 +49,18 @@ export class SFX {
 		});
 	}
 
+	update() {
+		if( this.themeMusic && ! this.themeMusic.isPlaying ) {
+			this.playTheme( 'gameLoop1' );
+		}
+	}
+
 	playTheme( theme , volume = 0.1 ) {
 		
-		if( this.themeMusic ) this.themeMusic.stop();
 console.log(  G.url + `sfx/${theme}.mp3` );		
 		this.loader.load( G.url + `sfx/${theme}.mp3` , buffer => {
+			if( this.themeMusic ) this.themeMusic.stop();
+
 			this.themeMusic = new THREE.Audio( this.listener );
 			this.themeMusic.setBuffer( buffer );
 			this.themeMusic.setVolume( volume );
@@ -64,9 +71,6 @@ console.log(  G.url + `sfx/${theme}.mp3` );
 			}
 			else {
 				this.themeMusic.setLoop( false );
-				this.themeMusic.onEnded = () => {
-					G.sfx.playTheme( 'gameloop1' );
-				};
 			}
 			if( theme === 'theme' ) this.vumeterCreate();
 		});
