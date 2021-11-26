@@ -6,7 +6,7 @@ const WORLD_SIZE = 85000;
 const NAV_MAP_SIZE = 512;
 const NAV_TO_WORLD_SCALE = WORLD_SIZE / NAV_MAP_SIZE;
 
-let ANT_COUNT = 10;
+let ANT_COUNT = 20;
 
 export class Ants {
 

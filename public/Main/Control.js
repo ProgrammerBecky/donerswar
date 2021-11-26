@@ -67,7 +67,7 @@ export class Control {
 		window.removeEventListener( 'mouseup' , this.mouseup );
 		window.removeEventListener( 'keyup' , this.keyup );
 		window.removeEventListener( 'mousewheel' , this.mousewheel );
-		//window.removeEventListener( 'contextmenu', this.contextMenu );
+		window.removeEventListener( 'contextmenu', this.contextMenu );
 	}
 	contextMenu(e) {
 		e.preventDefault();
@@ -86,8 +86,6 @@ export class Control {
 			});
 		}
 		
-		
-		
 		this.mouse.x = e.clientX;
 		this.mouse.y = e.clientY;
 		
@@ -102,6 +100,7 @@ export class Control {
 	}
 	mousewheel( e ) {
 		this.mouse.z = -e.wheelDeltaY;
+		
 		G.threeD.postMessage({
 			type: 'zoomView',
 			mouse: {

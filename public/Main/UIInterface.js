@@ -48,6 +48,13 @@ export class UIInterface {
 		
 		this.launchTrigger = this.launchTrigger.bind( this );
 		this.launchGame();
+		
+		document.getElementById('Controls').addEventListener( 'click' , (e) => {
+			document.getElementById('Help').style.display = 'block';
+		});
+		document.getElementById('CloseGuide').addEventListener( 'click' , (e) => {
+			document.getElementById('Help').style.display = 'none';
+		});
 	}
 	
 	destroyedMech( mechId , status ) {

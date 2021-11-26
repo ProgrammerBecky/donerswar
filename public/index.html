@@ -31,6 +31,66 @@
 			<div id='SplashUrl'></div>
 			<progress id='SplashProgress' min=0 max=100></progress>
 			<button id='StartGame'>Start Game</button>
+			<button id='Controls'>Instructions</button>
+				
+			<div id='Help'>
+				<div id='CloseGuide'>
+					Close Guide
+				</div>
+				<div>
+					<ul>
+						<a href='#TurretControl'><li>Turret Control</li></a>
+						<a href='#ViewAdjust'><li>View Adjustment (First Person, Third Person, Strategic View)</li></a>
+						<a href='#MovementControl'><li>Movement Controls</li></a>
+						<a href='#WeaponControls'><li>Weapon Controls</li></a>
+					</ul>
+					
+					<fieldset id='TurretControl'>
+						<legend>Turret Control</legend>
+						<img src='instructions/help3.png'>
+						<p>You can pan the view around by holding down the right mouse button and then dragging the mouse.  The mech will then turn its cockpit to face the direction that you are looking.</p>
+					</fieldset>
+					
+					<fieldset id='ViewAdjust'>
+						<legend>View Adjust</legend>
+						<img src='instructions/help0b.png'>
+						<p>You can zoom in to the cockpit, or move the view back to third person all the way out to a strategic overview by using the mouse wheel.</p>
+						<img src='instructions/help0a.png'>
+						<p>You gain control of additional mechs through the course of the game.</p>
+						<div><b>Z</b> Select Mech: Funky</div>
+						<div><b>X</b> Select Mech: Groover</div>
+						<div><b>C</b> Select Mech: Radical</div>
+						<div><b>V</b> Select Mech: Vibes</div>
+						<p>You can take control of different mechs by selecting the pilot either by clicking the UI button for the mech, or by pressing the appropriate key.</p>
+						<img src='instructions/help2a.png'>
+						<img src='instructions/help2b.png'>
+						<p>You can switch view by clicking the individual pilots button in the top left of the display.  Additionally, you can change to a split screen view by clicking your currently active mech pilots button, and you can return from split screen view by the same mechanism.</p>
+					</fieldset>
+					
+					<fieldset id='MovementControl'>
+						<legend>Movement Controls</legend>
+						<img src='instructions/help1.png'>
+						<div><b>W</b> Walk</div>
+						<div><b>A</b> Turn left</div>
+						<div><b>D</b> Turn Right</div>
+						<p>Taking direct control of a mech cancels any movement orders given to the mech.  In split screen view the mech being controlled will be the mech whose viewscreen is under the mouse cursor.</p>
+						<img src='instructions/help5.png'>
+						<p>You can also gives mechs movement orders with the mouse by clicking with the left mouse button.</p>
+						<p>Mechs will move to the location that you click on in the view.  If their view of the destination is blocked they may attempt to walk around such obstacles.</p>
+					</fieldset>
+						
+					<fieldset id='WeaponControls'>
+						<legend>Weapon Controls</legend>
+						<img src='instructions/help4a.png'>
+						<p>One fire button is not enough for a mech, so you have five.</p>
+						<p>Each button corresponds to a weapon mount.</p>
+						<p>Each weapon mount has different movement restrictions.  Your arm mounts (<b>Q</b>+<b>E</b>) provide the greatest vertical flexibility, can extend away from the mech, but can only point slightly inward.</p>
+						<img src='instructions/help4b.png'>
+						<p>Your shoulder (<b>1</b>+<b>3</b>) and top mounts (<b>2</b>) cannot aim downwards and have limited side to side movement, but can be aimed upwards.</p>
+					</fieldset>
+				</div>	
+			</div>			
+			
 		</div>
 		<script type='module' src='index.js'></script>
 	</body>

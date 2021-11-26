@@ -672,68 +672,73 @@ export class Mech {
 
 					mech.mixer.update( delta );
 					mech.ent.updateMatrixWorld(true);
-					
-					//Update Lights
-					if( mech.muzzleFlashes.length > 0 ) {
-						mech.muzzleFlashes.map( (flash,index) => {
-							if( flash.duration < 0 ) {
-								if( flash.laserEnt ) {
-									G.scene.remove( flash.laserEnt );
-								}
-								G.lights.removeLight( flash.lightId );
-								mech.muzzleFlashes.splice( index , 1 );
-								G.lights.needsUpdate = true;
-								if( flash.isLaser ) {
-									self.postMessage({
-										type: 'weapon-discharged',
-										mechId: mechId,
-										gunId: flash.gunId,
-									});
-								}
+				}
+			}
+			
+			if( mech.mixer ) {
+				//Update Lights
+				if( mech.muzzleFlashes.length > 0 ) {
+					mech.muzzleFlashes.map( (flash,index) => {
+						if( flash.duration < 0 ) {
+							if( flash.laserEnt ) {
+								G.scene.remove( flash.laserEnt );
 							}
-							else {
-								if( flash.barrelEnd ) {
-									let rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y + flash.mount.rotation.y;
+							G.lights.removeLight( flash.lightId );
+							mech.muzzleFlashes.splice( index , 1 );
+							G.lights.needsUpdate = true;
+							if( flash.isLaser ) {
+								self.postMessage({
+									type: 'weapon-discharged',
+									mechId: mechId,
+									gunId: flash.gunId,
+								});
+							}
+						}
+						else {
+							if( flash.barrelEnd ) {
+								let rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y + flash.mount.rotation.y;
 
-									flash.barrelEnd.updateWorldMatrix();
-									this.vector.set(
-										flash.barrelEnd.position.x,
-										flash.barrelEnd.position.y,
-										flash.barrelEnd.position.z
-									);
-									this.vector.applyMatrix4( flash.barrelEnd.matrixWorld );
+								flash.barrelEnd.updateWorldMatrix();
+								this.vector.set(
+									flash.barrelEnd.position.x,
+									flash.barrelEnd.position.y,
+									flash.barrelEnd.position.z
+								);
+								this.vector.applyMatrix4( flash.barrelEnd.matrixWorld );
 
-									if( flash.isLaser ) {
-										flash.laserTimer += delta;
-										
-										const rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y + flash.mount.rotation.y;
-										this.dir.set( Math.sin( rotation ) , Math.sin( -flash.mount.rotation.x ) , Math.cos( rotation ) );										
+								if( flash.isLaser ) {
+									flash.laserTimer += delta;
+									
+									const rotation = mech.ent.rotation.y + mech.cockpit_bevel.rotation.y + flash.mount.rotation.y;
+									this.dir.set( Math.sin( rotation ) , Math.sin( -flash.mount.rotation.x ) , Math.cos( rotation ) );										
 
-										const hitTarget = this.shootLaser({ laser: flash });
-										
-										if( flash.laserTimer > 0 ) {
-											while( flash.laserTimer > 0 ) {
-												flash.laserTimer -= 0.1;
-												if( hitTarget ) {
-													G.world.destroy( hitTarget.point.x , hitTarget.point.z , 500 , 4 , hitTarget.object , true );
-												}
+									const hitTarget = this.shootLaser({ laser: flash });
+									
+									if( flash.laserTimer > 0 ) {
+										while( flash.laserTimer > 0 ) {
+											flash.laserTimer -= 0.1;
+											if( hitTarget ) {
+												G.world.destroy( hitTarget.point.x , hitTarget.point.z , 500 , 4 , hitTarget.object , true );
 											}
 										}
 									}
-
-									G.lights.updateLight({
-										lightId: flash.lightId,
-										x: this.vector.x + Math.cos( rotation ) * flash.offsetX,
-										z: this.vector.z - Math.sin( rotation ) * flash.offsetX,
-										f: rotation
-									});
-									G.lights.needsUpdate = true;
 								}
+
+								G.lights.updateLight({
+									lightId: flash.lightId,
+									x: this.vector.x + Math.cos( rotation ) * flash.offsetX,
+									z: this.vector.z - Math.sin( rotation ) * flash.offsetX,
+									f: rotation
+								});
+								G.lights.needsUpdate = true;
 							}
-							flash.duration -= delta;
-						});
-					}
-					
+						}
+						flash.duration -= delta;
+					});
+				}
+				
+				if( mech.active ) {
+				
 					//FPS Camera
 					G.camera[mech.id].position.set( mech.ent.position.x , mech.ent.position.y + 1800 , mech.ent.position.z );
 					G.camera[mech.id].rotation.set( G.cameraPan[mech.id].x , Math.PI + G.cameraPan[mech.id].y + mech.ent.rotation.y , 0 );
