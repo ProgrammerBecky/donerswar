@@ -469,14 +469,25 @@ export class Ants {
 		if( ant.action === 'Bite' && ant.animAction.isRunning() ) return;
 
 		const mech = ant.attackTarget;
-		let targetX = mech.x - ant.x;
-		let targetZ = mech.z - ant.z;
-		let dr = Math.sqrt( targetX*targetX + targetZ*targetZ );
-		let df = Math.atan2( targetX,targetZ );
+		const targetX = mech.x - ant.x;
+		const targetZ = mech.z - ant.z;
+		const dr = Math.sqrt( targetX*targetX + targetZ*targetZ );
+		const df = Math.atan2( targetX,targetZ );
 		
-		let attackRange = ( ant.headJump ) ? 3500 : 500;
+		const attackRange = ( ant.headJump ) ? 3500 : 900;
+		const minRange = 500;
 		
-		if( dr > attackRange ) {
+		if( dr < minRange ) {
+			if( ant.action !== 'Walk' ) {
+				ant.dx = ant.x + Math.random() * (3*(attackRange-(attackRange/2)));
+				ant.dz = ant.z + Math.random() * (3*(attackRange-(attackRange/2)));
+				ant.action = 'Walk';
+				ant.attackTarget = false;
+				this.setAnimation({ ant });					
+			}
+			this.doMove({ ant , delta , targetX , targetZ , df });
+		}
+		else if( dr > attackRange ) {
 			if( ant.action !== 'Walk' ) {
 				ant.action = 'Walk';
 				this.setAnimation({ ant });					
@@ -622,9 +633,9 @@ export class Ants {
 	}
 	
 	considerAttacking({ ant }) {
-		let rng = 5000;
+		let rng = 8000;
 		let tMech = false;
-		let rawRng = 5000;
+		let rawRng = 8000;
 		
 		G.mechs.mechs.map( mech => {
 			if( mech.active ) {

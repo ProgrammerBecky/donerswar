@@ -591,28 +591,30 @@ export class Mech {
 						x: mech.x,
 						y: 0,
 						z: mech.z,
-						duration: 5,
-						size: 50,
-						ringDensity: 16,
+						duration: 6,
+						size: 350,
+						ringDensity: 12,
 						speed: 100,
 						drift: 200,
-						emitFrequency: 0.05
+						emitFrequency: 0.025
 					});
 					
-					let f=0;
-					while( f < Math.PI*2 ) {
+					for( let i=0 ; i<6 ; i++ ) {
 					
 						G.particles.spawnRocket({
 							x: mech.x,
-							y: 1200 + Math.random() * 500,
+							y: 600 + Math.random() * 1000,
 							z: mech.z,
-							dir: new THREE.Vector3( (Math.PI/2) * ( 0.8 + Math.random() * 0.1 ) , f , 0 ),
+							dir: new THREE.Vector3(
+								Math.random() * Math.PI * 2,
+								Math.random() * Math.PI * 2,
+								0
+							),
 							speed: 150 + Math.random() * 200,
-							duration: 0.5 + Math.random(),
+							duration: 1.5 + Math.random() * 3,
 							arc: 0.002
 						});		
 					
-						f += Math.random() * 0.5;
 					}
 					
 					mech.explodeTimer = 0;

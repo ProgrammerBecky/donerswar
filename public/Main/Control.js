@@ -30,6 +30,10 @@ export class Control {
 			KeyL: false,
 			KeyA: false,
 			KeyD: false,
+			KeyZ: false,
+			KeyX: false,
+			KeyC: false,
+			KeyV: false,
 			Digit1: false,
 			Digit2: false,
 			Digit3: false,
@@ -157,6 +161,10 @@ export class Control {
 			else if( e.code === 'Digit1' ) this.ui.fire( cam, '1' );
 			else if( e.code === 'Digit2' ) this.ui.fire( cam, '2' );
 			else if( e.code === 'Digit3' ) this.ui.fire( cam, '3' );
+			else if( e.code === 'KeyZ' ) this.ui._setPilot(0);
+			else if( e.code === 'KeyX' ) this.ui._setPilot(1);
+			else if( e.code === 'KeyC' ) this.ui._setPilot(2);
+			else if( e.code === 'KeyV' ) this.ui._setPilot(3);
 			else if( ['KeyA','KeyD','KeyW'].includes( e.code ) ) this.control( cam );
 		}
 		

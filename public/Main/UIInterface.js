@@ -4,10 +4,10 @@ export class UIInterface {
 	constructor() {
 	
 		this.pilots = [
-			'Dink',
-			'Gruber',
-			'Boston',
-			'Claret',
+			'Z | Funky',
+			'X | Groover',
+			'C | Radical',
+			'V | Vibes',
 		];
 		this.active = [true,true,true,true];
 	
