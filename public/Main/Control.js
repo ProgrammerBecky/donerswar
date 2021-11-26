@@ -37,6 +37,7 @@ export class Control {
 			Digit1: false,
 			Digit2: false,
 			Digit3: false,
+			KeyP: false,
 		};
 		
 		this.cameraType = 'rts';
@@ -164,9 +165,15 @@ export class Control {
 			else if( e.code === 'KeyX' ) this.ui._setPilot(1);
 			else if( e.code === 'KeyC' ) this.ui._setPilot(2);
 			else if( e.code === 'KeyV' ) this.ui._setPilot(3);
+			else if( e.code === 'KeyP' ) this.getWorldPosition();
 			else if( ['KeyA','KeyD','KeyW'].includes( e.code ) ) this.control( cam );
 		}
 		
+	}
+	getWorldPosition() {
+		G.threeD.postMessage({
+			type:	'position-request',
+		});
 	}
 	keyup( e ) {
 		if( typeof( this.keypresses[ e.code ] ) !== 'undefined' ) {

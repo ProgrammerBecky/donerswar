@@ -9,6 +9,7 @@ import { ScreenPicker } from './3D/ScreenPicker.js';
 import { Particles } from './3D/Particles.js';
 import { Ants } from './3D/Ants.js';
 import { Lights } from './3D/Lights.js';
+import { Level } from './3D/Level.js';
 
 G.url = '/';
 //G.url = '//beckyrose.com/giantrobotmechs/';
@@ -91,6 +92,7 @@ const animate = ( time ) => {
 		G.particles.update( delta );
 		G.ants.update( delta );
 		G.lights.update( delta );
+		G.level.checkLevel( delta );
 		
 		for( let camIndex=0 ; camIndex<4 ; camIndex++ ) {
 			if( G.cameraViews.includes( camIndex ) ) {
@@ -275,25 +277,23 @@ onmessage = (e) => {
 		G.renderer.setPixelRatio( e.data.pixelRatio );
 		G.scene = new THREE.Scene();
 				
-		G.ambient = new THREE.AmbientLight(0x444444);
+		G.ambient = new THREE.AmbientLight(0x404040);
 		G.scene.add( G.ambient );
 
-		/*
-		G.directional = new THREE.DirectionalLight(0xa2a2a2);
-		G.directional.position.set(42500,5000,-22750);
+		G.directional = new THREE.DirectionalLight(0x585858);
+		G.directional.position.set(85000,5000,42250);
 		G.directionalTarget = new THREE.Object3D();
-		G.directionalTarget.position.set( -42500,0,22750 );
+		G.directionalTarget.position.set( 0,0,60000 );
 		G.scene.add( G.directionalTarget );
 		G.directional.target = G.directionalTarget;
 		G.scene.add( G.directional );
-		*/
 
 		G.cameraViews = [0,1,2,3];
 		G.cameraPan = [
-			new THREE.Vector2( 0 , Math.PI ),
-			new THREE.Vector2( 0 , Math.PI ),
-			new THREE.Vector2( 0 , Math.PI ),
-			new THREE.Vector2( 0 , Math.PI ),
+			new THREE.Vector2( 0 , 0 ),
+			new THREE.Vector2( 0 , 0 ),
+			new THREE.Vector2( 0 , 0 ),
+			new THREE.Vector2( 0 , 0 ),
 		];
 		G.cameraZoom = [1500,1500,1500,1500];
 		G.camera = [];
@@ -398,6 +398,7 @@ onmessage = (e) => {
 		});
 		
 		G.screenPicker = new ScreenPicker();
+		G.level = new Level();
 		animate();
 		gameSpeed = 0;
 		
@@ -478,6 +479,46 @@ onmessage = (e) => {
 	}
 	else if( e.data.type === 'audioCam' ) {
 		audioCam = e.data.view;
+	}
+	else if( e.data.type === 'position-request' ) {
+		console.log({
+			cameras: [
+				{
+					x: G.camera[0].position.x.toFixed(3),
+					z: G.camera[0].position.z.toFixed(3),
+				},
+				{
+					x: G.camera[1].position.x.toFixed(3),
+					z: G.camera[1].position.z.toFixed(3),
+				},
+				{
+					x: G.camera[1].position.x.toFixed(3),
+					z: G.camera[1].position.z.toFixed(3),
+				},
+				{
+					x: G.camera[1].position.x.toFixed(3),
+					z: G.camera[1].position.z.toFixed(3),
+				},
+			],
+			mechs: [
+				{
+					x: G.mechs.mechs[0].x.toFixed(3),
+					z: G.mechs.mechs[0].z.toFixed(3),
+				},
+				{
+					x: G.mechs.mechs[1].x.toFixed(3),
+					z: G.mechs.mechs[1].z.toFixed(3),
+				},
+				{
+					x: G.mechs.mechs[2].x.toFixed(3),
+					z: G.mechs.mechs[2].z.toFixed(3),
+				},
+				{
+					x: G.mechs.mechs[3].x.toFixed(3),
+					z: G.mechs.mechs[3].z.toFixed(3),
+				},
+			]
+		});
 	}
 }
 

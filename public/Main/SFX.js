@@ -40,6 +40,7 @@ export class SFX {
 			'ant4',
 			'step',
 		].map( sound => this.loadSound(sound) );
+
 	}
 	
 	loadSound(sfx) {
@@ -51,19 +52,26 @@ export class SFX {
 	playTheme( theme , volume = 0.1 ) {
 		
 		if( this.themeMusic ) this.themeMusic.stop();
-		
+console.log(  G.url + `sfx/${theme}.mp3` );		
 		this.loader.load( G.url + `sfx/${theme}.mp3` , buffer => {
 			this.themeMusic = new THREE.Audio( this.listener );
 			this.themeMusic.setBuffer( buffer );
-			this.themeMusic.setLoop( true );
 			this.themeMusic.setVolume( volume );
 			this.themeMusic.play();
 			
+			if( ['theme','gameloop1'].includes( theme ) ) {
+				this.themeMusic.setLoop( true );				
+			}
+			else {
+				this.themeMusic.setLoop( false );
+				this.themeMusic.onEnded = () => {
+					G.sfx.playTheme( 'gameloop1' );
+				};
+			}
 			if( theme === 'theme' ) this.vumeterCreate();
 		});
 	}
 
-	
 	vuMeterEnd() {
 		this.analyser = false;
 	}

@@ -9,7 +9,7 @@ export class UIInterface {
 			'C | Radical',
 			'V | Vibes',
 		];
-		this.active = [true,true,true,true];
+		this.active = [true,false,false,false];
 	
 		this.loaded = false;
 		this.damage = [100,100,100,100];
@@ -136,17 +136,19 @@ export class UIInterface {
 		}
 	}
 	_setPilot( pilot ) {
-		this.mode = 'single';
-		this.showPilot = pilot;
-		this.showInterface();
-		
-		if( G.threeD ) {
-			G.threeD.postMessage({
-				type: 'cameras-on-off',
-				cameras: [this.showPilot],	
-				width: window.innerWidth,
-				height: window.innerHeight,
-			});
+		if( this.active[pilot] ) {
+			this.mode = 'single';
+			this.showPilot = pilot;
+			this.showInterface();
+			
+			if( G.threeD ) {
+				G.threeD.postMessage({
+					type: 'cameras-on-off',
+					cameras: [this.showPilot],	
+					width: window.innerWidth,
+					height: window.innerHeight,
+				});
+			}
 		}
 	}
 	
@@ -274,11 +276,12 @@ export class UIInterface {
 	
 	
 	launchGame() {
-		document.getElementById('GFXLow').addEventListener( 'click' , () => {this.launchTrigger( 'low' )} );
-		document.getElementById('GFXMedium').addEventListener( 'click' , () => {this.launchTrigger( 'medium' )} );
-		document.getElementById('GFXHigh').addEventListener( 'click' , () => {this.launchTrigger( 'high' )} );
+		document.getElementById('GFXLow').addEventListener( 'click' , (e) => {this.launchTrigger( e,'low' )} );
+		document.getElementById('GFXMedium').addEventListener( 'click' , (e) => {this.launchTrigger( e,'medium' )} );
+		document.getElementById('GFXHigh').addEventListener( 'click' , (e) => {this.launchTrigger( e,'high' )} );
 	}
-	launchTrigger( gfxSetting ) {
+	launchTrigger( e, gfxSetting ) {
+		document.body.requestFullscreen({navigationUI:'hide'});
 		document.getElementById( 'GFXSelect' ).style.display = 'none';
 		G.sfx.playTheme( 'theme' , 0.5 );
 		G.initThreeD( gfxSetting );

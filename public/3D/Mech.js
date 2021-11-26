@@ -219,8 +219,8 @@ export class Mech {
 			object.mounts = [];
 			object.mRots = [];
 			object.ent = new THREE.Group();
-			object.x = 42500,
-			object.z = 42500,
+			object.x = 0,
+			object.z = ( index === 0 ) ? 42500 : -5000000,
 			object.muzzleFlashes = [];
 			object.barrelEnd = {};
 			object.machineGunFiring = [];
@@ -228,11 +228,19 @@ export class Mech {
 			object.routeCheck = 0;
 			object.directRoute = false;
 			object.stepSound = 0;
-			object.active = true;
+			object.active = ( index === 0 ) ? true : false;
 			object.explodeStage = 0;
 			this.loadAssembly({ object });
 		});
 		
+	}
+	
+	updatePositions() {
+		this.mechs.map( (mech) => {
+			if( mech.active ) {
+				mech.ent.position.set( mech.x , 0 , mech.z );
+			}
+		});
 	}
 	
 	takeDamage({ mech , damage }) {
@@ -357,11 +365,12 @@ export class Mech {
 			
 		}	
 		
-		object.ent.position.set( 42500 + (Math.random() * 2500)*2-1 , 0 , 42500 + (Math.random() * 2500)*2-1 );
+		object.ent.position.set( object.x , 0 , object.z );
 		object.x = object.ent.position.x;
 		object.z = object.ent.position.z;
 		object.ent.scale.set(3,3,3);
-		object.ent.rotation.set( 0 , Math.random() * Math.PI*2 , 0 );
+		object.ent.rotation.set( 0 , Math.PI/2 , 0 );
+		object.cockpit_bevel.rotation.y = -Math.PI;
 		G.scene.add( object.ent );
 		
 		return object;

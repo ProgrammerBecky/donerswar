@@ -6,13 +6,12 @@ const WORLD_SIZE = 85000;
 const NAV_MAP_SIZE = 512;
 const NAV_TO_WORLD_SCALE = WORLD_SIZE / NAV_MAP_SIZE;
 
-let ANT_COUNT = 20;
-
 export class Ants {
 
 	constructor() {
 		
-		this.headJumpChance = 0.05;
+		this.maximumAnts = 3;
+		this.headJumpChance = 0;
 	
 		this.colliders = [];
 	
@@ -88,13 +87,29 @@ export class Ants {
 	
 	}
 	
-	spawnAnt() {
+	spawnAnt({ x , z } = false) {
+		
+		if( !x ) {
+			let farAway = false;
+			while( ! farAway ) {
+				x = Math.random() * 85000;
+				z = Math.random() * 85000;
+				farAway = true;
+				G.mechs.mechs.map( mech => {
+					const dx = mech.x - x;
+					const dz = mech.z - z;
+					const dr = Math.sqrt( dx*dx + dz*dz );
+					if( dr < 20000 ) farAway = false;
+				});
+			}
+		}
+		
 		this.antCount++;
 		this.ants.push({
 			id: this.antCount,
-			x: Math.random() * 85000,
+			x: x,
 			y: 0,
-			z: Math.random() * 85000,
+			z: z,
 			f: Math.random() * Math.PI * 2,
 			action: 'Idle',
 			decisionTimer: 5,
@@ -342,7 +357,7 @@ export class Ants {
 			this.collectiveDecisionTimer = 60 + Math.random() * 60;
 			this.makeCollectiveDecision();
 		}
-		if( this.ants.length < ANT_COUNT ) this.spawnAnt();
+		if( this.ants.length < this.maximumAnts ) this.spawnAnt();
 
 		this.antAttackCheckIndex++;
 		this.antAttackCheckResetTimer += delta;

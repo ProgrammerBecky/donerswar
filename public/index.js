@@ -45,6 +45,11 @@ G.initThreeD = ( gfxSetting ) => {
 		else if( e.data.type === 'mech-status' ) {
 			ui.destroyedMech( e.data.mechId , e.data.status );
 		}
+		else if( e.data.type === 'music' ) {
+			G.sfx.playTheme(
+				e.data.music , e.data.volume
+			);
+		}
 		else if( e.data.type === 'sound' ) {
 			G.sfx.playSound( e.data.sfx , false , e.data.x , e.data.y , e.data.z );
 		}
