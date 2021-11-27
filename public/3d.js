@@ -9,6 +9,7 @@ import { Particles } from './3D/Particles.js';
 import { Ants } from './3D/Ants.js';
 import { Lights } from './3D/Lights.js';
 import { Level } from './3D/Level.js';
+import { Score } from './3D/Score.js';
 
 G.url = '/';
 //G.url = '//beckyrose.com/giantrobotmechs/';
@@ -406,6 +407,7 @@ onmessage = (e) => {
 		G.level = new Level();
 		animate();
 		gameSpeed = 0;
+		G.score = new Score();
 		
 		/* Launch render loop */
 		self.postMessage({

@@ -234,7 +234,7 @@ export class Mech {
 			object.stepSound = 0;
 			object.active = ( index === 0 ) ? true : false;
 			object.explodeStage = 0;
-			object.inactiveTimer = 60;
+			object.inactiveTimer = ( index === 0 ) ? 0 : 60;
 			this.loadAssembly({ object });
 		});
 		

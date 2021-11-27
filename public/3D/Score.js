@@ -1,0 +1,58 @@
+export class Score {
+
+	constructor() {
+	
+		this.discos = 0;
+		this.ants = 0;
+		this.buildings = 0;
+		this.startTime = new Date();
+		this.storeScore();
+		this.key = false;
+		
+	}
+	
+	disco() {
+		this.discos++;
+		this.storeScore();
+	}
+	
+	ant() {
+		this.ants++;
+	}
+	
+	building() {
+		this.buildings++;
+	}
+	
+	gameover() {
+		this.storeScore();
+	}
+	
+	storeScore() {
+		const time = new Date() - this.startTime;
+		
+		const xhttp = new XMLHttpRequest();
+		xhttp.open( "POST" , "score.php" , true );
+		xhttp.setRequestHeader( 'Content-Type' , 'application/json; charset=UTF-8' );
+		
+		let self = this;
+		xhttp.onreadystatechange = () => {
+			if( xhttp.readyState === 4 && xhttp.status === 200 ) {
+				const output = JSON.parse( xhttp.response );
+				if( output && output.key ) {
+					self.key = output.key;
+					console.log( 'NEW KEY' , self.key );
+				}
+			}
+		}
+		
+		xhttp.send( JSON.stringify({
+			discos: this.discos,
+			ants: this.ants,
+			buildings: this.buildings,
+			time: time,
+			key: this.key,
+		}) );
+	}
+	
+}

@@ -1,6 +1,3 @@
-Collect Disco Rollers
+Name Entry
 Mech death burn
-score 
-high score
-view meter boundary wall (+world lights)
-death camera delay broken
+vu meter boundary wall (+world lights)

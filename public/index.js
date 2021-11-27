@@ -5,6 +5,7 @@ import { UIInterface } from './Main/UIInterface.js';
 import { Mech } from './Main/Mech.js';
 import { Lights } from './Main/Lights.js';
 import { SFX } from './Main/SFX.js';
+import { HighScore } from './Main/Highscore.js';
 
 const canvasTest = document.createElement('canvas');
 if( ! HTMLCanvasElement.prototype.transferControlToOffscreen ) {
@@ -14,6 +15,8 @@ else {
 	
 	G.url = '/';
 	//G.url = '//beckyrose.com/giantrobotmechs/';
+
+	G.highScores = new HighScore();
 
 	/* Initialise 3D Canvas */
 	const canvas = document.getElementById('ThreeD');

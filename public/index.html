@@ -43,19 +43,22 @@
 				Play Again
 			</button>			
 		</div>
-		<div id='HighScore' class='popup'>
+		<div id='HighScores' class='popup'>
 			<h4>The Skinny Board</h4>
-			<table>
+			
+			<button id='Today'>Today</button>
+			<button id='AllTime'>All Time</button>
+			<h4 id='Showing' style='text-align:center;margin:0.5rem 0'></h4>
+			<table style='width:100%'>
 				<thead>
 					<th>#</th>
-					<th>Dancer</th>
-					<th>Discos</th>
-					<th>Ants Killed</th>
-					<th>Survival Time</th>
+					<th style='width: 12rem;text-align:left'>Dancer</th>
+					<th style='width: 4rem'>Discos</th>
+					<th style='width: 4rem'>Ants</th>
+					<th style='width: 4rem'>Buildings</th>
+					<th style='width: 8rem'>Time</th>
 				</thead>
-				<tbody>
-					
-				</tbody>
+				<tbody id='HighScoreTable'></tbody>
 			</table>
 		</div>
 		<div id='BrowserSupport'>
@@ -75,6 +78,7 @@
 			<progress id='SplashProgress' min=0 max=100></progress>
 			<button id='StartGame'>Start Game</button>
 			<button id='Controls'>Controls</button>
+			<button id='HighScore'>High Scores</button>
 				
 			<div id='Help'>
 				<div id='CloseGuide'>

@@ -81,7 +81,7 @@ html, body{
 }
 #SplashProgress {
 	position:fixed;
-	top: 65%;
+	top: 75%;
 	left: 50%;
 	transform: translateX(-50%);
 	width: 40%;
@@ -89,7 +89,7 @@ html, body{
 	opacity: 1;
 	transition: all 0.2s;
 }
-#Splash #StartGame, #Splash #Controls{
+#Splash #StartGame, #Splash #Controls, #Splash #HighScore{
 	position: fixed;
 	top: 50%;
 	left: 50%;
@@ -101,7 +101,7 @@ html, body{
 	align-self: center;
 	justify-self: center;
 }
-#Splash #StartGame, #Splash #Controls, .popup button {
+#Splash #StartGame, #Splash #Controls, .popup button, #Splash #HighScore {
 	font-size: 1.5rem;
 	padding: 1.5rem 4.5rem;
 	background-color: orange;
@@ -114,13 +114,17 @@ html, body{
 	cursor: pointer;
 	outline: 0 solid transparent;		
 }
-#Splash #StartGame:hover, #Splash #Controls:hover, .popup button{
+#Splash #StartGame:hover, #Splash #Controls:hover, .popup button, #Splash #HighScore{
 	background-color: gold;
 	color: black;
 	border: 3px solid black;
 }
 #Splash #Controls{
 	top: calc( 50% - 6rem );
+	opacity: 1;
+}
+#Splash #HighScore {
+	top: calc( 50% + 6rem );
 	opacity: 1;
 }
 #BrowserSupport{
@@ -148,6 +152,12 @@ html, body{
 	background-color: black;
 	z-index: 2;
 	max-width: 25rem;
+}
+#HighScores{
+	max-width: 35rem;
+}
+table td,table th{
+	text-align: right;
 }
 .popup h4{
 	font-size: 1.5rem;

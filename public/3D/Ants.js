@@ -413,6 +413,7 @@ export class Ants {
 			
 				if( ant.hp <=0 ) {
 					if( ant.action !== 'Death' ) {
+						G.score.ant();
 						ant.action = 'Death';
 						this.setAnimation({ ant });
 					}

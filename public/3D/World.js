@@ -460,7 +460,8 @@ export class World {
 										x: building.ent.position.x,
 										y: building.ent.position.y,
 										z: building.ent.position.z,
-									});									
+									});							
+									G.score.building();
 								}
 								building.hp = 0;
 								building.dustSpawns = 25;
@@ -630,7 +631,7 @@ export class World {
 				return false;
 			}
 		}
-		else if( y < -2000 ) {
+		else if( y < -10000 ) {
 			return false;
 		}
 		else {

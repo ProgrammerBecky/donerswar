@@ -64,6 +64,7 @@ export class Level {
 					type: 'game-over',
 					victory: false,
 				});
+				G.score.gameover();
 				self.postMessage({
 					type: 'music',
 					music: 'defeat',
@@ -175,7 +176,7 @@ export class Level {
 				rewardMech: false,
 				victory: true,
 			},
-		];		
+		];	
 		
 	}
 	checkLevelGroover() {
@@ -193,6 +194,7 @@ export class Level {
 		}
 		
 		if( victory ) {
+			G.score.disco();
 			const data = this.stages[ this.stage ];
 			
 			if( data.victory ) {
@@ -206,6 +208,7 @@ export class Level {
 					type: 'game-over',
 					victory: true,
 				});
+				G.score.gameover();
 				return;
 			}
 
@@ -244,6 +247,7 @@ export class Level {
 				G.mechs.mechs[ data.rewardMech ].x = spawnDisco.x;
 				G.mechs.mechs[ data.rewardMech ].z = spawnDisco.z;
 				G.mechs.mechs[ data.rewardMech ].active = true;
+				G.mechs.mechs[ data.rewardMech ].inactiveTimer = 0;
 				G.mechs.updatePositions();
 				
 				self.postMessage({
