@@ -55,6 +55,7 @@ export class Control {
 		window.addEventListener( 'contextmenu', this.contextMenu );
 		window.addEventListener( 'resize' , this.resize );
 		
+		this.gamePaused = false;
 		this.resize();
 					
 	}
@@ -166,15 +167,23 @@ export class Control {
 			else if( e.code === 'KeyX' ) this.ui._setPilot(1);
 			else if( e.code === 'KeyC' ) this.ui._setPilot(2);
 			else if( e.code === 'KeyV' ) this.ui._setPilot(3);
-			else if( e.code === 'KeyP' ) this.getWorldPosition();
+			else if( e.code === 'KeyP' ) this.pauseGame();
 			else if( ['KeyA','KeyD','KeyW'].includes( e.code ) ) this.control( cam );
 		}
 		
 	}
-	getWorldPosition() {
+	pauseGame() {
+		this.gamePaused = ! this.gamePaused;
 		G.threeD.postMessage({
-			type:	'position-request',
+			type:	'pause-game',
+			game:	this.gamePaused,
 		});
+		if( this.gamePaused ) {
+			document.getElementById( 'Pause' ).style.display = 'block';
+		}
+		else {
+			document.getElementById( 'Pause' ).style.display = 'none';
+		}
 	}
 	keyup( e ) {
 		if( typeof( this.keypresses[ e.code ] ) !== 'undefined' ) {

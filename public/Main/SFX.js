@@ -17,7 +17,6 @@ export class SFX {
 		this.canvas.height = 1080;
 		this.context = this.canvas.getContext( '2d' );
 		
-		
 		this.camera = { x: 0 , y: 0 , z: 0 };
 		this.listener = new THREE.AudioListener();
 		this.loader = new THREE.AudioLoader();

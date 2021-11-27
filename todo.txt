@@ -1,12 +1,6 @@
 Collect Disco Rollers
-Player defeated
-Player victorious
 Mech death burn
-play area checking
 score 
 high score
-ant walk/hit glitch
-pause
-rotation bounds on mech control
-death camera
-viewport 0 on quad cam, right hand edge seems void on mouse
+view meter boundary wall (+world lights)
+death camera delay broken

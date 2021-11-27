@@ -114,6 +114,15 @@ else {
 					itemsTotal: e.data.itemsTotal,
 				});
 			}
+			else if( e.data.type === 'game-over' ) {
+				console.log( e.data );
+				if( e.data.victory ) {
+					document.getElementById( 'Victory' ).style.display = 'flex';	
+				}
+				else {
+					document.getElementById( 'Defeat' ).style.display = 'flex';	
+				}
+			}
 		});
 		G.threeD.postMessage({
 			type: 'init',

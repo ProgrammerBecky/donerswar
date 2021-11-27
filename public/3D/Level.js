@@ -33,7 +33,7 @@ export class Level {
 		G.scene.add( this.disco );
 
 		this.setupLevel();
-	
+		this.stage = 0;
 	}
 	
 	setupLevel() {
@@ -44,16 +44,32 @@ export class Level {
 	
 	checkLevel( delta ) {
 
-		this.disco.rotation.y += delta * 0.3;
-		
-		this.levelCheckTimer += delta;
-		if( this.levelCheckTimer > 0.5 ) {
-			this.levelCheckTimer = 0;
+		if( this.level === 1 ) {
+			this.disco.rotation.y += delta * 0.3;
 			
-			if( this.level === 1 ) {
-				this.checkLevelGroover();
+			this.levelCheckTimer += delta;
+			if( this.levelCheckTimer > 0.5 ) {
+				this.levelCheckTimer = 0;
+				
+				if( this.level === 1 ) {
+					this.checkLevelGroover();
+				}
+				
 			}
 			
+			let active = G.mechs.mechs.find( search => search.active );
+			if( ! active ) {
+				this.level = 0;
+				self.postMessage({
+					type: 'game-over',
+					victory: false,
+				});
+				self.postMessage({
+					type: 'music',
+					music: 'defeat',
+					volume: 0.5,
+				});			
+			}
 		}
 		
 	}
@@ -151,6 +167,14 @@ export class Level {
 				spawnBehind: 50,
 				rewardMech: false,
 			},
+			{
+				disco: { x: 0 , z: 0},
+				ants: { maximumAnts: 0, headJumpChance: 0},
+				spawnAhead: 0,
+				spawnBehind: 0,
+				rewardMech: false,
+				victory: true,
+			},
 		];		
 		
 	}
@@ -164,13 +188,26 @@ export class Level {
 				const dr = Math.sqrt( dx*dx + dz*dz )
 				if( dr < 1000 ) {
 					victory=true;
-					console.log( 'MECH ' + i + ' TRIGGERED STAGE ' + this.stage + ' VICTORY' );
 				}
 			}
 		}
 		
 		if( victory ) {
 			const data = this.stages[ this.stage ];
+			
+			if( data.victory ) {
+				this.level = 0;
+				self.postMessage({
+					type: 'music',
+					music: 'victory',
+					volume: 0.5,
+				});		
+				self.postMessage({
+					type: 'game-over',
+					victory: true,
+				});
+				return;
+			}
 
 			G.ants.maximumAnts = data.ants.maximumAnts;
 			G.ants.headJumpChance = data.ants.headJumpChance;

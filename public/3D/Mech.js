@@ -224,7 +224,7 @@ export class Mech {
 			object.mRots = [];
 			object.ent = new THREE.Group();
 			object.x = 0,
-			object.z = ( index === 0 ) ? 42500 : -5000000,
+			object.z = ( index === 0 ) ? 42300 : -5000000,
 			object.muzzleFlashes = [];
 			object.barrelEnd = {};
 			object.machineGunFiring = [];
@@ -882,6 +882,7 @@ export class Mech {
 
 			mech.x += Math.sin( mech.ent.rotation.y ) * moveSpeed;
 			mech.z += Math.cos( mech.ent.rotation.y ) * moveSpeed;	
+			this.boundsCheck({ mech });
 		}
 
 		mech.ent.position.set( mech.x , mech.ent.position.y , mech.z );
@@ -981,6 +982,7 @@ export class Mech {
 
 				mech.x += Math.sin( mech.ent.rotation.y ) * moveSpeed;
 				mech.z += Math.cos( mech.ent.rotation.y ) * moveSpeed;	
+				this.boundsCheck({ mech });
 				if( Math.abs( mech.dx - mech.x ) + Math.abs( mech.dz - mech.z ) < moveSpeed ) {
 					mech.action = 'Idle';
 					this.setAnimation({ mech });
@@ -997,6 +999,11 @@ export class Mech {
 		mech.ent.position.set( mech.x , mech.ent.position.y , mech.z );
 		G.world.destroy( mech.ent.position.x , mech.ent.position.z , 250 , 'walk' );
 					
+	}
+	
+	boundsCheck({ mech }) {
+		mech.x = Math.max( Math.min( 84750 , mech.x ) , 250 );
+		mech.z = Math.max( Math.min( 84750 , mech.z ) , 250 );
 	}
 	
 	fireWeapon( mechId , gunId , passive=false ) {

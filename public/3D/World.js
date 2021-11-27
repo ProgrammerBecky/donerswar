@@ -32,15 +32,32 @@ export class World {
 
 		let self = this;
 		let mat = new THREE.MeshStandardMaterial({
-			color: 0x6D6E71,
+			color: 0x884400,
+			side: THREE.DoubleSide,
+			envMap: G.environmentMap,
+			roughness: 1,
+			metalness: 0,
 		});
 		let geo = new THREE.PlaneGeometry(
-			85000,85000
+			85000,1500
 		);
-		this.floorPlane = new THREE.Mesh( geo , mat );
-		this.floorPlane.rotation.set( -Math.PI/2 , 0 , 0 );
-		this.floorPlane.position.set( 0 , -20 , 0 );
-		G.scene.add( this.floorPlane );
+		
+		const wallA = new THREE.Mesh( geo,mat );
+		wallA.position.set( 42500,750,0 );
+		G.scene.add( wallA );
+		const wallB = new THREE.Mesh( geo,mat );
+		wallB.position.set( 42500,750,85000 );
+		G.scene.add( wallB );		
+		
+		const wallC = new THREE.Mesh( geo,mat );
+		wallC.position.set( 0,750,42500 );
+		wallC.rotation.set( 0,Math.PI/2,0 );
+		G.scene.add( wallC );
+
+		const wallD = new THREE.Mesh( geo,mat );
+		wallD.position.set( 85000,750,42500 );
+		wallD.rotation.set( 0,Math.PI/2,0 );
+		G.scene.add( wallD );
 		
 		G.fbx.load( G.path + 'city/Foliage.fbx' , model => {
 			
@@ -631,13 +648,6 @@ export class World {
 	}
 	
 	updateForCam( camIndex ) {
-		if( this.floorPlane ) {
-			this.floorPlane.position.set(
-				G.camera[ camIndex ].position.x,
-				-20,
-				G.camera[ camIndex ].position.z,
-			);
-		}
 	}
 
 }

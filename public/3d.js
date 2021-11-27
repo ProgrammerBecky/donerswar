@@ -479,45 +479,8 @@ onmessage = (e) => {
 	else if( e.data.type === 'audioCam' ) {
 		audioCam = e.data.view;
 	}
-	else if( e.data.type === 'position-request' ) {
-		console.log({
-			cameras: [
-				{
-					x: G.camera[0].position.x.toFixed(3),
-					z: G.camera[0].position.z.toFixed(3),
-				},
-				{
-					x: G.camera[1].position.x.toFixed(3),
-					z: G.camera[1].position.z.toFixed(3),
-				},
-				{
-					x: G.camera[1].position.x.toFixed(3),
-					z: G.camera[1].position.z.toFixed(3),
-				},
-				{
-					x: G.camera[1].position.x.toFixed(3),
-					z: G.camera[1].position.z.toFixed(3),
-				},
-			],
-			mechs: [
-				{
-					x: G.mechs.mechs[0].x.toFixed(3),
-					z: G.mechs.mechs[0].z.toFixed(3),
-				},
-				{
-					x: G.mechs.mechs[1].x.toFixed(3),
-					z: G.mechs.mechs[1].z.toFixed(3),
-				},
-				{
-					x: G.mechs.mechs[2].x.toFixed(3),
-					z: G.mechs.mechs[2].z.toFixed(3),
-				},
-				{
-					x: G.mechs.mechs[3].x.toFixed(3),
-					z: G.mechs.mechs[3].z.toFixed(3),
-				},
-			]
-		});
+	else if( e.data.type === 'pause-game' ) {
+		gameSpeed = ( e.data.game ) ? 0 : 1;
 	}
 }
 

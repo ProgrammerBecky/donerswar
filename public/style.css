@@ -94,8 +94,14 @@ html, body{
 	top: 50%;
 	left: 50%;
 	transform: translateX(-50%);
-	
 	opacity: 0;
+}
+.popup button {
+	margin: 0 auto;
+	align-self: center;
+	justify-self: center;
+}
+#Splash #StartGame, #Splash #Controls, .popup button {
 	font-size: 1.5rem;
 	padding: 1.5rem 4.5rem;
 	background-color: orange;
@@ -106,9 +112,9 @@ html, body{
 	border-radius: 1.5px;
 	transition: all 0.2s;
 	cursor: pointer;
-	outline: 0 solid transparent;	
+	outline: 0 solid transparent;		
 }
-#Splash #StartGame:hover, #Splash #Controls:hover{
+#Splash #StartGame:hover, #Splash #Controls:hover, .popup button{
 	background-color: gold;
 	color: black;
 	border: 3px solid black;
@@ -127,6 +133,28 @@ html, body{
 	background-color: black;
 	color: white;
 	z-index: 1;
+}
+.popup{
+	display: none;
+	flex-direction: column;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translateX(-50%) translateY(-50%);
+	border: 0.5rem solid orange;
+	outline: 0.5rem solid blue;
+	padding: 1rem;
+	color: white;
+	background-color: black;
+	z-index: 2;
+	max-width: 25rem;
+}
+.popup h4{
+	font-size: 1.5rem;
+	margin-top: 0;
+}
+.popup p{
+	font-size: 0.9rem;
 }
 #Help {
 	display: none;

@@ -291,8 +291,7 @@ export class Ants {
 			let dx = false, dz = false;
 
 			const active = G.mechs.mechs.find( search => search.active );
-			if( active.length > 0 ) {
-			
+			if( active && active.length > 0 ) {
 				let targetMech = Math.floor( (active.length+1) * Math.random() );
 				if( G.mechs.mechs[ targetMech ].active ) {
 					dx = G.mechs.mechs[ targetMech ].x;
@@ -369,7 +368,7 @@ export class Ants {
 	
 		this.collectiveDecisionTimer -= delta;
 		if( this.collectiveDecisionTimer < 0 ) {
-			this.collectiveDecisionTimer = 60 + Math.random() * 60;
+			this.collectiveDecisionTimer = 20 + Math.random() * 20;
 			this.makeCollectiveDecision();
 		}
 		if( this.ants.length < this.maximumAnts ) this.spawnAnt();
