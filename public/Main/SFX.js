@@ -51,13 +51,13 @@ export class SFX {
 
 	update() {
 		if( this.themeMusic && ! this.themeMusic.isPlaying ) {
-			this.playTheme( 'gameLoop1' );
+			let n = Math.floor( Math.random() * 2 ) + 1;
+			this.playTheme( 'gameLoop' + n );
 		}
 	}
 
 	playTheme( theme , volume = 0.1 ) {
-		
-console.log(  G.url + `sfx/${theme}.mp3` );		
+			
 		this.loader.load( G.url + `sfx/${theme}.mp3` , buffer => {
 			if( this.themeMusic ) this.themeMusic.stop();
 
@@ -66,7 +66,7 @@ console.log(  G.url + `sfx/${theme}.mp3` );
 			this.themeMusic.setVolume( volume );
 			this.themeMusic.play();
 			
-			if( ['theme','gameloop1'].includes( theme ) ) {
+			if( ['theme','gameloop1','gameloop2'].includes( theme ) ) {
 				this.themeMusic.setLoop( true );				
 			}
 			else {

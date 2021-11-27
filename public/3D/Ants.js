@@ -143,6 +143,13 @@ export class Ants {
 	setAnimation({ ant }) {
 	
 		if( ant.hp <= 0 && ant.action !== 'Death' ) return ;
+		
+		if( ant.anim === 'Walk' ) {
+			if( ['Hit1','Hit2','Hit3'].includes( ant.animAction._clip.name ) ) {
+				if( ant.animAction.isPlaying ) return;
+			}
+		}
+		
 		if( ant.mixer ) {
 			ant.animAction.stop();
 		}
@@ -280,22 +287,30 @@ export class Ants {
 		
 		if( G.mechs ) {
 
-			console.log( 'making collective decision' );
+
+			let dx = false, dz = false;
 
 			const active = G.mechs.mechs.find( search => search.active );
-			if( active.length === 0 ) return;
+			if( active.length > 0 ) {
 			
-			let targetMech;
-			do {
-				targetMech = Math.floor( G.mechs.mechs.length * Math.random() );
+				let targetMech = Math.floor( (active.length+1) * Math.random() );
+				if( G.mechs.mechs[ targetMech ].active ) {
+					dx = G.mechs.mechs[ targetMech ].x;
+					dz = G.mechs.mechs[ targetMech ].z;
+				}
 			}
-			while( ! G.mechs.mechs[ targetMech ].active );
+			
+			if( dx === false ) {
+				dx = G.level.disco.position.x;
+				dz = G.level.disco.position.z;
+			}
+			
 			self.postMessage({
 				type: 'ant-navigate',
 				sx: 0,
 				sz: 0,
-				dx: G.mechs.mechs[ targetMech ].x,
-				dz: G.mechs.mechs[ targetMech ].z,
+				dx: dx,
+				dz: dz,
 				collection: 'Ant',
 				unit: 0,
 			});

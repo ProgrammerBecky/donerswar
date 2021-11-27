@@ -4,4 +4,5 @@ Mech death burn
 play area checking
 score 
 high score
-glitter column in medium and low res
+ant walk/hit glitch
+

@@ -82,27 +82,6 @@ export class Level {
 				rewardMech: 1,
 			},
 			{
-				disco: { x: 33371, z: 46884},
-				ants: { maximumAnts: 10, headJumpChance: 0.1},
-				spawnAhead: 4,
-				spawnBehind: 4,
-				rewardMech: false,
-			},
-			{
-				disco: { x: 11179, z: 63870},
-				ants: { maximumAnts: 12, headJumpChance: 0.1},
-				spawnAhead: 5,
-				spawnBehind: 10,
-				rewardMech: false,
-			},
-			{
-				disco: { x: 12325 , z: 37064 },
-				ants: { maximumAnts: 15, headJumpChance: 0.15},
-				spawnAhead: 10,
-				spawnBehind: 5,
-				rewardMech: 2,
-			},
-			{
 				disco: { x: 10664, z: 14927 },
 				ants: { maximumAnts: 15, headJumpChance: 0.2},
 				spawnAhead: 10,
@@ -121,7 +100,7 @@ export class Level {
 				ants: { maximumAnts: 20, headJumpChance: 0.4},
 				spawnAhead: 20,
 				spawnBehind: 20,
-				rewardMech: 3,
+				rewardMech: 2,
 			},
 			{
 				disco: { x: 38770 , z: 26410},
@@ -142,7 +121,7 @@ export class Level {
 				ants: { maximumAnts: 12, headJumpChance: 0.5},
 				spawnAhead: 10,
 				spawnBehind: 10,
-				rewardMech: false,
+				rewardMech: 3,
 			},
 			{
 				disco: { x: 77455 , z: 47863},
@@ -172,7 +151,7 @@ export class Level {
 				spawnBehind: 50,
 				rewardMech: false,
 			},
-		];
+		];		
 		
 	}
 	checkLevelGroover() {
@@ -235,6 +214,15 @@ export class Level {
 					mechId: data.rewardMech,
 					status: true,
 				});						
+			}
+			else {
+				
+				self.postMessage({
+					type: 'music',
+					music: 'stage-complete',
+					volume: 0.3,
+				});
+				
 			}
 
 			this.stage++;
