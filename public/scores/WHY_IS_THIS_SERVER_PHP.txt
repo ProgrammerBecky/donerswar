@@ -1,0 +1,6 @@
+<?php
+
+/*
+ * PHP And no database access
+ * F.M.L.
+*/

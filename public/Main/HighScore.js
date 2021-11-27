@@ -66,8 +66,8 @@ export class HighScore {
 		_table.innerHTML = '';
 	
 		const url = ( this.type === 'today' )
-			? G.url + 'hiscore.php'
-			: G.url + 'alltime.php';
+			? G.url + 'scores/hiscore.php'
+			: G.url + 'scores/alltime.php';
 	
 		const xhttp = new XMLHttpRequest();
 		xhttp.open( "GET" , url , true );
