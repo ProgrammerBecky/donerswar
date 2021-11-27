@@ -53,6 +53,7 @@ export class Control {
 		this.contextMenu = this.contextMenu.bind( this );
 
 		window.addEventListener( 'contextmenu', this.contextMenu );
+		window.addEventListener( 'resize' , this.resize );
 		
 		this.resize();
 					
@@ -217,7 +218,6 @@ export class Control {
 		this.ui.discharge({ mechId, gunId });
 	}
 	startGame() {
-		window.addEventListener( 'resize' , this.resize );
 		window.addEventListener( 'mousemove' , this.mousemove );
 		window.addEventListener( 'mousedown' , this.mousedown );
 		window.addEventListener( 'mouseup' , this.mouseup );

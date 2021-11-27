@@ -9,3 +9,4 @@ ant walk/hit glitch
 pause
 rotation bounds on mech control
 death camera
+viewport 0 on quad cam, right hand edge seems void on mouse

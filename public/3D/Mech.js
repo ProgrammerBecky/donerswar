@@ -763,10 +763,10 @@ export class Mech {
 					
 					//Rotate Body
 					if( mech.cockpit_bevel ) {
-						const right = G.cameraPan[mech.id].y - mech.cockpit_bevel.rotation.y;
+						let right = G.cameraPan[mech.id].y - mech.cockpit_bevel.rotation.y;
 						while( right > Math.PI ) { right -= Math.PI*2 };
 						while( right < -Math.PI ) { right += Math.PI*2 };
-						const left = mech.cockpit_bevel.rotation.y - G.cameraPan[mech.id].y;
+						let left = mech.cockpit_bevel.rotation.y - G.cameraPan[mech.id].y;
 						while( left > Math.PI ) { left -= Math.PI*2 };
 						while( left < -Math.PI ) { left += Math.PI*2 };
 
