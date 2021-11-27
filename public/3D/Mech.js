@@ -234,6 +234,7 @@ export class Mech {
 			object.stepSound = 0;
 			object.active = ( index === 0 ) ? true : false;
 			object.explodeStage = 0;
+			object.inactiveTimer = 60;
 			this.loadAssembly({ object });
 		});
 		
@@ -687,6 +688,9 @@ export class Mech {
 					mech.ent.updateMatrixWorld(true);
 				}
 			}
+			else {
+				mech.inactiveTimer += delta;
+			}
 			
 			if( mech.mixer ) {
 				//Update Lights
@@ -760,7 +764,12 @@ export class Mech {
 					//Rotate Body
 					if( mech.cockpit_bevel ) {
 						const right = G.cameraPan[mech.id].y - mech.cockpit_bevel.rotation.y;
+						while( right > Math.PI ) { right -= Math.PI*2 };
+						while( right < -Math.PI ) { right += Math.PI*2 };
 						const left = mech.cockpit_bevel.rotation.y - G.cameraPan[mech.id].y;
+						while( left > Math.PI ) { left -= Math.PI*2 };
+						while( left < -Math.PI ) { left += Math.PI*2 };
+
 						const rotSpeed = delta * 1.5;
 						if( right > left ) {
 							if( right > rotSpeed ) {

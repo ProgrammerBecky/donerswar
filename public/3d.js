@@ -95,50 +95,59 @@ const animate = ( time ) => {
 		for( let camIndex=0 ; camIndex<4 ; camIndex++ ) {
 			if( G.cameraViews.includes( camIndex ) ) {
 				if( G.glViewports[camIndex] ) {
-					if( G.cameraZoom[ camIndex ] === 1500 && G.mechs.mechs[camIndex].cockpit_bevel ) {
-						const rider = G.mechs.mechs[camIndex].cockpit_bevel;
-						rider.updateMatrixWorld(true);
-						rider.getWorldPosition( camVector );
-						G.camera[camIndex].position.set( camVector.x , camVector.y + G.mechs.mechs[camIndex].cockpitHeight , camVector.z );
-						if( G.camera[ camIndex ].fov !== 120 ) {
-							G.camera[camIndex].fov = 70;
-							G.camera[camIndex].updateProjectionMatrix();
+					if( G.mechs.mechs[camIndex].active || G.mechs.mechs[camIndex].inactiveTimer < 30 ) {
+						if( G.cameraZoom[ camIndex ] === 1500 && G.mechs.mechs[camIndex].cockpit_bevel ) {
+							const rider = G.mechs.mechs[camIndex].cockpit_bevel;
+							rider.updateMatrixWorld(true);
+							rider.getWorldPosition( camVector );
+							G.camera[camIndex].position.set( camVector.x , camVector.y + G.mechs.mechs[camIndex].cockpitHeight , camVector.z );
+							if( G.camera[ camIndex ].fov !== 120 ) {
+								G.camera[camIndex].fov = 70;
+								G.camera[camIndex].updateProjectionMatrix();
+							}
+						}
+						else {
+							if( G.camera[camIndex].fov !== G.camera[camIndex]._fov ) {
+								G.camera[camIndex].fov = G.camera[camIndex]._fov;
+								G.camera[camIndex].updateProjectionMatrix();
+							}
+						}
+						G.camera[camIndex].updateMatrix();
+						G.camera[camIndex].updateMatrixWorld();
+						G.frustum[camIndex].setFromProjectionMatrix(
+							new THREE.Matrix4().multiplyMatrices(
+								G.camera[camIndex].projectionMatrix,
+								G.camera[camIndex].matrixWorldInverse
+							)
+						);
+				
+						G.world.updateForCam( camIndex );
+						if( G.cockpit && G.mechs.mechs[ camIndex ].cockpit_bevel && G.mechs.mechs[camIndex].cockpit_object ) {
+							if( G.cameraZoom[ camIndex ] === 1500 ) {
+								G.cockpit.visible = true;
+								G.cockpit.position.set( G.camera[camIndex].position.x , G.camera[camIndex].position.y , G.camera[camIndex].position.z );
+								let rotation = G.mechs.mechs[ camIndex ].ent.rotation.y + G.mechs.mechs[ camIndex ].cockpit_bevel.rotation.y
+								G.cockpit.rotation.set( G.cameraPan[camIndex].x * 0.8 , Math.PI + rotation , 0 );
+								G.mechs.mechs[camIndex].cockpit_object.children[1].visible = false;
+								screenMap.rotation =  G.mechs.mechs[ camIndex ].cockpit_bevel.rotation.y;
+							}
+							else {
+								G.cockpit.visible = false;
+							}
+						}
+						G.renderer.setViewport( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
+						G.renderer.setScissor( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
+						G.renderer.render( G.scene , G.camera[camIndex] );
+						if( G.mechs.mechs[camIndex].cockpit_object ) {
+							G.mechs.mechs[camIndex].cockpit_object.children[1].visible = true;
 						}
 					}
 					else {
-						if( G.camera[camIndex].fov !== G.camera[camIndex]._fov ) {
-							G.camera[camIndex].fov = G.camera[camIndex]._fov;
-							G.camera[camIndex].updateProjectionMatrix();
-						}
-					}
-					G.camera[camIndex].updateMatrix();
-					G.camera[camIndex].updateMatrixWorld();
-					G.frustum[camIndex].setFromProjectionMatrix(
-						new THREE.Matrix4().multiplyMatrices(
-							G.camera[camIndex].projectionMatrix,
-							G.camera[camIndex].matrixWorldInverse
-						)
-					);
-			
-					G.world.updateForCam( camIndex );
-					if( G.cockpit && G.mechs.mechs[ camIndex ].cockpit_bevel && G.mechs.mechs[camIndex].cockpit_object ) {
-						if( G.cameraZoom[ camIndex ] === 1500 ) {
-							G.cockpit.visible = true;
-							G.cockpit.position.set( G.camera[camIndex].position.x , G.camera[camIndex].position.y , G.camera[camIndex].position.z );
-							let rotation = G.mechs.mechs[ camIndex ].ent.rotation.y + G.mechs.mechs[ camIndex ].cockpit_bevel.rotation.y
-							G.cockpit.rotation.set( G.cameraPan[camIndex].x * 0.8 , Math.PI + rotation , 0 );
-							G.mechs.mechs[camIndex].cockpit_object.children[1].visible = false;
-							screenMap.rotation =  G.mechs.mechs[ camIndex ].cockpit_bevel.rotation.y;
-						}
-						else {
-							G.cockpit.visible = false;
-						}
-					}
-					G.renderer.setViewport( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
-					G.renderer.setScissor( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
-					G.renderer.render( G.scene , G.camera[camIndex] );
-					if( G.mechs.mechs[camIndex].cockpit_object ) {
-						G.mechs.mechs[camIndex].cockpit_object.children[1].visible = true;
+						G.camera[ camIndex ].position.set( 9999999999 , 0 , 9999999999 );
+						G.camera[ camIndex ].rotation.set( -Math.PI/2 , 0 , 0 );
+						G.renderer.setViewport( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
+						G.renderer.setScissor( G.glViewports[camIndex].x , G.glViewports[camIndex].y , G.glViewports[camIndex].z , G.glViewports[camIndex].w );
+						G.renderer.render( G.scene , G.camera[camIndex] );						
 					}
 				}
 			}

@@ -1,8 +1,11 @@
 Collect Disco Rollers
 Player defeated
+Player victorious
 Mech death burn
 play area checking
 score 
 high score
 ant walk/hit glitch
-
+pause
+rotation bounds on mech control
+death camera

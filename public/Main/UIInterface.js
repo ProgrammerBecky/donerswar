@@ -31,11 +31,11 @@ export class UIInterface {
 				{"weapon": "Canon", "key": "E", "maxAmmo": 32, "ammo": 32, "gunId": 0, "active": false},
 			],
 			[
-				{"weapon": "Canon", "key": "Q", "maxAmmo": 32, "ammo": 40, "gunId": 2, "active": false},
-				{"weapon": "Flamer", "key": "1", "maxAmmo": 60, "ammo": 40, "gunId": 0, "active": false},
-				{"weapon": "Rockets", "key": "2", "maxAmmo": 60, "ammo": 40, "gunId": 4, "active": false},
-				{"weapon": "Flamer", "key": "3", "maxAmmo": 60, "ammo": 40, "gunId": 1, "active": false},
-				{"weapon": "Canon", "key": "E", "maxAmmo": 32, "ammo": 40, "gunId": 3, "active": false},
+				{"weapon": "Canon", "key": "Q", "maxAmmo": 32, "ammo": 32, "gunId": 2, "active": false},
+				{"weapon": "Flamer", "key": "1", "maxAmmo": 40, "ammo": 40, "gunId": 0, "active": false},
+				{"weapon": "Rockets", "key": "2", "maxAmmo": 32, "ammo": 32, "gunId": 4, "active": false},
+				{"weapon": "Flamer", "key": "3", "maxAmmo": 40, "ammo": 40, "gunId": 1, "active": false},
+				{"weapon": "Canon", "key": "E", "maxAmmo": 32, "ammo": 32, "gunId": 3, "active": false},
 				{"weapon": "Full Salvo", "key": "F", "maxAmmo": 40, "ammo": 40, "gunId": "FULL_SALVO", "hideAmmo": true},
 			],
 		];
