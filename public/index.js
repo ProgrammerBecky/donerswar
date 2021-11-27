@@ -117,6 +117,9 @@ else {
 					itemsTotal: e.data.itemsTotal,
 				});
 			}
+			else if( e.data.type === 'ranking' ) {
+				G.highScores.setRank( e.data.rank );
+			}
 			else if( e.data.type === 'game-over' ) {
 				console.log( e.data );
 				if( e.data.victory ) {

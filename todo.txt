@@ -1,3 +1,5 @@
 Name Entry
 Mech death burn
 vu meter boundary wall (+world lights)
+close high score
+light mech canon arm

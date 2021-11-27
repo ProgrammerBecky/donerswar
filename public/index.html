@@ -18,6 +18,7 @@
 			<canvas id='ThreeD'></canvas>
 			<div id='UILayer'></div>
 		</div>
+		<div id='GameRank' class='Ranking faded'></div>
 		<div id='GFXSelect'>
 			<button id='GFXHigh'>High Graphics</button>
 			<button id='GFXMedium'>Medium Graphics</button>
@@ -34,6 +35,7 @@
 			<button onclick='window.location.reload()'>
 				Play Again
 			</button>
+			<div class='Ranking'></div>
 		</div>
 		<div id='Victory' class='popup'>
 			<h4>Disco Forever</h4>
@@ -42,12 +44,15 @@
 			<button onclick='window.location.reload()'>
 				Play Again
 			</button>			
+			<div class='Ranking'></div>
 		</div>
 		<div id='HighScores' class='popup'>
 			<h4>The Skinny Board</h4>
-			
-			<button id='Today'>Today</button>
-			<button id='AllTime'>All Time</button>
+			<div class='flexit'>
+				<button id='Today'>Today</button>
+				<button id='AllTime'>All Time</button>
+				<button id='CloseHighScore'>Close</button>
+			</div>
 			<h4 id='Showing' style='text-align:center;margin:0.5rem 0'></h4>
 			<table style='width:100%'>
 				<thead>

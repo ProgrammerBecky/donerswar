@@ -6,6 +6,30 @@ html, body{
 	height: 100%;
 	font-family: arial, helvetica, sans-serif;
 }
+#GameRank{
+	position: fixed;
+	bottom: 1rem;
+	left: 50%;
+	transform: translateX(-50%);
+	font-size: 1.2rem;
+	color: white;
+	text-shadow: 2px 2px 2px black;
+	opacity: 1;
+	transition: all 1s;
+}
+#GameRank.faded{
+	opacity: 0;
+}
+#HighScores button{
+	margin: 0 auto;
+}
+.flexit{
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	flex-wrap: wrap;
+	justify-content: center;
+}
 #GFXSelect {
 	position: fixed;
 	z-index:1;
@@ -155,6 +179,19 @@ html, body{
 }
 #HighScores{
 	max-width: 35rem;
+}
+#HighScores button {
+	color: black;
+	padding: 0.5rem;
+	margin: 0.5rem;
+	background-color: orange;
+	transition: all 0.5s;
+	font-size: 1.5rem;
+	cursor: pointer;
+	text-align: center;	
+}
+#HighScores button:hover{
+	background-color: gold;
 }
 table td,table th{
 	text-align: right;

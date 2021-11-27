@@ -9,6 +9,8 @@ export class Score {
 		this.storeScore();
 		this.key = false;
 		
+		this.updateRank = this.updateRank.bind( this );
+		
 	}
 	
 	disco() {
@@ -41,7 +43,10 @@ export class Score {
 				const output = JSON.parse( xhttp.response );
 				if( output && output.key ) {
 					self.key = output.key;
-					console.log( 'NEW KEY' , self.key );
+				}
+				if( output && output.ranking ) {
+					self.ranking = output.ranking;
+					self.updateRank();
 				}
 			}
 		}
@@ -53,6 +58,13 @@ export class Score {
 			time: time,
 			key: this.key,
 		}) );
+	}
+	
+	updateRank() {
+		self.postMessage({
+			type: 'ranking',
+			rank: this.ranking,
+		});		
 	}
 	
 }

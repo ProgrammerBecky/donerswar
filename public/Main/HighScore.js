@@ -19,9 +19,45 @@ export class HighScore {
 			G.highScores.show();
 		});		
 		
+		document.getElementById('CloseHighScore').addEventListener( 'click' , (e) => {
+			G.highScores.hide();
+		});
+		
 		this.type = 'today';
 		this.getScores();
 	}
+	setRank( rank ) {
+		this.rank = rank;
+		const templated = `You are ranked ${this.ordinalSuffix(this.rank)} today`;
+		
+		const _el = document.getElementsByClassName('Ranking');
+		
+		for( let i=0 ; i<_el.length ; i++ ) {
+			_el[i].innerHTML = templated;
+		}
+		
+		const showRank = document.getElementById('GameRank');
+		showRank.classList.remove( 'faded' );
+		setTimeout( (showRank) => {
+			showRank.classList.add( 'faded' );
+		} , 8000 , showRank );
+	}
+	
+	ordinalSuffix(i) {
+		var j = i % 10,
+			k = i % 100;
+		if (j == 1 && k != 11) {
+			return i + "st";
+		}
+		if (j == 2 && k != 12) {
+			return i + "nd";
+		}
+		if (j == 3 && k != 13) {
+			return i + "rd";
+		}
+		return i + "th";
+	}	
+	
 	getScores() {
 	
 		let self = this;
@@ -47,9 +83,13 @@ export class HighScore {
 		xhttp.send();
 	
 	}
+	
 	show() {
 		this.getScores();
 		document.getElementById('HighScores').style.display = 'block';
+	}
+	hide() {
+		document.getElementById('HighScores').style.display = 'none';
 	}
 	nameEntry() {
 		

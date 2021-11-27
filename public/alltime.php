@@ -1,6 +1,5 @@
 <?php
-ini_set( 'display_errors' , true );
-error_reporting( E_ALL );
+
 header('Content-Type: application/json; charset=utf-8');
 
 $hiScoresFile = "games/alltime.json";

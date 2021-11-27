@@ -1,5 +1,7 @@
 <?php
 
+/* OMG THIS SERVER IS PHP... AND I DONT HAVE A DB... FORGIVE ME */
+
 header('Content-Type: application/json; charset=utf-8');
 
 $gameday = "games/" . date( 'Y-m-d' , time() ) . ".json";
