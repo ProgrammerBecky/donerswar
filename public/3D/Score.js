@@ -1,3 +1,5 @@
+import { G } from './G.js';
+
 export class Score {
 
 	constructor() {
@@ -35,7 +37,7 @@ export class Score {
 		const time = new Date() - this.startTime;
 		
 		const xhttp = new XMLHttpRequest();
-		xhttp.open( "POST" , "scores/score.php" , true );
+		xhttp.open( "POST" , G.url + "scores/score.php" , true );
 		//xhttp.setRequestHeader( 'Content-Type' , 'application/json; charset=UTF-8' );
 		
 		let self = this;

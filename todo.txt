@@ -1,4 +1,3 @@
-Name Entry
 Mech death burn
 vu meter boundary wall (+world lights)
 walk/hit anim twitch on ant still not fixed after all fuckit grrrr
