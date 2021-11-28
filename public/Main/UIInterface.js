@@ -314,6 +314,10 @@ export class UIInterface {
 				}
 				else {
 					document.getElementById('NameEntry').style.display = 'none';
+					document.getElementById('Objective').style.display = 'flex';
+					document.getElementById('GotIt').addEventListener( 'click' , (e) => {
+						document.getElementById('Objective').style.display = 'none';
+					});
 					G.threeD.postMessage({
 						type: 'player-name',
 						name: name,

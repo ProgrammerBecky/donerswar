@@ -37,7 +37,8 @@ export class Score {
 		const time = new Date() - this.startTime;
 		
 		const xhttp = new XMLHttpRequest();
-		xhttp.open( "POST" , G.url + "scores/score.php" , true );
+		const date = new Date();
+		xhttp.open( "POST" , G.url + "scores/score.php?t=" + date.getTime() , true );
 		//xhttp.setRequestHeader( 'Content-Type' , 'application/json; charset=UTF-8' );
 		
 		let self = this;
