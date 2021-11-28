@@ -1,28 +1,36 @@
 <?php
-
-ini_set( 'display_errors' , true );
+ini_set( 'display_errors' , 1 );
 error_reporting( E_ALL );
+include __DIR__ . '/cors.php';
 
 header('Content-Type: application/json; charset=utf-8');
-$newScore = json_decode( file_get_contents('php://input') );
 
-if( isset( $newScore->key ) ) {
-	storeScore( $newScore );
-}
-else {
-	if( $newScore->discos === 0
-	&&	$newScore->ants === 0
-	&&	$newScore->buildings === 0
-	) {
-		$output = new \StdClass();
-		$output->key = generate_key();
-
-		$games = append_game( $output->key );
-		
-		die( json_encode( $output ) );
+$newScore = new \StdClass();
+$keys = ['name','discos','ants','buildings','time','key'];
+$ints = [false,true,true,true,true,false];
+foreach( $keys as $index=>$key ) {
+	if( isset( $_POST[$key] ) && $_POST[$key] !== 'undefined' ) {
+		if( $ints[ $index ] ) {
+			$newScore->{$key} = (int) $_POST[$key];
+		}
+		else {
+			$newScore->{$key} = $_POST[$key];
+		}
 	}
 }
 
+//$newScore = json_decode( file_get_contents('php://input') ); //Farewell JSON input, server settings say no
+
+if( isset( $newScore->key ) && $newScore->key ) {
+	storeScore( $newScore );
+}
+else {
+	$output = new \StdClass();
+	$output->key = generate_key();
+	$games = append_game( $output->key );
+	
+	die( json_encode( $output ) );
+}
 
 function storeScore( $score ) {
 	
@@ -38,7 +46,9 @@ function storeScore( $score ) {
 	}
 
 	unlink( $gameday );
-	file_put_contents( $gameday , implode( "\n" , $games ) , FILE_APPEND );
+	$stream = fopen( $gameday , 'a' );
+	fputs( $stream , implode( "\n" , $games ) );
+	fclose( $stream );
 	
 	$output = new \StdClass();
 	$output->ranking = ranking( $games , $score->key );
@@ -50,7 +60,10 @@ function storeScore( $score ) {
 function append_game( $key ) {
 
 	$gameday = "games/" . date( 'Y-N' , time() ) . ".json";
-	file_put_contents( $gameday , $key . "\n\n" , FILE_APPEND );
+	$stream = fopen( $gameday , 'a' );
+	fputs( $stream , $key . "\n\n" );
+	fclose( $stream );
+	
 	
 }
 function generate_key() {

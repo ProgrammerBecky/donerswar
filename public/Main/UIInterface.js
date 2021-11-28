@@ -313,7 +313,7 @@ export class UIInterface {
 			});
 			document.getElementById('SaveName').addEventListener('click' , (e) => {
 				const name = window.localStorage.getItem('name');
-				if( name.length === 0 ) {
+				if( !name || name.length === 0 ) {
 					document.getElementById('NameEntry').style.backgroundColor = 'red';
 					setTimeout( () => {
 						document.getElementById('NameEntry').style.backgroundColor = 'black';

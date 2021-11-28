@@ -12,7 +12,7 @@ import { Level } from './3D/Level.js';
 import { Score } from './3D/Score.js';
 
 G.url = '/';
-//G.url = '//beckyrose.com/giantrobotmechs/';
+G.url = '//beckyrose.com/';
 G.path = '/low/';
 
 G.controls = {

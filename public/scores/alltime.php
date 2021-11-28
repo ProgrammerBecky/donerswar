@@ -1,5 +1,7 @@
 <?php
 
+include __DIR__ . '/cors.php';
+
 header('Content-Type: application/json; charset=utf-8');
 
 $hiScoresFile = "games/alltime.json";
@@ -29,7 +31,9 @@ $scores = json_encode( $scores );
 if( file_exists( $hiScoresFile ) ) {
 	unlink( $hiScoresFile );
 }
-file_put_contents( $hiScoresFile , $scores );
+$stream = fopen( $hiScoresFile , 'a' );
+fputs( $stream , $scores );
+fclose( $stream );
 
 function topScores( $scores , $newScores ) {
 	foreach( $newScores as $newScore ) {

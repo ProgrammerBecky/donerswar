@@ -2,6 +2,8 @@
 
 /* OMG THIS SERVER IS PHP... AND I DONT HAVE A DB... FORGIVE ME */
 
+include __DIR__ . '/cors.php';
+
 header('Content-Type: application/json; charset=utf-8');
 
 $gameday = "games/" . date( 'Y-N' , time() ) . ".json";

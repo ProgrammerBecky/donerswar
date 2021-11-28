@@ -36,7 +36,7 @@ export class Score {
 		
 		const xhttp = new XMLHttpRequest();
 		xhttp.open( "POST" , "scores/score.php" , true );
-		xhttp.setRequestHeader( 'Content-Type' , 'application/json; charset=UTF-8' );
+		//xhttp.setRequestHeader( 'Content-Type' , 'application/json; charset=UTF-8' );
 		
 		let self = this;
 		xhttp.onreadystatechange = () => {
@@ -52,6 +52,16 @@ export class Score {
 			}
 		}
 		
+		const send = new FormData();
+		send.append( 'discos' , this.discos );
+		send.append( 'ants' , this.ants );
+		send.append( 'buildings' , this.buildings );
+		send.append( 'time' , time );
+		send.append( 'key' , this.key );
+		send.append( 'name' , this.name );
+		
+		xhttp.send( send );
+		/* farewell json interface, server says no
 		xhttp.send( JSON.stringify({
 			discos: this.discos,
 			ants: this.ants,
@@ -60,6 +70,7 @@ export class Score {
 			key: this.key,
 			name: this.name,
 		}) );
+		*/
 	}
 	
 	updateRank() {
