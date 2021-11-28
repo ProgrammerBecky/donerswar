@@ -302,12 +302,36 @@ export class UIInterface {
 			document.getElementById('StartGame').style.opacity = 1;
 			document.getElementById('SplashProgress').style.opacity = 0;
 			document.getElementById('StartGame').addEventListener( 'click' , (e) => {
-				G.sfx.playTheme( 'game-start' );
-				G.control.startGame();
-				document.getElementById('Splash').style.display = 'none';
-				G.threeD.postMessage({
-					type: 'beginGame'
-				});
+				const name = window.localStorage.getItem('name');
+				if( name ) {
+					document.getElementById('Name').value = name;
+				}
+				document.getElementById('NameEntry').style.display = 'flex';
+			});
+			document.getElementById('Name').addEventListener( 'keyup' , (e) => {
+				window.localStorage.setItem('name', G.highScores.safeName( document.getElementById('Name').value ) );
+			});
+			document.getElementById('SaveName').addEventListener('click' , (e) => {
+				const name = window.localStorage.getItem('name');
+				if( name.length === 0 ) {
+					document.getElementById('NameEntry').style.backgroundColor = 'red';
+					setTimeout( () => {
+						document.getElementById('NameEntry').style.backgroundColor = 'black';
+					} , 250 );
+				}
+				else {
+					document.getElementById('NameEntry').style.display = 'none';
+					G.threeD.postMessage({
+						type: 'player-name',
+						name: window.localStorage.getItem('name'),
+					});
+					G.sfx.playTheme( 'game-start' );
+					G.control.startGame();
+					document.getElementById('Splash').style.display = 'none';
+					G.threeD.postMessage({
+						type: 'beginGame'
+					});
+				}
 			});
 		}
 	}

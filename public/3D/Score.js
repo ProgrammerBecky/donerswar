@@ -7,6 +7,7 @@ export class Score {
 		this.buildings = 0;
 		this.startTime = new Date();
 		this.storeScore();
+		this.name = '';
 		this.key = false;
 		
 		this.updateRank = this.updateRank.bind( this );
@@ -57,6 +58,7 @@ export class Score {
 			buildings: this.buildings,
 			time: time,
 			key: this.key,
+			name: this.name,
 		}) );
 	}
 	

@@ -484,6 +484,9 @@ onmessage = (e) => {
 	else if( e.data.type === 'pause-game' ) {
 		gameSpeed = ( e.data.game ) ? 0 : 1;
 	}
+	else if( e.data.type === 'player-name' ) {
+		G.score.name = e.data.name;
+	}
 }
 
 console.log( 'ThreeD Worker Started' );

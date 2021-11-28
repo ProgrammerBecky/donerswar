@@ -18,6 +18,12 @@
 			<canvas id='ThreeD'></canvas>
 			<div id='UILayer'></div>
 		</div>
+		<div id='NameEntry' class='popup'>
+			<h4>Name Entry</h4>
+			<p>It's for the score.</p>
+			<input type='text' id='Name' maxlength=12 autocomplete="off" required/>
+			<button id='SaveName'>Hit It!</button>
+		</div>
 		<div id='GameRank' class='Ranking faded'></div>
 		<div id='GFXSelect'>
 			<button id='GFXHigh'>High Graphics</button>
@@ -39,7 +45,7 @@
 		</div>
 		<div id='Victory' class='popup'>
 			<h4>Disco Forever</h4>
-			<p>Far out brotha', that was the bomb!</p>
+			<p>Far out, that was the bomb!</p>
 			<p>Your efforts were off the hook and Discohampton has been saved. Disco will live for ever and its all thanks to you!</p>
 			<button onclick='window.location.reload()'>
 				Play Again
@@ -49,7 +55,7 @@
 		<div id='HighScores' class='popup'>
 			<h4>The Skinny Board</h4>
 			<div class='flexit'>
-				<button id='Today'>Today</button>
+				<button id='Today'>Week</button>
 				<button id='AllTime'>All Time</button>
 				<button id='CloseHighScore'>Close</button>
 			</div>

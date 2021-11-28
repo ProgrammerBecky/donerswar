@@ -4,7 +4,7 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
-$gameday = "games/" . date( 'Y-m-d' , time() ) . ".json";
+$gameday = "games/" . date( 'Y-N' , time() ) . ".json";
 if( file_exists( $gameday ) ) {
 	$datas = explode( "\n" , file_get_contents( $gameday ) );
 	$scores = [];

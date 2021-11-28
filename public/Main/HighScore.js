@@ -28,7 +28,7 @@ export class HighScore {
 	}
 	setRank( rank ) {
 		this.rank = rank;
-		const templated = `You are ranked ${this.ordinalSuffix(this.rank)} today`;
+		const templated = `You are ranked ${this.ordinalSuffix(this.rank)}`;
 		
 		const _el = document.getElementsByClassName('Ranking');
 		
@@ -97,7 +97,8 @@ export class HighScore {
 	safeName(rawStr) {
 		const encodedStr = rawStr.replace(/[\u00A0-\u9999<>\&]/g, function(i) {
 		   return '&#'+i.charCodeAt(0)+';';
-		});		
+		});	
+		return encodedStr;		
 	}
 	
 	populateHighScore() {
@@ -107,7 +108,7 @@ export class HighScore {
 		let html = '';
 		
 		document.getElementById('Showing').innerHTML = ( this.type === 'today' )
-			? 'Today' : 'All-Time';
+			? 'This Week' : 'All-Time';
 		
 		this.scores.map( (score,index) => {
 			html += `<tr>

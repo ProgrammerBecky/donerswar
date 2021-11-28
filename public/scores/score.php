@@ -28,7 +28,7 @@ function storeScore( $score ) {
 	
 	$newkey = uniqid();
 	
-	$gameday = "games/" . date( 'Y-m-d' , time() ) . ".json";
+	$gameday = "games/" . date( 'Y-N' , time() ) . ".json";
 	$games = explode( "\n" , file_get_contents( $gameday ) );
 	
 	foreach( $games as $index=>$game ) {
@@ -49,7 +49,7 @@ function storeScore( $score ) {
 
 function append_game( $key ) {
 
-	$gameday = "games/" . date( 'Y-m-d' , time() ) . ".json";
+	$gameday = "games/" . date( 'Y-N' , time() ) . ".json";
 	file_put_contents( $gameday , $key . "\n\n" , FILE_APPEND );
 	
 }

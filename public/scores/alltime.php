@@ -5,26 +5,25 @@ header('Content-Type: application/json; charset=utf-8');
 $hiScoresFile = "games/alltime.json";
 $scores = getDayScores( 'alltime' );
 
-$mostRecentFile = "games/mostRecent.txt";
-if( file_exists( $mostRecentFile ) ) {
-	$mostRecent = file_get_contents( $mostRecentFile );
-}
-else {
-	$mostRecent = date( 'Y-m-d' , time() - (60*60*24*30) );
+$year = date( 'Y' , time() );
+$month = date( 'N' , time() );
+$month -= 6;
+if( $month < 1 ) {
+	$month += 12;
+	$year--;
 }
 
-$time = strtotime( $mostRecent .' 00:00:00' );
-$today = time();
+for( $i=0 ; $i<7 ; $i++ ) {
 
-while( $time < $today ) {
-	$dayScores = getDayScores( date( 'Y-m-d' , $time ) );
+	$dayScores = getDayScores( "{$year}-{$month}" );
 	$scores = topScores( $scores , $dayScores );
-	$time += 60*60*24;
+	
+	$month++;
+	if( $month === 13 ) {
+		$month = 1;
+		$year++;
+	}
 }
-
-$yesterday = time() - ( 60*60*24 );
-unlink( $mostRecentFile );
-file_put_contents( $mostRecentFile , date('Y-m-d' , $yesterday ) );
 
 $scores = json_encode( $scores );
 if( file_exists( $hiScoresFile ) ) {

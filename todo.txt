@@ -1,5 +1,4 @@
 Name Entry
 Mech death burn
 vu meter boundary wall (+world lights)
-close high score
-light mech canon arm
+walk/hit anim twitch on ant still not fixed after all fuckit grrrr

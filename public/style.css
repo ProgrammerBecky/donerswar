@@ -23,6 +23,10 @@ html, body{
 #HighScores button{
 	margin: 0 auto;
 }
+.Ranking{
+	margin-top: 1rem;
+	pointer-events: none;
+}
 .flexit{
 	display: flex;
 	flex-direction: row;
@@ -64,6 +68,20 @@ html, body{
 	background-color: gold;
 	color: black;
 	border: 3px solid black;
+}
+#NameEntry{
+	padding: 2rem;
+}
+#NameEntry h4{
+	margin: 0;
+}
+#Name{
+	font-size: 1.2rem;
+	padding: 0.5rem;
+	border-radius:0.25rem;
+	border: 0.25rem solid blue;
+	outline: 0.25rem solid orange;
+	margin-bottom: 1rem;
 }
 #Splash{
 	position: fixed;
@@ -138,7 +156,7 @@ html, body{
 	cursor: pointer;
 	outline: 0 solid transparent;		
 }
-#Splash #StartGame:hover, #Splash #Controls:hover, .popup button, #Splash #HighScore{
+#Splash #StartGame:hover, #Splash #Controls:hover, .popup button:hover, #Splash #HighScore:hover{
 	background-color: gold;
 	color: black;
 	border: 3px solid black;
